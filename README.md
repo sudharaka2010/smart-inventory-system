@@ -120,7 +120,7 @@ You can add an image like this to visualize:
 Add UI images in a folder named `images/` and reference like this:
 
 
-![Dashboard Preview](./images/codecounters.png)
+![Dashboard Preview](images/codecounters.png)
 
 
 ---
