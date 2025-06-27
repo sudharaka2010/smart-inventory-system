@@ -31,10 +31,10 @@ Our project aims to automate and streamline these processes with a smart, web-ba
 
 ### 🛠️ Technologies Used
 
-* **Frontend**: ReactJS / Angular
-* **Backend**: Node.js / Laravel
-* **Database**: MySQL / MongoDB
-* **Hosting**: Firebase / AWS
+* **Frontend**: HTML / CSS / JavaScript
+* **Backend**: PHP
+* **Database**: MySQL 
+* **Hosting**: Pending
 * **Version Control**: GitHub
 
 ---
