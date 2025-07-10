@@ -1,0 +1,18 @@
+.table-supplier {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-supplier th, .table-supplier td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.table-supplier th {
+    background-color: #43a047;
+    color: white;
+}
+
+.table-supplier tr:nth-child(even) {
+    background-color: #f9f9f9;
+}

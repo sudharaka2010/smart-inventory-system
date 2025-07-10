@@ -1,0 +1,18 @@
+.table-transport {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-transport th, .table-transport td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.table-transport th {
+    background-color: #039be5;
+    color: white;
+}
+
+.table-transport tr:nth-child(even) {
+    background-color: #f9f9f9;
+}

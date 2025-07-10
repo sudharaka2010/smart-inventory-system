@@ -1,0 +1,18 @@
+.table-feedback {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-feedback th, .table-feedback td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.table-feedback th {
+    background-color: #f4511e;
+    color: white;
+}
+
+.table-feedback tr:nth-child(even) {
+    background-color: #f9f9f9;
+}

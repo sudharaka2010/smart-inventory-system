@@ -1,0 +1,18 @@
+.table-employee {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-employee th, .table-employee td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.table-employee th {
+    background-color: #8e24aa;
+    color: white;
+}
+
+.table-employee tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
