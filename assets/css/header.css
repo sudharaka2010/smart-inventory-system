@@ -1,0 +1,84 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f1f5f9;
+    color: #1f2937;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+.top-header {
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    height: 70px;
+}
+
+.top-header .logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.top-header .logo-img {
+     height: 40px;
+    width: auto;
+    margin-right: 10px;
+    object-fit: contain;
+}
+
+.top-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.top-nav a {
+    margin-left: 15px;
+    color: white;
+    text-decoration: none;
+    padding-right: 15px;
+}
+
+.top-nav a:hover, .logout-btn:hover {
+    color: #fbbf24;
+}
+
+.logout-btn {
+    background: #ef4444;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 15px;
+    transition: background 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+}
+.dashboard-btn {
+    background-color: #1e3a8a;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.dashboard-btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+}

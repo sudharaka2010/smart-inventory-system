@@ -1,231 +1,32 @@
-/* GENERAL BODY STYLE */
-body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: #f1f5f9;
-    color: #333;
-}
-
-/* TOP NAVBAR */
-.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
-    color: white;
-    padding-right: 30px;
-    height: 60px;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-    padding-right: 30px;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.logo img {
-    height: 40px;
-    margin-right: 10px;
-}
-
-.logo h1 {
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.top-nav a {
-    color: white;
-    margin-left: 20px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-    margin-right: 20px; 
-}
-
-.top-nav a:hover {
-    color: #dbeafe;
-}
-
-.top-nav .logout-btn {
-    background: #ef4444;
-    padding: 8px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-}
-
-.top-nav .logout-btn:hover {
-    background: #dc2626;
-}
-
-/* SIDEBAR */
-.sidebar {
-    width: 240px;
-    background: #1e3a8a;
-    color: white;
-    padding-top: 80px; /* Space for fixed navbar */
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    overflow-y: auto;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sidebar .menu-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    padding: 12px 20px;
-    font-weight: 500;
-    transition: background 0.3s ease;
-}
-
-.sidebar .menu-item:hover {
-    background: #2563eb;
-    border-radius: 6px;
-}
-
-.sidebar .submenu {
-    display: none;
-    margin-left: 20px;
-    padding-left: 10px;
-    border-left: 2px solid #3b82f6;
-}
-
-.sidebar .open .submenu {
-    display: block;
-}
-
-.sidebar .submenu a {
-    display: block;
-    color: #cbd5e1;
-    padding: 8px 0;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.sidebar .submenu a:hover,
-.sidebar .submenu a.active {
-    color: #ffffff;
-}
-
-/* ACTIVE STATE */
-.sidebar .active .menu-item,
-.sidebar .submenu a.active {
-    background: #2563eb;
-    border-radius: 6px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    text-decoration: none;
-    color: #ffffff;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-.sidebar .menu-item a {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    text-decoration: none;
-    color: #ffffff;
-    font-weight: 500;
-    transition: background 0.3s, color 0.3s;
-}
-.sidebar .menu-item a:hover,
-.sidebar .menu-item a.active {
-    background: #2563eb;
-    border-radius: 6px;
-    color: #ffffff;
-}
-
-.sidebar i {
-    margin-right: 10px;
-}
-
-/* MAIN CONTENT */
 .main-content {
-    margin-left: 260px;
-    padding: 90px 30px 30px; /* Top padding for fixed navbar */
+    margin-left: 250px;
+    padding: 30px 20px 20px 20px;
 }
 
 .main-content h2 {
-    color: #3b82f6;
+    color: #1e3a8a;
     margin-bottom: 20px;
     font-weight: 600;
 }
 
-.main-content p {
-    color: #64748b;
-    margin-bottom: 25px;
-}
-
-/* STATUS PANEL (DASHBOARD CARDS) */
-.status-panel {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.status-grid {
+.content-grid {
     display: flex;
-    gap: 20px;
     flex-wrap: wrap;
-    margin-top: 15px;
+    gap: 20px;
 }
 
-.status-card {
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    color: white;
-    flex: 1;
-    min-width: 200px;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s ease;
-}
-
-.status-card:hover {
-    transform: translateY(-5px);
-}
-
-.status-card i {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-.status-card h4 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 500;
-}
-
-.status-card p {
-    margin: 5px 0 0;
-    font-size: 20px;
-    font-weight: 700;
-}
-
-/* ADD INVENTORY FORM */
 .card {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 900px;
-    margin-top: 25px;
-     margin: 25px auto;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 20px;
+    flex: 1;
+    min-width: 320px;
+}
+
+.card h3 {
+    color: #1e3a8a;
+    margin-bottom: 15px;
 }
 
 .add-inventory-form .form-group {
@@ -233,63 +34,41 @@ body {
 }
 
 .add-inventory-form label {
+    font-weight: 600;
+    margin-bottom: 5px;
     display: block;
-    margin-bottom: 6px;
-    font-weight: 500;
 }
 
 .add-inventory-form input,
+.add-inventory-form select,
 .add-inventory-form textarea {
     width: 100%;
     padding: 10px;
-    margin-top: 4px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-}
-
-.add-inventory-form input:focus,
-.add-inventory-form textarea:focus {
-    border-color: #3b82f6;
-    outline: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
 }
 
 .add-inventory-form textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 80px;
 }
 
-.submit-btn {
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
-    color: white;
-    padding: 12px 20px;
+.submit-btn, .print-btn {
+    background-color: #1e3a8a;
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    transition: background 0.3s ease;
 }
 
-.submit-btn i {
-    margin-right: 8px;
+.submit-btn:hover, .print-btn:hover {
+    background-color: #2563eb;
 }
 
-.submit-btn:hover {
-    background: linear-gradient(90deg, #2563eb, #4f46e5);
-}
-
-/* FOOTER */
-.footer {
-    text-align: center;
-    padding: 15px;
-    background: #1e3a8a;
-    color: white;
-    margin-left: 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+.invoice-preview p {
+    margin: 10px 0;
+    font-size: 14px;
 }
