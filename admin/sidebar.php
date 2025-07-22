@@ -10,8 +10,16 @@
                 </div>
                 <ul class="submenu">
                     <li><a href="add_inventory.php"><i class="fas fa-plus"></i> Add Inventory</a></li>
-                    <li><a href="edit_inventory.php"><i class="fas fa-edit"></i> Edit Inventory</a></li>
                     <li><a href="inventory.php"><i class="fas fa-list"></i> View Inventory</a></li>
+                </ul>
+            </li>
+            <li>
+                <div class="menu-item" onclick="toggleDropdown(this)">
+                    <i class="fas fa-file-invoice-dollar"></i> Billing <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li><a href="add_invoice.php"><i class="fas fa-plus"></i> Billing Invoice</a></li>
+                    <li><a href="invoice.php"><i class="fas fa-list"></i> View Invoices</a></li>
                 </ul>
             </li>
             <li>
@@ -20,7 +28,6 @@
                 </div>
                 <ul class="submenu">
                     <li><a href="add_supplier.php"><i class="fas fa-plus"></i> Add Supplier</a></li>
-                    <li><a href="edit_supplier.php"><i class="fas fa-edit"></i> Edit Supplier</a></li>
                     <li><a href="supplier.php"><i class="fas fa-list"></i> View Suppliers</a></li>
                 </ul>
             </li>
@@ -30,7 +37,6 @@
                 </div>
                 <ul class="submenu">
                     <li><a href="add_employee.php"><i class="fas fa-plus"></i> Add Employee</a></li>
-                    <li><a href="edit_employee.php"><i class="fas fa-edit"></i> Edit Employee</a></li>
                     <li><a href="employee.php"><i class="fas fa-list"></i> View Employees</a></li>
                 </ul>
             </li>
@@ -40,7 +46,6 @@
                 </div>
                 <ul class="submenu">
                     <li><a href="add_transport.php"><i class="fas fa-plus"></i> Add Transport</a></li>
-                    <li><a href="edit_transport.php"><i class="fas fa-edit"></i> Edit Transport</a></li>
                     <li><a href="transport.php"><i class="fas fa-list"></i> View Transport</a></li>
                 </ul>
             </li>
@@ -50,7 +55,6 @@
                 </div>
                 <ul class="submenu">
                     <li><a href="add_customer.php"><i class="fas fa-plus"></i> Add Customer</a></li>
-                    <li><a href="edit_customer.php"><i class="fas fa-edit"></i> Edit Customer</a></li>
                     <li><a href="customer.php"><i class="fas fa-list"></i> View Customers</a></li>
                 </ul>
             </li>

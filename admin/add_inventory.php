@@ -7,7 +7,19 @@ include('../includes/db_connect.php');
 // Fetch suppliers for dropdown
 $supplierResult = $conn->query("SELECT SupplierID, Name FROM Supplier");
 
+$generatedInvoiceID = "";
+
+// Function to auto-generate InvoiceID
+function generateInvoiceID($conn) {
+    $datePart = date('Ymd'); // YYYYMMDD
+    $result = $conn->query("SELECT COUNT(*) AS count FROM InventoryItem WHERE DATE(ReceiveDate) = CURDATE()");
+    $row = $result->fetch_assoc();
+    $count = $row['count'] + 1; // Increment count for today's invoices
+    return 'INV' . $datePart . str_pad($count, 3, '0', STR_PAD_LEFT);
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $generatedInvoiceID = generateInvoiceID($conn);
     $supplierID = intval($_POST['supplier_id']);
     $category = $conn->real_escape_string($_POST['category']);
     $name = $conn->real_escape_string($_POST['name']);
@@ -16,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $qty = intval($_POST['quantity']);
     $price = floatval($_POST['price']);
 
-    $sql = "INSERT INTO InventoryItem (SupplierID, Category, Name, Description, ReceiveDate, Quantity, Price)
-            VALUES ($supplierID, '$category', '$name', '$desc', '$receive_date', $qty, $price)";
+    $sql = "INSERT INTO InventoryItem (InvoiceID, SupplierID, Category, Name, Description, ReceiveDate, Quantity, Price)
+            VALUES ('$generatedInvoiceID', $supplierID, '$category', '$name', '$desc', '$receive_date', $qty, $price)";
 
     if ($conn->query($sql)) {
         header("Location: inventory.php");
@@ -31,13 +43,17 @@ include 'sidebar.php';
 ?>
 
 
-    <!-- Main Content -->
+<!-- Main Content -->
 <main class="main-content">
     <h2>Add New Inventory Item</h2>
     <div class="content-grid">
         <!-- Add Inventory Form -->
         <div class="card">
-            <form class="add-inventory-form" method="POST" action="process_add_inventory.php" oninput="updatePreview()">
+            <form class="add-inventory-form" method="POST" action="" oninput="updatePreview()">
+                <div class="form-group">
+                    <label>Invoice ID</label>
+                    <input type="text" name="invoice_id" id="invoice_id" value="<?php echo $generatedInvoiceID ?: 'AUTO-GENERATE ON SAVE'; ?>" readonly>
+                </div>
                 <div class="form-group">
                     <label>Category</label>
                     <select name="category" id="category" required>
@@ -75,7 +91,7 @@ include 'sidebar.php';
                     <input type="number" name="quantity" id="quantity" placeholder="Enter quantity" required>
                 </div>
                 <div class="form-group">
-                    <label>Price (LKR)</label>
+                    <label>Price Per Item (LKR)</label>
                     <input type="number" name="price" id="price" placeholder="Enter price per item" step="0.01" required>
                 </div>
                 <button type="submit" class="submit-btn">Add Item</button>
@@ -86,12 +102,13 @@ include 'sidebar.php';
         <div class="card">
             <h3>Invoice Preview</h3>
             <div class="invoice-preview" id="invoice-preview">
+                <p><strong>Invoice ID:</strong> <span id="preview_invoice"><?php echo $generatedInvoiceID ?: '--'; ?></span></p>
                 <p><strong>Date & Time:</strong> <span id="preview_date">--</span></p>
                 <p><strong>Category:</strong> <span id="preview_category">--</span></p>
                 <p><strong>Item Name:</strong> <span id="preview_item">--</span></p>
                 <p><strong>Description:</strong> <span id="preview_description">--</span></p>
                 <p><strong>Quantity:</strong> <span id="preview_quantity">0</span></p>
-                <p><strong>Price:</strong> LKR <span id="preview_price">0.00</span></p>
+                <p><strong>Price Per Item:</strong> LKR <span id="preview_price">0.00</span></p>
                 <p><strong>Total:</strong> LKR <span id="preview_total">0.00</span></p>
             </div>
             <button onclick="window.print()" class="print-btn"><i class="fas fa-print"></i> Print / Save PDF</button>
@@ -115,5 +132,4 @@ function updatePreview() {
 }
 </script>
 
-<?php
-include 'footer.php';
+<?php include 'footer.php'; ?>

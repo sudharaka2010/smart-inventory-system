@@ -4,6 +4,8 @@
 <?php
 include('../includes/auth.php');
 include('../includes/db_connect.php');
+include 'header.php';
+include 'sidebar.php';
 
 // Fetch orders for dropdown
 $orders = $conn->query("SELECT OrderID FROM `order`");

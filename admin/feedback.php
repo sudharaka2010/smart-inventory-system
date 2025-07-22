@@ -9,6 +9,10 @@ include('../includes/db_connect.php');
 $result = $conn->query("SELECT f.*, c.NAME as CustomerName 
                         FROM feedback f 
                         JOIN customer c ON f.CustomerID=c.CustomerID");
+                        
+                        
+include 'header.php';
+include 'sidebar.php';
 ?>
 
 <!DOCTYPE html>

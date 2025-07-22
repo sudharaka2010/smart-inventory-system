@@ -22,7 +22,10 @@
     padding: 20px;
     flex: 1;
     min-width: 320px;
+    max-height: 700px; /* Limit height to fit smaller screens */
+    overflow-y: auto;  /* Add vertical scroll if content overflows */
 }
+
 
 .card h3 {
     color: #1e3a8a;

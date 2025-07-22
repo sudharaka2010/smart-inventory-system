@@ -27,8 +27,6 @@ $pendingDeliveries = $conn->query("SELECT COUNT(*) AS pending FROM Transport WHE
 
 
 
-
-
     <!-- Main Content -->
     <main class="main-content">
         <h2>Welcome to <span class="highlight">RB Stores Dashboard</span></h2>
