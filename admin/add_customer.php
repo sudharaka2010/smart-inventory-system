@@ -4,8 +4,7 @@
 <?php
 include('../includes/auth.php');
 include('../includes/db_connect.php');
-include 'header.php';
-include 'sidebar.php';
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $conn->real_escape_string($_POST['name']);
@@ -18,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header("Location: customer.php");
     exit();
 }
+include 'header.php';
+include 'sidebar.php';
 ?>
 
 <!DOCTYPE html>

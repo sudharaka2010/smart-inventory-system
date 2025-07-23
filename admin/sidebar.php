@@ -18,8 +18,8 @@
                     <i class="fas fa-file-invoice-dollar"></i> Billing <i class="fas fa-chevron-down dropdown-icon"></i>
                 </div>
                 <ul class="submenu">
-                    <li><a href="add_invoice.php"><i class="fas fa-plus"></i> Billing Invoice</a></li>
-                    <li><a href="invoice.php"><i class="fas fa-list"></i> View Invoices</a></li>
+                    <li><a href="billing.php"><i class="fas fa-plus"></i> Billing Invoice</a></li>
+                    <li><a href="view_billing.php"><i class="fas fa-list"></i> View Invoices</a></li>
                 </ul>
             </li>
             <li>

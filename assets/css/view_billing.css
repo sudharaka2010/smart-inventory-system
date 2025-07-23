@@ -1,0 +1,121 @@
+.main-content {
+    padding: 20px;
+    background-color: #f1f5f9;
+    display: flex;
+    
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0a3d62;
+    margin-bottom: 20px;
+    text-align: right;
+    
+}
+.main-content h2 {
+    color: #1e3a8a;
+   
+}
+
+/* Unified Card Styling */
+.unified-card {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    justify-content: center;
+    width: 80%;
+    gap: 20px;
+    max-width: 1500px;
+    margin-top: 80px;
+    margin-left:180px;
+}
+
+/* Filter Form Styling */
+.filter-form {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-form label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.filter-form input {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 220px;
+}
+
+.filter-btn {
+    background-color: #0077b6;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #005f99;
+}
+
+/* Billing Table Styling */
+.billing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.billing-table th, .billing-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.billing-table th {
+    background-color: #0077b6;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.billing-table tbody tr:hover {
+    background-color: #f1f9ff;
+}
+
+.details-btn {
+    background-color: #38b000;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.details-btn:hover {
+    background-color: #2d8600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-form input {
+        width: 100%;
+    }
+}

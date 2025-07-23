@@ -1,0 +1,222 @@
+/* Main Content */
+.main-content {
+    padding: 30px;
+    background-color: #f8fafc;
+    display: flex;
+    justify-content: center;
+    
+}
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 20px;
+    text-align: center;
+    margin-left: 140px;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    max-width: 1280px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    padding: 25px;
+    margin-top: 80px;
+    max-height: fit-content;
+}
+
+/* Card Styling */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    transition: box-shadow 0.3s ease;
+}
+.card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+.card h3 {
+    font-size: 1.6rem;
+    color: #0984e3;
+    border-left: 5px solid #00cec9;
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+/* Billing Form */
+.billing-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #2d3436;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea {
+    padding: 12px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
+    width: 100%;
+    background-color: #f1f2f6;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #00cec9;
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 206, 201, 0.2);
+}
+
+/* New Customer Fields Highlight */
+#new-customer-fields {
+    background: #ecf0f1;
+    padding: 15px;
+    border: 1px dashed #00cec9;
+    border-radius: 8px;
+}
+
+/* Item Row Styling */
+.item-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.item-select,
+.quantity-input,
+.price-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+}
+
+.add-item-btn {
+    background-color: #00cec9;
+    color: #fff;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+.add-item-btn:hover {
+    background-color: #00bfa6;
+}
+
+.remove-btn {
+    background-color: #d63031;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    text-align: center;
+    line-height: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.remove-btn:hover {
+    background-color: #b71c1c;
+}
+
+/* Total Field & Buttons */
+.total-group input {
+    font-weight: bold;
+    color: #0984e3;
+    background: #ecf0f1;
+    border: 1px solid #0984e3;
+    border-radius: 8px;
+}
+
+.submit-btn {
+    background-color: #00b894;
+    color: #ffffff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+.submit-btn:hover {
+    background-color: #00897b;
+}
+
+/* Bill Preview */
+.preview-card .bill-preview p {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #636e72;
+}
+.preview-card strong {
+    color: #2d3436;
+}
+
+.print-btn {
+    background-color: #0984e3;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    margin-top: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+}
+.print-btn i {
+    margin-right: 5px;
+}
+.print-btn:hover {
+    background-color: #0652dd;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .content-wrapper {
+        grid-template-columns: 1fr;
+    }
+    .item-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .remove-btn {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 576px) {
+    .add-item-btn,
+    .submit-btn,
+    .print-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

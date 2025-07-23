@@ -1,14 +1,8 @@
-<link rel="stylesheet" href="/assets/css/login.css">
+<link rel="stylesheet" href="../assets/css/login.css">
 
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
-include __DIR__."/../includes/db_connect.php";
-
-
+include('../includes/db_connect.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $conn->real_escape_string($_POST['username']);

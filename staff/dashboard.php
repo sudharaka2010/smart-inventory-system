@@ -9,28 +9,14 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'Staff') {
     header("Location: ../auth/login.php");
     exit();
 }
+include '../admin/header.php';
+include '../admin/sidebar.php';
+
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RB Stores Staff Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Top Navbar -->
-    <header class="top-header">
-        <div class="logo">
-            <h1>RB Stores - Staff</h1>
-            <p>Rain Water Solution Management System</p>
-        </div>
-        <nav class="top-nav">
-            <a href="../auth/logout.php" class="logout-btn">Logout <i class="fas fa-sign-out-alt"></i></a>
-        </nav>
-    </header>
+
+
+  
 
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -93,11 +79,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'Staff') {
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>Code Counter Team Group - 15 | Developed by: <strong>Code Counter</strong></p>
-        <p>Hotline: +94 77 123 4567</p>
-    </footer>
+  
 
     <script>
         function toggleDropdown(element) {
@@ -109,6 +91,6 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'Staff') {
             element.parentElement.classList.toggle('open');
         }
     </script>
-</body>
-</html>
-
+<?php
+include '../admin/footer.php';
+?>
