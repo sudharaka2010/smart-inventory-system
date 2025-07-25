@@ -1,77 +1,72 @@
-/* General Styling */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f9;
-    color: #333;
-    margin: 0;
-    padding: 0;
-}
-
+/* Responsive Container */
 .container {
-    max-width: 1000px;
+    width: 83%;
+    padding: 30px;
     margin: 50px auto;
-    padding: 20px;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    margin-left: 300px;
 }
 
-h1 {
-    text-align: center;
-    color: #0077b6;
-    margin-bottom: 30px;
-}
-
-.btn-add {
-    display: inline-block;
-    background-color: #43a047;
-    color: #fff;
-    padding: 10px 18px;
-    border-radius: 6px;
-    text-decoration: none;
-    margin-bottom: 20px;
-    transition: background 0.3s;
-}
-
-.btn-add:hover {
-    background-color: #388e3c;
-}
-
-/* Table Styling */
+/* Make table scrollable if too wide */
 .supplier-table {
     width: 100%;
+    min-width: 1300px;
+    max-width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    table-layout: fixed; /* Prevents uneven columns */
 }
 
-.supplier-table th, .supplier-table td {
-    padding: 14px 20px;
-    text-align: left;
+/* Column alignment and spacing */
+.supplier-table th,
+.supplier-table td {
+    padding: 12px 14px;
+    text-align: center;
+    vertical-align: middle;
     border-bottom: 1px solid #ddd;
+    white-space: nowrap;         /* Prevent wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;     /* Adds "..." if content is too long */
 }
 
+/* Headers styling */
 .supplier-table th {
     background-color: #0077b6;
     color: #fff;
     font-weight: 600;
+    font-size: 14px;
 }
 
+/* Table rows */
 .supplier-table tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.supplier-table tr:hover {
+.supplier-table tr:hover td {
     background-color: #e3f2fd;
+}
+
+/* Button actions */
+.actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
 }
 
 .actions a {
     text-decoration: none;
-    margin-right: 10px;
     padding: 6px 12px;
     border-radius: 4px;
     color: #fff;
+    font-size: 14px;
+    display: inline-block;
 }
 
+/* Edit Button */
 .btn-edit {
     background-color: #0288d1;
 }
@@ -80,10 +75,30 @@ h1 {
     background-color: #0277bd;
 }
 
+/* Delete Button */
 .btn-delete {
     background-color: #e53935;
 }
 
 .btn-delete:hover {
     background-color: #c62828;
+}
+
+/* Mobile-friendly fix */
+@media screen and (max-width: 768px) {
+    .supplier-table {
+        min-width: unset;
+        table-layout: auto;
+    }
+
+    .container {
+        width: 95%;
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 4px;
+    }
 }

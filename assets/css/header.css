@@ -12,17 +12,24 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    padding-top: 70px; /* Fix: Prevents header overlap */
 }
 
 /* HEADER */
 .top-header {
+    position: fixed;               /* Fix: Makes header sticky */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 1000;                 /* Fix: Makes it appear on top */
     background: linear-gradient(90deg, #3b82f6, #6366f1);
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    height: 70px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
 }
 
 .top-header .logo {
@@ -32,7 +39,7 @@ body {
 }
 
 .top-header .logo-img {
-     height: 40px;
+    height: 40px;
     width: auto;
     margin-right: 10px;
     object-fit: contain;
@@ -50,7 +57,8 @@ body {
     padding-right: 15px;
 }
 
-.top-nav a:hover, .logout-btn:hover {
+.top-nav a:hover,
+.logout-btn:hover {
     color: #fbbf24;
 }
 
@@ -68,6 +76,7 @@ body {
 .logout-btn:hover {
     background: #dc2626;
 }
+
 .dashboard-btn {
     background-color: #1e3a8a;
     color: #fff;

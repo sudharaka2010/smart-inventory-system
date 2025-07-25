@@ -1,77 +1,107 @@
+/* Main content container */
 .main-content {
     margin-left: 250px;
     padding: 30px 20px 20px 20px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9fafb;
+    min-height: 100vh;
 }
 
+/* Page Title */
 .main-content h2 {
     color: #1e3a8a;
     margin-bottom: 20px;
     font-weight: 600;
+    font-size: 24px;
 }
 
-.content-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.card {
+/* Inventory Form */
+.add-inventory-form {
     background: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    padding: 20px;
-    flex: 1;
-    min-width: 320px;
-    max-height: 700px; /* Limit height to fit smaller screens */
-    overflow-y: auto;  /* Add vertical scroll if content overflows */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 30px;
+    max-width: 600px;
+    margin: auto;
 }
 
-
-.card h3 {
-    color: #1e3a8a;
-    margin-bottom: 15px;
-}
-
+/* Form Groups */
 .add-inventory-form .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
+/* Labels */
 .add-inventory-form label {
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     display: block;
+    color: #374151;
+    font-size: 15px;
 }
 
+/* Inputs, Selects, Textareas */
 .add-inventory-form input,
 .add-inventory-form select,
 .add-inventory-form textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
     border-radius: 6px;
     font-size: 14px;
+    background-color: #ffffff;
+    color: #111827;
+    transition: border-color 0.3s ease;
 }
 
+.add-inventory-form input:focus,
+.add-inventory-form select:focus,
+.add-inventory-form textarea:focus {
+    border-color: #2563eb;
+    outline: none;
+}
+
+/* Textarea */
 .add-inventory-form textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 90px;
 }
 
-.submit-btn, .print-btn {
+/* Submit Button */
+.submit-btn {
     background-color: #1e3a8a;
     color: #fff;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 20px;
     border-radius: 6px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
 }
 
-.submit-btn:hover, .print-btn:hover {
+.submit-btn:hover {
     background-color: #2563eb;
 }
 
-.invoice-preview p {
-    margin: 10px 0;
+/* Total Value Preview */
+#totalPreview {
+    font-weight: 500;
+    color: #1e40af;
     font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+/* Responsive Fix */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 20px 10px;
+    }
+
+    .add-inventory-form {
+        padding: 20px;
+    }
 }

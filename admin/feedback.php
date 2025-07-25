@@ -5,39 +5,40 @@
 include('../includes/auth.php');
 include('../includes/db_connect.php');
 
-// Fetch feedback records
-$result = $conn->query("SELECT f.*, c.NAME as CustomerName 
-                        FROM feedback f 
-                        JOIN customer c ON f.CustomerID=c.CustomerID");
-                        
-                        
+// Fetch feedback records with customer names
+$result = $conn->query("SELECT f.*, c.Name AS CustomerName 
+                        FROM Feedback f 
+                        JOIN Customer c ON f.CustomerID = c.CustomerID");
+
 include 'header.php';
 include 'sidebar.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Feedback</title>
-</head>
-<body>
-    <h1>Customer Feedback</h1>
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>Customer</th>
-            <th>Comments</th>
-            <th>Rating</th>
-            <th>Date Submitted</th>
-        </tr>
-        <?php while ($row = $result->fetch_assoc()) { ?>
-        <tr>
-            <td><?php echo htmlspecialchars($row['CustomerName']); ?></td>
-            <td><?php echo htmlspecialchars($row['Comments']); ?></td>
-            <td><?php echo $row['Rating']; ?> / 5</td>
-            <td><?php echo $row['DateSubmitted']; ?></td>
-        </tr>
-        <?php } ?>
-    </table>
-</body>
-</html>
+<div class="main-content">
+    <div class="container">
+        <h1 class="page-title">Customer Feedback</h1>
+
+        <table class="feedback-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Comments</th>
+                    <th>Rating</th>
+                    <th>Date Submitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = $result->fetch_assoc()) { ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row['CustomerName']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Comments']); ?></td>
+                    <td><?php echo intval($row['Rating']); ?> / 5</td>
+                    <td><?php echo htmlspecialchars($row['DateSubmitted']); ?></td>
+                </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<?php include 'footer.php'; ?>

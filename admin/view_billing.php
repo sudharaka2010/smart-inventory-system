@@ -10,25 +10,25 @@ include 'sidebar.php';
 $search_date = isset($_GET['search_date']) ? $conn->real_escape_string($_GET['search_date']) : '';
 $search_customer = isset($_GET['customer_id']) ? intval($_GET['customer_id']) : '';
 
-// Build query
-$query = "SELECT b.BillingID, c.Name AS CustomerName, b.BillingDate, b.TotalAmount
-          FROM Billing b
-          JOIN Customer c ON b.CustomerID = c.CustomerID
+// Build query based on `Order` table
+$query = "SELECT o.OrderID, c.Name AS CustomerName, o.OrderDate, o.TotalAmount
+          FROM `Order` o
+          JOIN Customer c ON o.CustomerID = c.CustomerID
           WHERE 1";
 
 if ($search_date) {
-    $query .= " AND DATE(b.BillingDate) = '$search_date'";
+    $query .= " AND DATE(o.OrderDate) = '$search_date'";
 }
 
 if ($search_customer) {
-    $query .= " AND b.CustomerID = $search_customer";
+    $query .= " AND o.CustomerID = $search_customer";
 }
 
 $result = $conn->query($query);
 ?>
 
 <main class="main-content">
-    <h2 class="page-title">View Bills</h2>
+    <h2 class="page-title">View Orders</h2>
 
     <!-- Unified Filter and Table Card -->
     <div class="card unified-card">
@@ -45,13 +45,13 @@ $result = $conn->query($query);
             <button type="submit" class="filter-btn">Search</button>
         </form>
 
-        <!-- Billing Table -->
+        <!-- Orders Table -->
         <table class="billing-table">
             <thead>
                 <tr>
-                    <th>Billing ID</th>
+                    <th>Order ID</th>
                     <th>Customer Name</th>
-                    <th>Billing Date</th>
+                    <th>Order Date</th>
                     <th>Total Amount (LKR)</th>
                     <th>Details</th>
                 </tr>
@@ -60,18 +60,19 @@ $result = $conn->query($query);
                 <?php if ($result->num_rows > 0): ?>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo $row['BillingID']; ?></td>
+                            <td><?php echo $row['OrderID']; ?></td>
                             <td><?php echo htmlspecialchars($row['CustomerName']); ?></td>
-                            <td><?php echo $row['BillingDate']; ?></td>
+                            <td><?php echo $row['OrderDate']; ?></td>
                             <td>LKR <?php echo number_format($row['TotalAmount'], 2); ?></td>
                             <td>
-                                <a href="view_bill_details.php?billing_id=<?php echo $row['BillingID']; ?>" class="details-btn">View</a>
+                                <a href="invoice.php?order_id=<?php echo $row['OrderID']; ?>" class="details-btn">View</a>
+
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5">No bills found.</td>
+                        <td colspan="5">No orders found.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

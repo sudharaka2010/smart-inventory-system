@@ -1,208 +1,175 @@
-<link rel="stylesheet" href="../assets/css/billing.css">
-
 <?php
 include('../includes/auth.php');
 include('../includes/db_connect.php');
 
-// Fetch customers and inventory items
-$customerResult = $conn->query("SELECT CustomerID, Name FROM Customer");
-$itemResult = $conn->query("SELECT ItemID, Name, Price FROM InventoryItem");
+// Generate invoice ID
+$latestOrder = $conn->query("SELECT MAX(OrderID) AS MaxID FROM `Order`")->fetch_assoc();
+$invoiceID = 'INV-' . str_pad(($latestOrder['MaxID'] ?? 0) + 1, 5, '0', STR_PAD_LEFT);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Check if it's a new customer
-    if ($_POST['customer_id'] === 'new') {
+// Fetch customers and items
+$customers = $conn->query("SELECT CustomerID, Name FROM Customer");
+$items = $conn->query("SELECT ItemID, Name, Price FROM InventoryItem");
+$itemOptions = "";
+while ($item = $items->fetch_assoc()) {
+    $itemOptions .= '<option value="'.$item['ItemID'].'" data-price="'.$item['Price'].'">'.
+                    htmlspecialchars($item['Name']).' (LKR '.$item['Price'].')</option>';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $customerID = 0;
+    if ($_POST['customer_type'] === 'new') {
         $name = $conn->real_escape_string($_POST['new_name']);
         $email = $conn->real_escape_string($_POST['new_email']);
         $phone = $conn->real_escape_string($_POST['new_phone']);
         $address = $conn->real_escape_string($_POST['new_address']);
-
-        $conn->query("INSERT INTO Customer (Name, Email, Phone, Address)
-                      VALUES ('$name', '$email', '$phone', '$address')");
-
-        $customerID = $conn->insert_id; // Use newly created CustomerID
+        $conn->query("INSERT INTO Customer (Name, Email, Phone, Address) VALUES ('$name', '$email', '$phone', '$address')");
+        $customerID = $conn->insert_id;
     } else {
-        $customerID = intval($_POST['customer_id']);
+        $customerID = intval($_POST['existing_customer']);
     }
 
-    $totalAmount = floatval($_POST['total_amount']);
+    $subtotal = floatval($_POST['subtotal']);
+    $discount = floatval($_POST['discount']);
+    $tax = floatval($_POST['tax']);
+    $total = floatval($_POST['total']);
+    $paymentMethod = $conn->real_escape_string($_POST['payment_method']);
+    $amountPaid = floatval($_POST['amount_paid']);
+    $balance = $amountPaid - $total;
 
-    $sqlBilling = "INSERT INTO `Order` (CustomerID, OrderDate, TotalAmount)
-                   VALUES ($customerID, NOW(), $totalAmount)";
-    if ($conn->query($sqlBilling)) {
-        $orderID = $conn->insert_id;
+    $conn->query("INSERT INTO `Order` (CustomerID, OrderDate, TotalAmount, PaymentMethod, AmountPaid, Balance)
+              VALUES ($customerID, NOW(), $total, '$paymentMethod', $amountPaid, $balance)");
 
-        foreach ($_POST['items'] as $item) {
-            $itemID = intval($item['item_id']);
-            $quantity = intval($item['quantity']);
-            $price = floatval($item['price']);
-            $subtotal = $quantity * $price;
+    $orderID = $conn->insert_id;
 
-            $sqlDetails = "INSERT INTO OrderDetails (OrderID, ItemID, Quantity, Subtotal)
-                           VALUES ($orderID, $itemID, $quantity, $subtotal)";
-            $conn->query($sqlDetails);
-        }
-        header("Location: billing.php?success=1");
-        exit();
-    } else {
-        echo "<p style='color:red;'>Error: " . $conn->error . "</p>";
+    foreach ($_POST['items'] as $item) {
+        $itemID = intval($item['item_id']);
+        $qty = intval($item['quantity']);
+        $price = floatval($item['price']);
+        $conn->query("INSERT INTO OrderDetails (OrderID, ItemID, Quantity, Subtotal) VALUES ($orderID, $itemID, $qty, " . ($price * $qty) . ")");
     }
+
+    header("Location: view_billing.php?id=$orderID");
+    exit();
 }
+
 include 'header.php';
 include 'sidebar.php';
 ?>
-
+<link rel="stylesheet" href="../assets/css/billing.css">
 <main class="main-content">
-    <h2 class="page-title">Create New Bill</h2>
-    <div class="content-wrapper">
-        <div class="card billing-card">
-            <h3>Billing Form</h3>
-            <form class="billing-form" method="POST" oninput="updatePreview()">
-                <div class="form-group">
-                    <label>Customer</label>
-                    <select name="customer_id" id="customer" onchange="toggleNewCustomerFields()" required>
-                        <option value="">-- Select Customer --</option>
-                        <?php while ($row = $customerResult->fetch_assoc()) { ?>
-                        <option value="<?php echo $row['CustomerID']; ?>">
-                            <?php echo htmlspecialchars($row['Name'] . " (ID: " . $row['CustomerID'] . ")"); ?>
-                        </option>
-                        <?php } ?>
-                        <option value="new">+ Register New Customer</option>
-                    </select>
-                </div>
-
-                <!-- New Customer Fields (Hidden by default) -->
-                <div id="new-customer-fields" style="display:none; margin-top:10px;">
-                    <h4>New Customer Details</h4>
-                    <input type="text" name="new_name" placeholder="Full Name" required>
-                    <input type="email" name="new_email" placeholder="Email" required>
-                    <input type="text" name="new_phone" placeholder="Phone" required>
-                    <textarea name="new_address" placeholder="Address" required></textarea>
-                </div>
-
-                <div id="items-container">
-                    <h4>Items</h4>
-                    <!-- First Item Row -->
-                    <div class="item-row">
-                        <select name="items[0][item_id]" class="item-select" onchange="updatePrice(this)" required>
-                            <option value="">-- Select Item --</option>
-                            <?php
-                            $itemResult = $conn->query("SELECT ItemID, Name, Price FROM InventoryItem");
-                            while ($item = $itemResult->fetch_assoc()) {
-                                echo '<option value="'.$item['ItemID'].'" data-price="'.$item['Price'].'">'
-                                     .htmlspecialchars($item['Name']).' (LKR '.$item['Price'].')</option>';
-                            }
-                            ?>
-                        </select>
-                        <input type="number" name="items[0][quantity]" placeholder="Qty" min="1" class="quantity-input" required>
-                        <input type="text" name="items[0][price]" placeholder="Price" readonly class="price-input">
-                        <button type="button" onclick="removeItem(this)" class="remove-btn">X</button>
-                    </div>
-                </div>
-                <button type="button" onclick="addItem()" class="add-item-btn">+ Add Item</button>
-
-                <div class="form-group total-group">
-                    <label>Total Amount (LKR)</label>
-                    <input type="number" name="total_amount" id="total_amount" readonly>
-                </div>
-                <button type="submit" class="submit-btn">Save Bill</button>
-            </form>
-        </div>
-
-        <!-- Bill Preview -->
-        <div class="card preview-card">
-            <h3>Bill Preview</h3>
-            <div class="bill-preview" id="bill-preview">
-                <p><strong>Customer:</strong> <span id="preview_customer">-- Select Customer --</span></p>
-                <p><strong>Date:</strong> <span id="preview_date"></span></p>
-                <div id="preview_items"></div>
-                <p><strong>Total:</strong> LKR <span id="preview_total">0.00</span></p>
-            </div>
-            <button onclick="window.print()" class="print-btn"><i class="fas fa-print"></i> Print / Save PDF</button>
-        </div>
+  <h2 class="page-title">Create Customer Bill</h2>
+  <form method="POST" class="billing-form" oninput="calculateTotals()">
+    <input type="hidden" name="invoice_id" value="<?= $invoiceID ?>">
+    <div class="tabs">
+      <label><input type="radio" name="customer_type" value="existing" checked onchange="switchCustomerType(this.value)"> Existing Customer</label>
+      <label><input type="radio" name="customer_type" value="new" onchange="switchCustomerType(this.value)"> New Customer</label>
     </div>
+
+    <div id="existing-customer-group" class="form-group">
+      <label>Select Customer</label>
+      <select name="existing_customer" required>
+        <option value="">-- Select Customer --</option>
+        <?php while($row = $customers->fetch_assoc()) {
+            echo '<option value="'.$row['CustomerID'].'">'.htmlspecialchars($row['Name']).'</option>';
+        } ?>
+      </select>
+    </div>
+
+<div id="new-customer-fields" class="form-group" style="display:none;">
+  <input type="text" name="new_name" placeholder="Full Name" id="new_name">
+  <input type="email" name="new_email" placeholder="Email" id="new_email">
+  <input type="tel" name="new_phone" placeholder="Phone" id="new_phone">
+  <textarea name="new_address" placeholder="Address" id="new_address"></textarea>
+</div>
+
+
+    <h3>Items</h3>
+    <div id="items-container">
+      <div class="item-row">
+        <select name="items[0][item_id]" onchange="updatePrice(this)" required><?= $itemOptions ?></select>
+        <input type="number" name="items[0][quantity]" min="1" value="1" required>
+        <input type="text" name="items[0][price]" readonly>
+        <button type="button" onclick="removeItem(this)">X</button>
+      </div>
+    </div>
+    <button type="button" onclick="addItem()">+ Add Item</button>
+
+    <div class="totals">
+      <label>Subtotal</label><input type="text" name="subtotal" id="subtotal" readonly>
+      <label>Discount (%)</label><input type="number" name="discount" id="discount" value="0">
+      <label>VAT (%)</label><input type="number" name="tax" id="tax" value="0">
+      <label>Total</label><input type="text" name="total" id="total" readonly>
+    </div>
+
+    <div class="payment-group">
+      <label>Payment Method</label>
+      <select name="payment_method" required>
+        <option value="Cash">Cash</option>
+        <option value="Card">Card</option>
+        <option value="Credit">Credit</option>
+      </select>
+      <label>Amount Paid</label><input type="number" name="amount_paid" id="amount_paid" required>
+      <label>Balance</label><input type="text" id="balance" readonly>
+    </div>
+
+    <button type="submit">Save & Generate Invoice</button>
+  </form>
 </main>
-
 <script>
-function updateDateTime() {
-    const now = new Date();
-    const formatted = now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, '0') + "-" +
-        String(now.getDate()).padStart(2, '0') + " " +
-        String(now.getHours()).padStart(2, '0') + ":" +
-        String(now.getMinutes()).padStart(2, '0') + ":" +
-        String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('preview_date').textContent = formatted;
-}
-setInterval(updateDateTime, 1000); // Update every second
-updateDateTime(); // Run immediately on load
-</script>
 
-<script>
 let itemIndex = 1;
 
-function toggleNewCustomerFields() {
-    let customerSelect = document.getElementById('customer');
-    let newCustomerFields = document.getElementById('new-customer-fields');
-    if (customerSelect.value === 'new') {
-        newCustomerFields.style.display = 'block';
-    } else {
-        newCustomerFields.style.display = 'none';
-    }
+function switchCustomerType(type) {
+  const isNew = type === 'new';
+  document.getElementById('existing-customer-group').style.display = isNew ? 'none' : 'block';
+  document.getElementById('new-customer-fields').style.display = isNew ? 'block' : 'none';
+
+  // Toggle required attributes
+  document.getElementById('new_name').required = isNew;
+  document.getElementById('new_email').required = isNew;
+  document.getElementById('new_phone').required = isNew;
+  document.getElementById('new_address').required = isNew;
+
+  document.querySelector('[name="existing_customer"]').required = !isNew;
 }
 
 function addItem() {
-    let container = document.getElementById('items-container');
-    let row = document.createElement('div');
-    row.classList.add('item-row');
-    row.innerHTML = `
-        <select name="items[${itemIndex}][item_id]" class="item-select" onchange="updatePrice(this)" required>
-            <option value="">-- Select Item --</option>
-            <?php
-            $itemResult = $conn->query("SELECT ItemID, Name, Price FROM InventoryItem");
-            while ($item = $itemResult->fetch_assoc()) {
-                echo '<option value="'.$item['ItemID'].'" data-price="'.$item['Price'].'">'
-                     .htmlspecialchars($item['Name']).' (LKR '.$item['Price'].')</option>';
-            }
-            ?>
-        </select>
-        <input type="number" name="items[${itemIndex}][quantity]" placeholder="Qty" min="1" class="quantity-input" required>
-        <input type="text" name="items[${itemIndex}][price]" placeholder="Price" readonly class="price-input">
-        <button type="button" onclick="removeItem(this)" class="remove-btn">X</button>
-    `;
-    container.appendChild(row);
-    itemIndex++;
+  const container = document.getElementById('items-container');
+  const row = document.createElement('div');
+  row.classList.add('item-row');
+  row.innerHTML = `
+    <select name="items[${itemIndex}][item_id]" onchange="updatePrice(this)" required><?= $itemOptions ?></select>
+    <input type="number" name="items[${itemIndex}][quantity]" min="1" value="1" required>
+    <input type="text" name="items[${itemIndex}][price]" readonly>
+    <button type="button" onclick="removeItem(this)">X</button>
+  `;
+  container.appendChild(row);
+  itemIndex++;
 }
-
 function removeItem(btn) {
-    btn.parentElement.remove();
-    updatePreview();
+  btn.closest('.item-row').remove();
+  calculateTotals();
 }
-
 function updatePrice(select) {
-    let price = select.options[select.selectedIndex].getAttribute('data-price');
-    let priceInput = select.nextElementSibling.nextElementSibling;
-    priceInput.value = price;
-    updatePreview();
+  const price = select.selectedOptions[0].getAttribute('data-price');
+  const row = select.closest('.item-row');
+  row.querySelector('[name$="[price]"]').value = price;
+  calculateTotals();
 }
-
-function updatePreview() {
-    let customerName = document.getElementById('customer').options[document.getElementById('customer').selectedIndex].text;
-    document.getElementById('preview_customer').textContent = customerName;
-
-    let total = 0;
-    let itemsHTML = '';
-    document.querySelectorAll('.item-row').forEach(row => {
-        let itemText = row.querySelector('.item-select').selectedOptions[0].text;
-        let qty = row.querySelector('.quantity-input').value || 0;
-        let price = parseFloat(row.querySelector('.price-input').value) || 0;
-        let subtotal = qty * price;
-        total += subtotal;
-        itemsHTML += `<p>${itemText} - ${qty} pcs @ LKR ${price} = LKR ${subtotal.toFixed(2)}</p>`;
-    });
-    document.getElementById('preview_items').innerHTML = itemsHTML;
-    document.getElementById('preview_total').textContent = total.toFixed(2);
-    document.getElementById('total_amount').value = total.toFixed(2);
+function calculateTotals() {
+  let subtotal = 0;
+  document.querySelectorAll('.item-row').forEach(row => {
+    const qty = parseFloat(row.querySelector('[name$="[quantity]"]').value) || 0;
+    const price = parseFloat(row.querySelector('[name$="[price]"]').value) || 0;
+    subtotal += qty * price;
+  });
+  const discount = parseFloat(document.getElementById('discount').value) || 0;
+  const tax = parseFloat(document.getElementById('tax').value) || 0;
+  const total = subtotal * (1 - discount / 100) * (1 + tax / 100);
+  document.getElementById('subtotal').value = subtotal.toFixed(2);
+  document.getElementById('total').value = total.toFixed(2);
+  const paid = parseFloat(document.getElementById('amount_paid').value) || 0;
+  document.getElementById('balance').value = (paid - total).toFixed(2);
 }
 </script>
-
 <?php include 'footer.php'; ?>

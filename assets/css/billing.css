@@ -1,85 +1,73 @@
-/* Main Content */
+/* ===== Main Layout ===== */
 .main-content {
     padding: 30px;
     background-color: #f8fafc;
-    display: flex;
-    justify-content: center;
-    
 }
+
 .page-title {
     font-size: 2rem;
     font-weight: 700;
     color: #1e3a8a;
-    margin-bottom: 20px;
     text-align: center;
-    margin-left: 140px;
+    margin-bottom: 25px;
 }
 
-/* Content Wrapper */
-.content-wrapper {
-    max-width: 1280px;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    padding: 25px;
-    margin-top: 80px;
-    max-height: fit-content;
-}
-
-/* Card Styling */
-.card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    padding: 20px;
-    transition: box-shadow 0.3s ease;
-}
-.card:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-.card h3 {
-    font-size: 1.6rem;
-    color: #0984e3;
-    border-left: 5px solid #00cec9;
-    padding-left: 10px;
-    margin-bottom: 20px;
-}
-
-/* Billing Form */
 .billing-form {
+    max-width: 960px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+/* ===== Section Titles ===== */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 20px;
+    color: #2d3436;
+    border-bottom: 1px solid #dfe6e9;
+    padding-bottom: 6px;
+}
+
+/* ===== Tabs ===== */
+.tabs {
+    display: flex;
+    gap: 20px;
+    font-weight: 600;
+    color: #0984e3;
+    flex-wrap: wrap;
+}
+
+.tabs input[type="radio"] {
+    margin-right: 6px;
+}
+
+/* ===== Form Groups ===== */
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
-.form-group label {
-    font-weight: 600;
-    color: #2d3436;
-}
-
-.form-group select,
 .form-group input,
+.form-group select,
 .form-group textarea {
     padding: 12px;
+    font-size: 1rem;
     border: 1px solid #dfe6e9;
     border-radius: 8px;
-    width: 100%;
     background-color: #f1f2f6;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
-.form-group select:focus,
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
     border-color: #00cec9;
     background-color: #ffffff;
@@ -87,15 +75,20 @@
     box-shadow: 0 0 0 3px rgba(0, 206, 201, 0.2);
 }
 
-/* New Customer Fields Highlight */
-#new-customer-fields {
-    background: #ecf0f1;
-    padding: 15px;
-    border: 1px dashed #00cec9;
-    border-radius: 8px;
+input[readonly],
+input[disabled] {
+    cursor: not-allowed;
+    background-color: #e0e0e0;
+    color: #555;
 }
 
-/* Item Row Styling */
+/* ===== Items ===== */
+#items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
 .item-row {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr auto;
@@ -103,120 +96,125 @@
     align-items: center;
 }
 
-.item-select,
-.quantity-input,
-.price-input {
+.item-row select,
+.item-row input {
     padding: 10px;
-    border: 1px solid #ccc;
     border-radius: 6px;
-    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    width: 100%;
+    transition: all 0.2s ease;
 }
 
-.add-item-btn {
-    background-color: #00cec9;
+.item-row input:focus,
+.item-row select:focus {
+    border-color: #00cec9;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(0, 206, 201, 0.1);
+}
+
+.item-row button {
+    background-color: #e74c3c;
     color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.item-row button:hover {
+    background-color: #c0392b;
+}
+
+button[type="button"].add-item-btn {
+    background-color: #00cec9;
+    color: white;
+    font-weight: 600;
     padding: 10px 16px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
+    margin-top: 10px;
+    width: fit-content;
+    align-self: center;
 }
-.add-item-btn:hover {
+
+button[type="button"].add-item-btn:hover {
     background-color: #00bfa6;
 }
 
-.remove-btn {
-    background-color: #d63031;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    text-align: center;
-    line-height: 35px;
+/* ===== Totals ===== */
+.totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.totals .form-group input {
     font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-.remove-btn:hover {
-    background-color: #b71c1c;
-}
-
-/* Total Field & Buttons */
-.total-group input {
-    font-weight: bold;
-    color: #0984e3;
-    background: #ecf0f1;
-    border: 1px solid #0984e3;
+    background-color: #ecf0f1;
+    border: 1px solid #bbb;
     border-radius: 8px;
-}
-
-.submit-btn {
-    background-color: #00b894;
-    color: #ffffff;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease;
-}
-.submit-btn:hover {
-    background-color: #00897b;
-}
-
-/* Bill Preview */
-.preview-card .bill-preview p {
-    margin: 10px 0;
-    font-size: 1rem;
-    color: #636e72;
-}
-.preview-card strong {
+    padding: 10px;
     color: #2d3436;
 }
 
-.print-btn {
-    background-color: #0984e3;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    margin-top: 12px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.3s ease;
-}
-.print-btn i {
-    margin-right: 5px;
-}
-.print-btn:hover {
-    background-color: #0652dd;
+/* ===== Payment Section ===== */
+.payment-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
 }
 
-/* Responsive Design */
-@media (max-width: 992px) {
-    .content-wrapper {
-        grid-template-columns: 1fr;
-    }
+.payment-group input,
+.payment-group select {
+    padding: 12px;
+    font-weight: 500;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+}
+
+.payment-group input:focus,
+.payment-group select:focus {
+    background-color: #ffffff;
+    border-color: #00cec9;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 206, 201, 0.15);
+}
+
+/* ===== Submit Button ===== */
+button[type="submit"] {
+    margin-top: 20px;
+    background-color: #00b894;
+    color: #fff;
+    padding: 14px 20px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+button[type="submit"]:hover {
+    background-color: #00897b;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
     .item-row {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
-    .remove-btn {
-        width: 30px;
-        height: 30px;
-    }
-}
-
-@media (max-width: 576px) {
-    .add-item-btn,
-    .submit-btn,
-    .print-btn {
-        width: 100%;
-        text-align: center;
+    .tabs {
+        flex-direction: column;
+        gap: 10px;
     }
 }
