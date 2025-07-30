@@ -50,9 +50,9 @@ Three-Tier Architecture:
 
 You can add an image like this to visualize:
 
-```markdown
-![System Architecture](./images/Archtecture_Diagram.png)
-```
+
+![System Architecture](/images/Archtecture_Diagram.png)
+
 
 ---
 
