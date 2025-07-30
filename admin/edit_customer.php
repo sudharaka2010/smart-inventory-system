@@ -4,6 +4,8 @@
 <?php
 include('../includes/auth.php');
 include('../includes/db_connect.php');
+include 'header.php';
+include 'sidebar.php';
 
 $id = intval($_GET['id']);
 $customer = $conn->query("SELECT * FROM customer WHERE CustomerID=$id")->fetch_assoc();

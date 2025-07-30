@@ -5,6 +5,9 @@
 include('../includes/auth.php');
 include('../includes/db_connect.php');
 
+include 'header.php';
+include 'sidebar.php';
+
 $id = intval($_GET['id']);
 $supplier = $conn->query("SELECT * FROM supplier WHERE SupplierID=$id")->fetch_assoc();
 

@@ -1,18 +1,192 @@
-.table-employee {
+/* General Styles for All Employee Pages */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* Main Content Wrapper */
+.main-content {
+    padding: 25px;
+    background-color: #f4f7f9;
+    min-height: calc(100vh - 80px); /* Adjust if header/footer height changes */
+}
+
+.content-section {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    padding: 30px 40px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+/* Headings */
+.content-section h1 {
+    text-align: center;
+    color: #0077b6;
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 15px;
+    margin: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-add {
+    background-color: #0077b6;
+    color: #fff;
+}
+
+.btn-add:hover {
+    background-color: #005f8a;
+    transform: scale(1.05);
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* Table Styles */
+.employee-table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.table-employee th, .table-employee td {
-    border: 1px solid #ddd;
-    padding: 12px;
+.employee-table th,
+.employee-table td {
+    padding: 14px 18px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
 }
 
-.table-employee th {
-    background-color: #8e24aa;
-    color: white;
+.employee-table th {
+    background-color: #0077b6;
+    color: #fff;
+    font-size: 16px;
 }
 
-.table-employee tr:nth-child(even) {
+.employee-table tr:nth-child(even) {
     background-color: #f9f9f9;
+}
+
+.employee-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Employee Image */
+.employee-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0077b6;
+}
+
+/* Add Employee Form */
+form {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px 40px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="file"],
+form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form input[type="number"]:focus,
+form input[type="file"]:focus,
+form textarea:focus {
+    border-color: #0077b6;
+    outline: none;
+}
+
+form textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+form button {
+    width: 100%;
+    background-color: #0077b6;
+    color: #ffffff;
+    border: none;
+    padding: 14px 0;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+form button:hover {
+    background-color: #005f8a;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-section {
+        padding: 20px;
+    }
+    .employee-img {
+        width: 50px;
+        height: 50px;
+    }
+    .btn {
+        font-size: 14px;
+        padding: 8px 14px;
+    }
+    form {
+        padding: 20px;
+    }
 }

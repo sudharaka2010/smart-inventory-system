@@ -1,84 +1,147 @@
-/* RESET */
+/* ===== Responsive Modern Business Header - header.css ===== */
+
+:root {
+  --header-bg: #3b5683;
+  --header-text: #f8fafc;
+  --header-hover: #38bdf8;
+  --header-active: #2563eb;
+  --logout-color: #ef4444;
+  --font-main: 'Poppins', sans-serif;
+  --transition-speed: 0.3s;
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background: #f1f5f9;
-    color: #1f2937;
-    min-height: 100vh;
-    display: flex;
+  font-family: var(--font-main);
+  background-color: #f8fafc;
+  color: #224081;
+}
+
+/* ========== HEADER ========== */
+.header {
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  width: 100%;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+}
+
+/* Container to center content on large screens */
+/* Updated Header Container */
+.header__container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  height: 40px;
+  position: relative;
+}
+
+
+
+/* Logo section */
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.header__logo-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.header__logo-text {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--header-text);
+}
+
+/* Navigation links */
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  transition: var(--transition-speed);
+}
+
+.header__nav a {
+  text-decoration: none;
+  color: var(--header-text);
+  font-weight: 500;
+  padding: 8px 0;
+  position: relative;
+  transition: color var(--transition-speed);
+}
+
+.header__nav a:hover,
+.header__nav a:focus {
+  color: var(--header-hover);
+}
+
+.header__nav a.logout {
+  color: var(--logout-color);
+}
+
+/* Toggle button for mobile */
+.header__toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  color: var(--header-text);
+  cursor: pointer;
+}
+
+/* ========== MEDIA QUERIES ========== */
+
+/* Tablets and below */
+@media (max-width: 1024px) {
+  .header__nav {
+    gap: 18px;
+  }
+}
+
+/* Phones and small tablets */
+@media (max-width: 768px) {
+  .header__toggle {
+    display: block;
+  }
+
+  .header__nav {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    left: 0;
+    background-color: var(--header-bg);
     flex-direction: column;
-}
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px 25px;
+    transform: translateY(-300%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-speed) ease-in-out;
+  }
 
-/* HEADER */
-.top-header {
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    height: 70px;
-}
-
-.top-header .logo {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.top-header .logo-img {
-     height: 40px;
-    width: auto;
-    margin-right: 10px;
-    object-fit: contain;
-}
-
-.top-header h1 {
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.top-nav a {
-    margin-left: 15px;
-    color: white;
-    text-decoration: none;
-    padding-right: 15px;
-}
-
-.top-nav a:hover, .logout-btn:hover {
-    color: #fbbf24;
-}
-
-.logout-btn {
-    background: #ef4444;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    margin-left: 15px;
-    transition: background 0.3s ease;
-}
-
-.logout-btn:hover {
-    background: #dc2626;
-}
-.dashboard-btn {
-    background-color: #1e3a8a;
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.dashboard-btn:hover {
-    background-color: #2563eb;
-    transform: translateY(-2px);
+  .header__nav--active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+  .header__logo {
+    margin-left: 12px; /* ← Moves logo slightly to the right */
+  }
+  
 }

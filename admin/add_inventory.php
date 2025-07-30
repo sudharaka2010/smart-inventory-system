@@ -1,119 +1,152 @@
-<link rel="stylesheet" href="../assets/css/add_inventory.css">
-
 <?php
 include('../includes/auth.php');
 include('../includes/db_connect.php');
 
-// Fetch suppliers for dropdown
-$supplierResult = $conn->query("SELECT SupplierID, Name FROM Supplier");
+// Fetch suppliers
+$suppliers = $conn->query("SELECT SupplierID, Name FROM supplier");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $supplierID = intval($_POST['supplier_id']);
-    $category = $conn->real_escape_string($_POST['category']);
-    $name = $conn->real_escape_string($_POST['name']);
-    $desc = $conn->real_escape_string($_POST['description']);
-    $receive_date = $conn->real_escape_string($_POST['receive_date']);
-    $qty = intval($_POST['quantity']);
-    $price = floatval($_POST['price']);
+    $invoiceID = $conn->real_escape_string($_POST['invoice_id']);
+    $receiveDate = $conn->real_escape_string($_POST['receive_date']);
 
-    $sql = "INSERT INTO InventoryItem (SupplierID, Category, Name, Description, ReceiveDate, Quantity, Price)
-            VALUES ($supplierID, '$category', '$name', '$desc', '$receive_date', $qty, $price)";
+    // Get Supplier Name
+    $result = $conn->query("SELECT Name FROM supplier WHERE SupplierID = $supplierID");
+    $supplierName = $result ? $result->fetch_assoc()['Name'] : 'Unknown';
 
-    if ($conn->query($sql)) {
-        header("Location: inventory.php");
-        exit();
-    } else {
-        echo "<p style='color:red;'>Error: " . $conn->error . "</p>";
+    $items = $_POST['items'];
+    $success = 0; $fail = 0;
+
+    foreach ($items as $item) {
+        $name = $conn->real_escape_string(trim($item['name']));
+        $description = $conn->real_escape_string(trim($item['description']));
+        $quantity = intval($item['quantity']);
+        $price = floatval($item['price']);
+        $category = !empty($item['category']) ? $conn->real_escape_string($item['category']) : 'Unknown';
+
+        if ($name && $description && $quantity > 0 && $price >= 0) {
+            $stmt = $conn->prepare("INSERT INTO inventoryitem (InvoiceID, NAME, Description, Quantity, Price, SupplierID, SupplierName, Category, ReceiveDate) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssdissss", $invoiceID, $name, $description, $quantity, $price, $supplierID, $supplierName, $category, $receiveDate);
+            $stmt->execute() ? $success++ : $fail++;
+        } else {
+            $fail++;
+        }
+    }
+
+    $message = "✅ $success item(s) added successfully.";
+    if ($fail > 0) {
+        $message .= " ❌ $fail item(s) failed to add.";
     }
 }
-include 'header.php';
-include 'sidebar.php';
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Inventory Items</title>
+    <link rel="stylesheet" href="../assets/css/add_inventory.css">
+    <style>
+        .item-card {
+            border: 1px solid #ccc; padding: 15px; margin-bottom: 10px;
+            border-radius: 5px; background: #f9fafb;
+        }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input, textarea, select { width: 100%; padding: 8px; }
+        .remove-btn { color: red; cursor: pointer; margin-top: 5px; }
+        .add-btn { margin-top: 10px; padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .submit-btn { margin-top: 15px; padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; font-weight: 600; }
+    </style>
+    <script>
+        let itemIndex = 0;
 
-    <!-- Main Content -->
-<main class="main-content">
-    <h2>Add New Inventory Item</h2>
-    <div class="content-grid">
-        <!-- Add Inventory Form -->
-        <div class="card">
-            <form class="add-inventory-form" method="POST" action="process_add_inventory.php" oninput="updatePreview()">
-                <div class="form-group">
-                    <label>Category</label>
-                    <select name="category" id="category" required>
-                        <option value="">--Select Category--</option>
-                        <option value="Plumbing">Plumbing</option>
-                        <option value="Construction">Construction</option>
-                        <option value="Rainwater Management">Rainwater Management</option>
-                    </select>
+        function addItem() {
+            const container = document.getElementById('items-container');
+            const html = `
+                <div class="item-card" id="item-${itemIndex}">
+                    <div class="form-group"><label>Item Name</label>
+                        <input name="items[${itemIndex}][name]" required></div>
+                    <div class="form-group"><label>Description</label>
+                        <textarea name="items[${itemIndex}][description]" required></textarea></div>
+                    <div class="form-group"><label>Quantity</label>
+                        <input type="number" name="items[${itemIndex}][quantity]" min="1" required oninput="updateTotal(${itemIndex})"></div>
+                    <div class="form-group"><label>Price (LKR)</label>
+                        <input type="number" name="items[${itemIndex}][price]" step="0.01" min="0" required oninput="updateTotal(${itemIndex})"></div>
+                    <div class="form-group"><label>Category</label>
+                        <select name="items[${itemIndex}][category]" required>
+                            <option value="">-- Select Category --</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Plumbing">Plumbing</option>
+                            <option value="Tools">Tools</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <p id="total-${itemIndex}" style="color: #1e40af;">Total: LKR 0.00</p>
+                    <span class="remove-btn" onclick="removeItem(${itemIndex})">🗑 Remove</span>
                 </div>
-                <div class="form-group">
-                    <label>Supplier</label>
-                    <select name="supplier_id" id="supplier" required>
-                        <option value="">-- Select Supplier --</option>
-                        <?php while ($row = $supplierResult->fetch_assoc()) { ?>
-                        <option value="<?php echo $row['SupplierID']; ?>">
-                            <?php echo htmlspecialchars($row['Name']); ?>
-                        </option>
-                        <?php } ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Item Name</label>
-                    <input type="text" name="name" id="item_name" placeholder="Enter item name" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" id="description" placeholder="Enter description"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Items Receive Date</label>
-                    <input type="datetime-local" name="receive_date" id="receive_date" required>
-                </div>
-                <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" name="quantity" id="quantity" placeholder="Enter quantity" required>
-                </div>
-                <div class="form-group">
-                    <label>Price (LKR)</label>
-                    <input type="number" name="price" id="price" placeholder="Enter price per item" step="0.01" required>
-                </div>
-                <button type="submit" class="submit-btn">Add Item</button>
-            </form>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            itemIndex++;
+        }
+
+        function removeItem(index) {
+            const el = document.getElementById(`item-${index}`);
+            if (el) el.remove();
+        }
+
+        function updateTotal(index) {
+            const qty = parseFloat(document.querySelector(`[name="items[${index}][quantity]"]`).value) || 0;
+            const price = parseFloat(document.querySelector(`[name="items[${index}][price]"]`).value) || 0;
+            document.getElementById(`total-${index}`).textContent = `Total: LKR ${(qty * price).toFixed(2)}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => addItem());
+    </script>
+</head>
+<body>
+<?php include 'header.php'; include 'sidebar.php'; ?>
+
+<div class="main-content">
+    <h2>Add Inventory Items </h2>
+
+    <?php if (isset($message)): ?>
+        <div style="margin: 10px 0; padding: 10px; background-color: #dcfce7; color: #065f46;">
+            <?= htmlspecialchars($message) ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="supplier_id">Select Supplier</label>
+            <select name="supplier_id" id="supplier_id" required>
+                <option value="">-- Choose Supplier --</option>
+                <?php while($s = $suppliers->fetch_assoc()): ?>
+                    <option value="<?= $s['SupplierID'] ?>"><?= htmlspecialchars($s['Name']) ?></option>
+                <?php endwhile; ?>
+            </select>
         </div>
 
-        <!-- Invoice Preview -->
-        <div class="card">
-            <h3>Invoice Preview</h3>
-            <div class="invoice-preview" id="invoice-preview">
-                <p><strong>Date & Time:</strong> <span id="preview_date">--</span></p>
-                <p><strong>Category:</strong> <span id="preview_category">--</span></p>
-                <p><strong>Item Name:</strong> <span id="preview_item">--</span></p>
-                <p><strong>Description:</strong> <span id="preview_description">--</span></p>
-                <p><strong>Quantity:</strong> <span id="preview_quantity">0</span></p>
-                <p><strong>Price:</strong> LKR <span id="preview_price">0.00</span></p>
-                <p><strong>Total:</strong> LKR <span id="preview_total">0.00</span></p>
-            </div>
-            <button onclick="window.print()" class="print-btn"><i class="fas fa-print"></i> Print / Save PDF</button>
+        <div class="form-group">
+            <label for="invoice_id">Invoice ID</label>
+            <input type="text" name="invoice_id" id="invoice_id" required placeholder="e.g., INV20250730001">
         </div>
-    </div>
-</main>
+
+        <div class="form-group">
+            <label for="receive_date">Receive Date</label>
+            <input type="datetime-local" name="receive_date" id="receive_date" required min="<?= date('Y-m-d\TH:i') ?>">
+        </div>
+
+        <div id="items-container"></div>
+        <button type="button" class="add-btn" onclick="addItem()">➕ Add Another Item</button>
+        <br><br>
+        <button type="submit" class="submit-btn">Save All Items</button>
+    </form>
+</div>
 
 <?php include 'footer.php'; ?>
-
-<script>
-function updatePreview() {
-    document.getElementById('preview_date').textContent = document.getElementById('receive_date').value;
-    document.getElementById('preview_category').textContent = document.getElementById('category').value;
-    document.getElementById('preview_item').textContent = document.getElementById('item_name').value;
-    document.getElementById('preview_description').textContent = document.getElementById('description').value;
-    document.getElementById('preview_quantity').textContent = document.getElementById('quantity').value;
-    document.getElementById('preview_price').textContent = parseFloat(document.getElementById('price').value).toFixed(2);
-    let qty = parseFloat(document.getElementById('quantity').value) || 0;
-    let price = parseFloat(document.getElementById('price').value) || 0;
-    document.getElementById('preview_total').textContent = (qty * price).toFixed(2);
-}
-</script>
-
-<?php
-include 'footer.php';
+</body>
+</html>

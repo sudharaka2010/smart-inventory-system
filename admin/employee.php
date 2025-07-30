@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="../assets/css/global.css">
-<link rel="stylesheet" href="../assets/css/employee.css">
+
+<link rel="stylesheet" href="/rbstorsg/assets/css/employee.css">
 
 <?php
 include('../includes/auth.php');
@@ -15,35 +15,51 @@ if (isset($_GET['delete'])) {
 
 // Fetch employees
 $result = $conn->query("SELECT * FROM employee");
+include 'header.php'; 
+include 'sidebar.php'; 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Employee Management</title>
-</head>
-<body>
-    <h1>Employee List</h1>
-    <a href="add_employee.php">Add New Employee</a>
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Salary</th>
-            <th>Actions</th>
-        </tr>
-        <?php while ($row = $result->fetch_assoc()) { ?>
-        <tr>
-            <td><?php echo htmlspecialchars($row['NAME']); ?></td>
-            <td><?php echo htmlspecialchars($row['Role']); ?></td>
-            <td><?php echo $row['Salary']; ?></td>
-            <td>
-                <a href="edit_employee.php?id=<?php echo $row['EmployeeID']; ?>">Edit</a> |
-                <a href="?delete=<?php echo $row['EmployeeID']; ?>" onclick="return confirm('Are you sure?');">Delete</a>
-            </td>
-        </tr>
-        <?php } ?>
-    </table>
-</body>
-</html>
+    <main class="main-content">
+    <section class="content-section">
+        <div class="employee-list-container">
+            <h1>Employee List</h1>
+            <a href="add_employee.php" class="btn btn-add">+ Add New Employee</a>
+            <table class="employee-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Contact</th>
+                        <th>Address</th>
+                        <th>Salary (LKR)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()) { ?>
+                    <tr>
+                        <td>
+                            <img src="../images/employee/<?php echo htmlspecialchars($row['Image']); ?>" alt="Employee Image" class="employee-img">
+                        </td>
+                         <td><?php echo htmlspecialchars($row['EmployeeID']); ?></td>
+                        <td><?php echo htmlspecialchars($row['NAME']); ?></td>
+                        <td><?php echo htmlspecialchars($row['Role']); ?></td>
+                        <td><?php echo htmlspecialchars($row['Contact']); ?></td>
+                        <td><?php echo htmlspecialchars($row['Address']); ?></td>
+                        <td>LKR <?php echo number_format($row['Salary'], 2); ?></td>
+                        <td>
+                            <a href="edit_employee.php?id=<?php echo $row['EmployeeID']; ?>" class="btn btn-edit">Edit</a>
+                            <a href="?delete=<?php echo $row['EmployeeID']; ?>" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+
+<?php include 'footer.php'; ?>
