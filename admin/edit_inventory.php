@@ -1,145 +1,147 @@
-<link rel="stylesheet" href="../assets/css/add_inventory.css">
-
 <?php
-
 include('../includes/auth.php');
 include('../includes/db_connect.php');
 
-// Check if user is logged in
-if (!isset($_SESSION['username']) || ($_SESSION['role'] != 'Admin' && $_SESSION['role'] != 'Staff')) {
-    header("Location: ../login.php");
-    exit();
-}
-
-// Validate ItemID from GET
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    echo "<p style='color:red;'>Invalid Item ID.</p>";
-    echo "<a href='inventory.php'>Back to Inventory</a>";
+    echo "<p style='color:red;'>Invalid Item ID.</p><a href='inventory.php'>Back to Inventory</a>";
     exit();
 }
 
 $itemID = intval($_GET['id']);
 
-// Fetch item details
-$stmt = $conn->prepare("SELECT * FROM InventoryItem WHERE ItemID = ?");
+// Fetch current item
+$stmt = $conn->prepare("SELECT * FROM inventoryitem WHERE ItemID = ?");
 $stmt->bind_param("i", $itemID);
 $stmt->execute();
 $result = $stmt->get_result();
 $item = $result->fetch_assoc();
 
 if (!$item) {
-    echo "<p style='color:red;'>Item not found!</p>";
-    echo "<a href='inventory.php'>Back to Inventory</a>";
+    echo "<p style='color:red;'>Item not found!</p><a href='inventory.php'>Back to Inventory</a>";
     exit();
 }
 
-// Fetch suppliers for dropdown
-$suppliers = $conn->query("SELECT SupplierID, Name FROM Supplier");
+// Fetch suppliers
+$suppliers = $conn->query("SELECT SupplierID, Name FROM supplier");
 
-// Update item on POST
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $invoiceID   = $conn->real_escape_string($_POST['invoice_id']);
-    $name        = $conn->real_escape_string($_POST['name']);
-    $description = $conn->real_escape_string($_POST['description']);
-    $quantity    = intval($_POST['quantity']);
-    $price       = floatval($_POST['price']);
-    $supplierID  = intval($_POST['supplier_id']);
-    $category    = $conn->real_escape_string($_POST['category']);
+$message = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $supplierID = intval($_POST['supplier_id']);
+    $invoiceID = $conn->real_escape_string($_POST['invoice_id']);
     $receiveDate = $conn->real_escape_string($_POST['receive_date']);
 
-    $updateQuery = $conn->prepare(
-        "UPDATE InventoryItem SET InvoiceID = ?, Name = ?, Description = ?, Quantity = ?, Price = ?, SupplierID = ?, Category = ?, ReceiveDate = ? WHERE ItemID = ?"
-    );
-    $updateQuery->bind_param("sssidissi", $invoiceID, $name, $description, $quantity, $price, $supplierID, $category, $receiveDate, $itemID);
+    // Get Supplier Name
+    $result = $conn->query("SELECT Name FROM supplier WHERE SupplierID = $supplierID");
+    $supplierName = $result ? $result->fetch_assoc()['Name'] : 'Unknown';
 
-    if ($updateQuery->execute()) {
-        header("Location: inventory.php?updated=1");
-        exit();
+    $name = $conn->real_escape_string(trim($_POST['name']));
+    $description = $conn->real_escape_string(trim($_POST['description']));
+    $quantity = intval($_POST['quantity']);
+    $price = floatval($_POST['price']);
+    $category = !empty($_POST['category']) ? $conn->real_escape_string($_POST['category']) : 'Unknown';
+
+    if ($name && $description && $quantity > 0 && $price >= 0) {
+        $stmt = $conn->prepare("UPDATE inventoryitem 
+            SET InvoiceID=?, NAME=?, Description=?, Quantity=?, Price=?, SupplierID=?, SupplierName=?, Category=?, ReceiveDate=? 
+            WHERE ItemID=?");
+        $stmt->bind_param("sssdissssi", $invoiceID, $name, $description, $quantity, $price, $supplierID, $supplierName, $category, $receiveDate, $itemID);
+        if ($stmt->execute()) {
+            $message = "✅ Item updated successfully.";
+        } else {
+            $message = "❌ Failed to update item.";
+        }
     } else {
-        echo "<p style='color:red;'>Error updating item: " . htmlspecialchars($conn->error) . "</p>";
+        $message = "❌ Please fill all required fields correctly.";
     }
 }
-
-include 'header.php'; 
-include 'sidebar.php'; 
-
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Inventory Item</title>
+    <link rel="stylesheet" href="../assets/css/edit_inventory.css">
+    <style>
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input, textarea, select { width: 100%; padding: 8px; }
+        .submit-btn { margin-top: 15px; padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 5px; font-weight: 600; }
+    </style>
+</head>
+<body>
+<?php include 'header.php'; include 'sidebar.php'; ?>
 
-
-<!-- Main Content -->
-<main class="main-content">
+<div class="main-content">
     <h2>Edit Inventory Item</h2>
-    <div class="content-grid">
-        <!-- Edit Inventory Form -->
-        <div class="card">
-            <form class="add-inventory-form" method="POST" oninput="updatePreview()">
-                <!-- Hidden ItemID -->
-                <input type="hidden" name="item_id" value="<?php echo intval($item['ItemID']); ?>">
 
-                <div class="form-group">
-                    <label>Invoice ID</label>
-                    <input type="text" value="<?php echo htmlspecialchars($item['InvoiceID']); ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Category</label>
-                    <input type="text" value="<?php echo htmlspecialchars($item['Category']); ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Supplier</label>
-                    <input type="text" value="<?php echo htmlspecialchars($item['SupplierID']); ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Item Name</label>
-                    <input type="text" name="name" id="item_name" value="<?php echo htmlspecialchars($item['NAME']); ?>" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" id="description"><?php echo htmlspecialchars($item['Description']); ?></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" name="quantity" id="quantity" value="<?php echo $item['Quantity']; ?>" required>
-                </div>
-                <div class="form-group">
-                    <label>Price (LKR)</label>
-                    <input type="number" name="price" id="price" value="<?php echo $item['Price']; ?>" step="0.01" required>
-                </div>
-                <button type="submit" class="submit-btn">Update Item</button>
-            </form>
+    <?php if (!empty($message)): ?>
+        <div style="margin: 10px 0; padding: 10px; background-color: #dcfce7; color: #065f46;">
+            <?= htmlspecialchars($message) ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="supplier_id">Select Supplier</label>
+            <select name="supplier_id" id="supplier_id" required>
+                <option value="">-- Choose Supplier --</option>
+                <?php while($s = $suppliers->fetch_assoc()): ?>
+                    <option value="<?= $s['SupplierID'] ?>" <?= $item['SupplierID'] == $s['SupplierID'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($s['Name']) ?>
+                    </option>
+                <?php endwhile; ?>
+            </select>
         </div>
 
-        <!-- Invoice Preview -->
-        <div class="card">
-            <h3>Invoice Preview</h3>
-            <div class="invoice-preview" id="invoice-preview">
-                <p><strong>Invoice ID:</strong> <span id="preview_invoice"><?php echo htmlspecialchars($item['InvoiceID']); ?></span></p>
-                <p><strong>Category:</strong> <span id="preview_category"><?php echo htmlspecialchars($item['Category']); ?></span></p>
-                <p><strong>Supplier ID:</strong> <span id="preview_supplier"><?php echo htmlspecialchars($item['SupplierID']); ?></span></p>
-                <p><strong>Item Name:</strong> <span id="preview_item"><?php echo htmlspecialchars($item['NAME']); ?></span></p>
-                <p><strong>Description:</strong> <span id="preview_description"><?php echo htmlspecialchars($item['Description']); ?></span></p>
-                <p><strong>Quantity:</strong> <span id="preview_quantity"><?php echo $item['Quantity']; ?></span></p>
-                <p><strong>Price:</strong> LKR <span id="preview_price"><?php echo number_format($item['Price'], 2); ?></span></p>
-                <p><strong>Total:</strong> LKR <span id="preview_total"><?php echo number_format($item['Quantity'] * $item['Price'], 2); ?></span></p>
-            </div>
-            <button onclick="window.print()" class="print-btn"><i class="fas fa-print"></i> Print / Save PDF</button>
+        <div class="form-group">
+            <label for="invoice_id">Invoice ID</label>
+            <input type="text" name="invoice_id" id="invoice_id" required value="<?= htmlspecialchars($item['InvoiceID']) ?>">
         </div>
-    </div>
-</main>
+
+        <div class="form-group">
+            <label for="receive_date">Receive Date</label>
+            <input type="datetime-local" name="receive_date" id="receive_date"
+                   value="<?= date('Y-m-d\TH:i', strtotime($item['ReceiveDate'])) ?>"
+                   required min="<?= date('Y-m-d\TH:i') ?>">
+        </div>
+
+        <div class="form-group">
+            <label>Item Name</label>
+            <input name="name" required value="<?= htmlspecialchars($item['NAME']) ?>">
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" required><?= htmlspecialchars($item['Description']) ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" name="quantity" min="1" required value="<?= $item['Quantity'] ?>">
+        </div>
+
+        <div class="form-group">
+            <label>Price (LKR)</label>
+            <input type="number" name="price" step="0.01" min="0" required value="<?= $item['Price'] ?>">
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            <select name="category" required>
+                <option value="">-- Select Category --</option>
+                <option value="Construction" <?= $item['Category'] === 'Construction' ? 'selected' : '' ?>>Construction</option>
+                <option value="Plumbing" <?= $item['Category'] === 'Plumbing' ? 'selected' : '' ?>>Plumbing</option>
+                <option value="Tools" <?= $item['Category'] === 'Tools' ? 'selected' : '' ?>>Tools</option>
+                <option value="Electrical" <?= $item['Category'] === 'Electrical' ? 'selected' : '' ?>>Electrical</option>
+                <option value="Other" <?= $item['Category'] === 'Other' ? 'selected' : '' ?>>Other</option>
+            </select>
+        </div>
+
+        <button type="submit" class="submit-btn">Update Item</button>
+    </form>
+</div>
 
 <?php include 'footer.php'; ?>
-
-<script>
-function updatePreview() {
-    document.getElementById('preview_item').textContent = document.getElementById('item_name').value;
-    document.getElementById('preview_description').textContent = document.getElementById('description').value;
-    document.getElementById('preview_quantity').textContent = document.getElementById('quantity').value;
-    let price = parseFloat(document.getElementById('price').value) || 0;
-    document.getElementById('preview_price').textContent = price.toFixed(2);
-    let qty = parseFloat(document.getElementById('quantity').value) || 0;
-    document.getElementById('preview_total').textContent = (qty * price).toFixed(2);
-}
-</script>
-
-
-<?php include 'footer.php'; ?>
+</body>
+</html>
