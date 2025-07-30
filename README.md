@@ -43,9 +43,9 @@ Our project aims to automate and streamline these processes with a smart, web-ba
 
 ```
 Three-Tier Architecture:
-1. Presentation Layer: UI components (React/Angular)
-2. Business Logic Layer: Application logic (Node.js / Laravel)
-3. Data Layer: MySQL / MongoDB
+1. Presentation Layer: UI components (HTML/CSS)
+2. Business Logic Layer: Application logic (javaScript)
+3. Data Layer: MySQL 
 ```
 
 You can add an image like this to visualize:
