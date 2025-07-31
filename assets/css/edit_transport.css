@@ -123,6 +123,13 @@ textarea {
     min-height: 100px;
 }
 
+/* Action Buttons */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
 /* Submit Button */
 .btn-submit {
     background-color: var(--accent-color);
@@ -134,11 +141,29 @@ textarea {
     border-radius: var(--radius);
     cursor: pointer;
     transition: var(--transition);
-    align-self: flex-start;
 }
 
 .btn-submit:hover {
     background-color: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* Cancel Button */
+.btn-secondary {
+    background-color: #e0e0e0;
+    color: #2d3436;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 14px 30px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.btn-secondary:hover {
+    background-color: #d1d8e0;
     transform: translateY(-2px);
 }
 
@@ -168,8 +193,14 @@ textarea {
         font-size: 1.7rem;
     }
 
-    .btn-submit {
+    .btn-submit,
+    .btn-secondary {
         width: 100%;
         text-align: center;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
     }
 }

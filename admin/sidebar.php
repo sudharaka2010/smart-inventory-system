@@ -76,11 +76,21 @@
     </li>
     <li>
       <div class="menu-item" onclick="toggleDropdown(this)">
+        <i class="fas fa-undo-alt"></i> Returns <i class="fas fa-chevron-down dropdown-icon"></i>
+      </div>
+      <ul class="submenu">
+        <li><a href="add_return.php"><i class="fas fa-plus-circle"></i> Add Return</a></li>
+      <li><a href="view_return.php"><i class="fas fa-list-alt"></i> View Returns</a></li>
+      </ul>
+      </li>
+
+    <li>
+      <div class="menu-item" onclick="toggleDropdown(this)">
         <i class="fas fa-comments"></i> Feedback <i class="fas fa-chevron-down dropdown-icon"></i>
       </div>
       <ul class="submenu">
-        <li><a href="feedback.php"><i class="fas fa-comment-alt"></i> View Feedback</a></li>
         <li><a href="add_feedback.php"><i class="fas fa-plus"></i> Add Feedback</a></li>
+        <li><a href="feedback.php"><i class="fas fa-comment-alt"></i> View Feedback</a></li>
       </ul>
     </li>
     <li>

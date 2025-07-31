@@ -1,0 +1,82 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f9fbfd;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin: 40px auto;
+    max-width: 700px;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.feedback-form .form-group {
+    margin-bottom: 20px;
+}
+
+.feedback-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.feedback-form select,
+.feedback-form textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+.feedback-form textarea {
+    resize: vertical;
+}
+
+.btn-submit {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+.success-msg {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.error-msg {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 25px;
+    }
+}
