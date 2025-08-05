@@ -3,8 +3,7 @@
 <?php
 include('../includes/auth.php');
 include('../includes/db_connect.php');
-include 'header.php';
-include 'sidebar.php';
+
 
 // Handle delete securely
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
@@ -46,6 +45,9 @@ if (!empty($params)) {
 }
 $stmt->execute();
 $result = $stmt->get_result();
+
+include 'header.php';
+include 'sidebar.php';
 ?>
 
 <main class="main-content">
