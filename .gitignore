@@ -3,7 +3,7 @@
 .profile.d/
 .vendor/
 .php/
-composer.lock
+
 
 # === Dependency folders (Node/Composer/etc.) ===
 node_modules/
