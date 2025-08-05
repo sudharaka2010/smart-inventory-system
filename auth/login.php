@@ -1,13 +1,13 @@
-<link rel="stylesheet" href="../assets/css/login.css">
-
 <?php
 session_start();
 include('../includes/db_connect.php');
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+$error = '';
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = $conn->real_escape_string($_POST['username']);
     $password = $_POST['password'];
-    $selectedRole = $conn->real_escape_string($_POST['role']); // Role selected from frontend
+    $selectedRole = $conn->real_escape_string($_POST['role']);
 
     $sql = "SELECT * FROM Users WHERE Username='$username'";
     $result = $conn->query($sql);
@@ -16,15 +16,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
 
         if ($row['Role'] !== $selectedRole) {
-            $error = "You are trying to login as $selectedRole, but this account is for {$row['Role']}.";
+            $error = "You are trying to login as <b>$selectedRole</b>, but this account is for <b>{$row['Role']}</b>.";
         } elseif (password_verify($password, $row['PASSWORD'])) {
             $_SESSION['username'] = $row['Username'];
             $_SESSION['role'] = $row['Role'];
 
-            if ($row['Role'] === 'Admin') {
-                header("Location: ../admin/dashboard.php");
+            if (strtolower($row['Role']) === 'admin') {
+                header("Location: /admin/dashboard.php");
             } else {
-                header("Location: ../staff/dashboard.php");
+                header("Location: /staff/dashboard.php");
             }
             exit();
         } else {
@@ -35,17 +35,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>RB Stores Login</title>
-    
+    <link rel="stylesheet" href="../assets/css/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
     <!-- Top Navbar -->
     <header class="top-header">
         <div class="logo">
@@ -62,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Login Card -->
     <div class="login-container">
         <h2>Welcome Login Portal</h2>
-        <p>Please Enter your details to Sign in</p>
+        <p>Please enter your details to sign in</p>
 
         <div class="role-btns">
             <button id="adminBtn" class="active">Admin</button>
@@ -72,9 +71,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <form action="login.php" method="POST">
             <input type="hidden" name="role" id="selectedRole" value="Admin">
+
             <div class="input-group">
                 <input type="text" name="username" placeholder="User Name" required>
             </div>
+
             <div class="input-group">
                 <input type="password" name="password" placeholder="Password" id="password" required>
                 <div class="toggle-password" id="togglePassword">
@@ -83,17 +84,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </svg>
                 </div>
             </div>
+
             <div class="forgot-password">
                 <a href="#">Forgot Password?</a>
             </div>
-            <button type="submit" class="login-btn">Login</button>
-             <?php if (isset($error)) echo "<div class='error-message'>$error</div>"; ?>
 
+            <button type="submit" class="login-btn">Login</button>
+
+            <?php if (!empty($error)): ?>
+                <div class="error-message"><?php echo $error; ?></div>
+            <?php endif; ?>
         </form>
     </div>
 
     <footer class="footer">
-        Code Counter Team Group -15
+        Code Counter Team Group - 15
     </footer>
 
     <script>
@@ -104,8 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const staffBtn = document.getElementById('staffBtn');
 
         togglePassword.addEventListener('click', () => {
-            const type = passwordField.type === 'password' ? 'text' : 'password';
-            passwordField.type = type;
+            passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
         });
 
         adminBtn.addEventListener('click', () => {
