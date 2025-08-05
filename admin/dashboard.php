@@ -12,8 +12,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'Admin') {
     exit();
 }
 // admin/dashboard.php
-include 'header.php';
-include 'sidebar.php';
+
 include('../includes/db_connect.php');
 // Total Items
 $totalItems = $conn->query("SELECT SUM(Quantity) AS total FROM InventoryItem")->fetch_assoc()['total'] ?? 0;
@@ -23,6 +22,8 @@ $lowStock = $conn->query("SELECT COUNT(*) AS low FROM InventoryItem WHERE Quanti
 
 // Pending Deliveries
 $pendingDeliveries = $conn->query("SELECT COUNT(*) AS pending FROM Transport WHERE Status='Pending'")->fetch_assoc()['pending'] ?? 0;
+include 'header.php';
+include 'sidebar.php';
 ?>
 
 
