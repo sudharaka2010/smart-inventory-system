@@ -1,5 +1,5 @@
 
-<link rel="stylesheet" href="/rbstorsg/assets/css/footer.css">
+<link rel="stylesheet" href="/assets/css/footer.css">
 <!-- Footer -->
  
     <footer class="footer">
