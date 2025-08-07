@@ -1,5 +1,13 @@
 <?php
 session_start();
+
+header("Content-Security-Policy: default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com;");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+header("Referrer-Policy: no-referrer");
+header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
+
 include('../includes/db_connect.php');
 
 $error = ''; // Ensure this is always defined
