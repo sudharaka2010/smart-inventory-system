@@ -52,6 +52,7 @@ $pendingDeliveries = getSafeValue($conn, "SELECT COUNT(*) AS pending FROM transp
     ?>
 
     <!-- ✅ Main Content -->
+     <link rel="stylesheet" href="/assets/css/dashboard.css">
     <main class="main-content">
         <h2>Welcome to <span class="highlight">RB Stores Dashboard</span></h2>
         <p>Select a menu item to get started.</p>
