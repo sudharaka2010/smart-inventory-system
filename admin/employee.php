@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/rbstorsg/assets/css/employee.css">
+<link rel="stylesheet" href="/assets/css/employee.css">
 
 <?php
 include('../includes/auth.php');
