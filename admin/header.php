@@ -10,14 +10,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
 
   <!-- Header CSS -->
-  <link rel="stylesheet" href="/rbstorsg/assets/css/header.css">
+  <link rel="stylesheet" href="/assets/css/header.css">
 </head>
 <body>
 
 <header class="header">
   <div class="header__container">
     <div class="header__logo" onclick="window.location='dashboard.php'">
-      <img src="/rbstorsg/assets/images/rb.png" alt="RB Stores Logo" class="header__logo-img">
+      <img src="/assets/images/rb.png" alt="RB Stores Logo" class="header__logo-img">
       <span class="header__logo-text">RB Stores</span>
     </div>
 
