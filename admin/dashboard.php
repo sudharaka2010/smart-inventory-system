@@ -27,8 +27,8 @@ function getSafeValue($conn, $query, $field) {
     return 0;
 }
 
-$totalItems = getSafeValue($conn, "SELECT SUM(Quantity) AS total FROM InventoryItem", 'total');
-$lowStock = getSafeValue($conn, "SELECT COUNT(*) AS low FROM InventoryItem WHERE Quantity <= 5", 'low');
+$totalItems = getSafeValue($conn, "SELECT SUM(Quantity) AS total FROM inventoryitem", 'total');
+$lowStock = getSafeValue($conn, "SELECT COUNT(*) AS low FROM inventoryitem WHERE Quantity <= 5", 'low');
 $pendingDeliveries = getSafeValue($conn, "SELECT COUNT(*) AS pending FROM Transport WHERE Status='Pending'", 'pending');
 ?>
 
