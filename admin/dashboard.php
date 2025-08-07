@@ -37,9 +37,6 @@ $pendingDeliveries = getSafeValue($conn, "SELECT COUNT(*) AS pending FROM transp
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard - RB Stores</title>
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
-    <link rel="stylesheet" href="/assets/css/header.css">
-    <link rel="stylesheet" href="/assets/css/sidebar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
