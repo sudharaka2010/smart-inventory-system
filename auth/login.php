@@ -32,7 +32,7 @@ $cspNonce = base64_encode(random_bytes(16));
 header("Content-Security-Policy: default-src 'self'; ".
        "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com 'nonce-{$cspNonce}'; ".
        "style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com; ".
-       "font-src 'self' https://fonts.gstatic.com; ".
+       "font-src  'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ".
        "img-src 'self' data:; ".
        "connect-src 'self'; ".
        "frame-ancestors 'self'; ");
