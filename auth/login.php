@@ -203,15 +203,21 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 <body>
     <header class="top-header">
         <div class="logo">
-            <h1>RB Stores</h1>
+        <h1>RB Stores</h1>
             <p>Rain Water Solution Management System</p>
         </div>
-        <nav class="top-nav">
+
+        <button class="nav-toggle" aria-expanded="false" aria-controls="topnav" aria-label="Open menu">
+            ☰
+        </button>
+
+        <nav id="topnav" class="top-nav">
             <a href="#">About</a>
             <a href="#">Contact</a>
-            <a href="#">Support <i class="fas fa-headset"></i></a>
+            <a href="#">Support</a>
         </nav>
     </header>
+
 
     <div class="login-container">
         <h2>Welcome Login Portal</h2>
@@ -291,5 +297,16 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
             });
         })();
     </script>
+
+    <script nonce="<?= $cspNonce ?>">
+        const header = document.querySelector('.top-header');
+        const btn = document.querySelector('.nav-toggle');
+        btn?.addEventListener('click', () => {
+            const open = header.classList.toggle('nav-open');
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            btn.textContent = open ? '✕' : '☰';
+        });
+</script>
+
 </body>
 </html>
