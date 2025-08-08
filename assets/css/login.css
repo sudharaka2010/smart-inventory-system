@@ -110,16 +110,21 @@ body{
   display:flex;
   align-items:center;
   gap:clamp(10px,2.2vw,24px);
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
 }
 
 .top-nav a{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
   color:#fff;
   text-decoration:none;
-  font-size:clamp(12px,1.6vw,14px);
-  font-weight:500;
-  position:relative;
-  outline:none;
+  font-size: clamp(12px, 1.6vw, 14px);
+  font-weight:600;
+  padding: 8px 10px;
+  border-radius:10px;
+  transition: background .15s ease, transform .15s ease, color .15s ease;
+  outline: none;
 }
 
 .top-nav a::after{
