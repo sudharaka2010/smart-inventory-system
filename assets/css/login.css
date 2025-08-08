@@ -330,14 +330,22 @@ body{
 /* Footer */
 .footer{
   margin-top:auto;
-  color:#fff;
+  width:100%;
+  color:#e8eefc;
   text-align:center;
-  font-size:clamp(11px,1.7vw,12px);
-  font-weight:500;
-  padding:12px clamp(12px,3vw,20px);
-  border-top-left-radius:var(--radius-sm);
-  border-top-right-radius:var(--radius-sm);
-  background:linear-gradient(135deg,var(--bg-grad-start),var(--bg-grad-end));
+  font-weight:600;
+  letter-spacing:.2px;
+  background: color-mix(in srgb, #0b1220 45%, transparent);
+  backdrop-filter: saturate(120%) blur(6px);
+  border-top:1px solid rgba(255,255,255,.10);
+  box-shadow: 0 -6px 24px rgba(0,0,0,.25);
+
+  /* spacing + safe areas */
+  padding: clamp(10px,1.8vh,16px) clamp(12px,3vw,24px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  font-size: clamp(12px,1.7vw,13px);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 /* Focus rings (global safety) */
