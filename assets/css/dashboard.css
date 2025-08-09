@@ -1,4 +1,4 @@
-/* ============== MAIN CONTENT ============== */
+/* ================== MAIN CONTENT ================== */
 .main-content {
   margin-left: 260px;
   margin-top: 5px;
@@ -18,7 +18,7 @@
 /* Accent text (e.g., invoice IDs) */
 .accent { color: #60a5fa; }
 
-/* ============== KPI / STATUS CARDS ============== */
+/* ================== KPI / STATUS CARDS ================== */
 .status-panel { margin-top: 10px; }
 
 .status-grid {
@@ -43,23 +43,14 @@
   opacity: .95;
 }
 
-.status-card h4 {
-  margin: 4px 0 6px;
-  font-weight: 600;
-}
-
-.status-card p {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
+.status-card h4 { margin: 4px 0 6px; font-weight: 600; }
+.status-card p  { margin: 0; font-size: 1.25rem; font-weight: 700; }
 
 .status-card-link {
   text-decoration: none;
   color: inherit;
   display: block; /* make link fill the card */
 }
-
 .status-card-link:hover { text-decoration: none; color: inherit; }
 
 .status-card:hover {
@@ -67,7 +58,7 @@
   box-shadow: 0 10px 22px rgba(0,0,0,.18);
 }
 
-/* ============== BADGES & STATES ============== */
+/* ================== BADGES & STATES ================== */
 .badge {
   display: inline-block;
   padding: 4px 10px;
@@ -76,23 +67,11 @@
   font-weight: 600;
   letter-spacing: .2px;
 }
+.ok    { color: #10b981; background: rgba(16,185,129,.15); }
+.warn  { color: #f59e0b; background: rgba(245,158,11,.15); }
+.danger{ color: #ef4444; background: rgba(239,68,68,.15); }
 
-.ok {
-  color: #10b981;
-  background: rgba(16,185,129,.15);
-}
-
-.warn {
-  color: #f59e0b;
-  background: rgba(245,158,11,.15);
-}
-
-.danger {
-  color: #ef4444;
-  background: rgba(239,68,68,.15);
-}
-
-/* ============== CARDS (for tables/sections) ============== */
+/* ================== CONTENT CARDS (tables/sections) ================== */
 .cards-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -115,7 +94,7 @@
   color: #e2e8f0;
 }
 
-/* ============== TABLES ============== */
+/* ================== TABLES ================== */
 .table-wrap { width: 100%; overflow-x: auto; }
 
 .table {
@@ -156,21 +135,19 @@
 }
 
 /* Quantity heat colors inside tables */
-.table td.warn { color: #f59e0b; font-weight: 700; }
+.table td.warn   { color: #f59e0b; font-weight: 700; }
 .table td.danger { color: #ef4444; font-weight: 700; }
 
-/* ============== UTILITIES ============== */
+/* ================== RESPONSIVE ================== */
 @media (max-width: 1024px) {
-  .main-content { margin-left: 0; } /* if sidebar collapses on tablet */
+  .main-content { margin-left: 0; } /* if sidebar collapses */
 }
-
 @media (max-width: 640px) {
   .status-grid { gap: 12px; }
   .cards-2 { grid-template-columns: 1fr; }
   .section-title { margin-top: 2px; }
   .table thead th, .table tbody td { padding: 10px; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .status-card { transition: none; }
 }
