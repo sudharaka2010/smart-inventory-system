@@ -2,10 +2,11 @@
 // ---------- BOOTSTRAP ----------
 ob_start();
 
-// Enforce HTTPS (comment out on localhost if needed)
-if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
-    // header("Location: https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-    // exit;
+/* ---- HTTPS ENFORCEMENT (works on Heroku) ---- */
+$proto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ($_SERVER['REQUEST_SCHEME'] ?? '');
+if ($proto !== 'https') {
+    header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], true, 301);
+    exit;
 }
 
 // Strong session config
