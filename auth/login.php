@@ -36,11 +36,13 @@ header("Content-Security-Policy: default-src 'self'; ".
        "font-src  'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ".
        "img-src 'self' data:; ".
        "connect-src 'self'; ".
-       "frame-ancestors 'self'; ");
+       "frame-ancestors 'none'; ".
+       "upgrade-insecure-requests");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
+header("X-Frame-Options: DENY");
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
-header("Referrer-Policy: no-referrer");
+header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 
 require_once('../includes/db_connect.php');
