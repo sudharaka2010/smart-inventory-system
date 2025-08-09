@@ -9,6 +9,9 @@ if ($proto !== 'https') {
     exit;
 }
 
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+
 // Strong session config
 session_set_cookie_params([
     'lifetime' => 0,
@@ -40,10 +43,10 @@ header("Content-Security-Policy: default-src 'self'; ".
        "upgrade-insecure-requests");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
-header("X-Frame-Options: DENY");
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
+
 
 require_once('../includes/db_connect.php');
 
