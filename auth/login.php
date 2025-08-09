@@ -199,6 +199,7 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="google-site-verification" content="XyXgDFGCSa5vJsvgW2o9idI86SFLBYzG3ki4NowhsFg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta charset="UTF-8" />
     <title>RB Stores Login</title>
