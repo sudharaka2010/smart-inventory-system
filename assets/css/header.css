@@ -1,147 +1,183 @@
-/* ===== Responsive Modern Business Header - header.css ===== */
-
+/* RB Stores — Header */
+/* Base reset (scoped) */
 :root {
-  --header-bg: #3b5683;
-  --header-text: #f8fafc;
-  --header-hover: #38bdf8;
-  --header-active: #2563eb;
-  --logout-color: #ef4444;
-  --font-main: 'Poppins', sans-serif;
-  --transition-speed: 0.3s;
+  --header-height: 64px;
+  --bg: #0f172a;          /* slate-900 */
+  --bg-weak: #111827;     /* near slate-900 */
+  --text: #e5e7eb;        /* gray-200 */
+  --muted: #9ca3af;       /* gray-400 */
+  --brand: #38bdf8;       /* sky-400 */
+  --accent: #22c55e;      /* green-500 */
+  --danger: #ef4444;      /* red-500 */
+  --ring: rgba(56, 189, 248, .4);
+  --shadow: 0 8px 24px rgba(0,0,0,.18);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; }
+.header a { text-decoration: none; }
+.header img { display: block; }
 
-body {
-  font-family: var(--font-main);
-  background-color: #f8fafc;
-  color: #224081;
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  background: #111827;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: top .2s ease;
+  z-index: 10000;
 }
+.skip-link:focus { top: 12px; }
 
-/* ========== HEADER ========== */
+/* Header shell */
 .header {
-  background-color: var(--header-bg);
-  color: var(--header-text);
-  width: 100%;
-  padding: 10px 20px;
   position: sticky;
   top: 0;
-  z-index: 999;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  
+  z-index: 1000;
+  background: linear-gradient(180deg, var(--bg), var(--bg-weak));
+  color: var(--text);
+  box-shadow: var(--shadow);
 }
-
-/* Container to center content on large screens */
-/* Updated Header Container */
 .header__container {
-  display: flex;
-  justify-content: space-between;
+  height: var(--header-height);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 0 30px;
-  height: 40px;
-  position: relative;
+  gap: 12px;
 }
 
-
-
-/* Logo section */
+/* Logo */
 .header__logo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
 }
-
 .header__logo-img {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));
 }
-
 .header__logo-text {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--header-text);
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: .2px;
+  color: #fff;
 }
 
-/* Navigation links */
+/* Toggle (mobile) */
+.header__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; height: 44px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: transparent;
+  color: var(--text);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+  order: -1; /* move left on mobile */
+}
+.header__toggle:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.header__toggle:hover {
+  background: rgba(255,255,255,.05);
+  transform: translateY(-1px);
+}
+
+/* Nav */
 .header__nav {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 25px;
-  transition: var(--transition-speed);
+  justify-content: flex-end;
 }
-
-.header__nav a {
-  text-decoration: none;
-  color: var(--header-text);
+.header__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   font-weight: 500;
-  padding: 8px 0;
-  position: relative;
-  transition: color var(--transition-speed);
+  font-size: 14px;
+  color: var(--text);
+  border: 1px solid transparent;
+  transition: background .12s ease, color .12s ease, border-color .12s ease, transform .12s ease;
+}
+.header__link:hover {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.08);
+  transform: translateY(-1px);
+}
+.header__link.is-active {
+  background: rgba(56,189,248,.12);
+  color: #e6f9ff;
+  border-color: rgba(56,189,248,.35);
+  box-shadow: 0 4px 14px rgba(56,189,248,.15) inset;
+}
+.header__link--logout {
+  color: #ffecec;
+  border-color: rgba(239,68,68,.25);
+}
+.header__link--logout:hover {
+  background: rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.5);
 }
 
-.header__nav a:hover,
-.header__nav a:focus {
-  color: var(--header-hover);
-}
-
-.header__nav a.logout {
-  color: var(--logout-color);
-}
-
-/* Toggle button for mobile */
-.header__toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 1.6rem;
-  color: var(--header-text);
-  cursor: pointer;
-}
-
-/* ========== MEDIA QUERIES ========== */
-
-/* Tablets and below */
-@media (max-width: 1024px) {
-  .header__nav {
-    gap: 18px;
+/* Responsive — mobile menu */
+@media (max-width: 991px) {
+  .header__container {
+    grid-template-columns: auto 1fr auto;
   }
-}
-
-/* Phones and small tablets */
-@media (max-width: 768px) {
-  .header__toggle {
-    display: block;
-  }
-
   .header__nav {
-    position: absolute;
-    top: 60px;
-    right: 0;
-    left: 0;
-    background-color: var(--header-bg);
+    position: fixed;
+    inset: var(--header-height) 0 auto 0;
+    height: calc(100dvh - var(--header-height));
+    background: rgba(15,23,42,.98);
+    backdrop-filter: saturate(140%) blur(6px);
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px 25px;
-    transform: translateY(-300%);
+    align-items: stretch;
+    padding: 16px;
+    gap: 8px;
+    transform: translateY(-4px);
     opacity: 0;
-    visibility: hidden;
-    transition: all var(--transition-speed) ease-in-out;
+    pointer-events: none;
+    transition: opacity .18s ease;
   }
-
-  .header__nav--active {
-    transform: translateY(0);
+  .header__nav.header__nav--active {
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
   }
-  .header__logo {
-    margin-left: 12px; /* ← Moves logo slightly to the right */
+  .header__link {
+    padding: 14px 16px;
+    font-size: 15px;
+    border: 1px solid rgba(255,255,255,.06);
+    background: rgba(255,255,255,.02);
   }
-  
+}
+
+/* Desktop tweaks */
+@media (min-width: 992px) {
+  .header__toggle { display: none; }
+  .header__container { gap: 16px; }
+  .header__link { font-size: 14px; }
+}
+
+/* Page wrapper (optional) */
+.page {
+  min-height: calc(100dvh - var(--header-height));
+  background: #0b1220; /* subtle dark */
+  padding: 16px;
 }
