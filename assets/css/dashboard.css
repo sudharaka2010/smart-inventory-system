@@ -1,19 +1,17 @@
-/* ================= RB STORES – LIGHT THEME + BLUE GRADIENT HERO =================
-   White background, blue-accent cards/tables, and a login-like gradient hero bar.
-   Works with Bootstrap 5 and your updated PHP dashboard.
-================================================================================== */
+/* ================= RB STORES – LIGHT THEME + BLUE HERO (Bootstrap 5) ================= */
 
-/* ---------- TOKENS ---------- */
+/* ---------- Tokens ---------- */
 :root{
   --container:1280px;
+
   --radius:14px;
   --radius-sm:10px;
 
-  /* Light base */
+  /* Light palette */
   --bg:#ffffff;
   --surface:#ffffff;
   --card:#ffffff;
-  --card-2:#f8fbff;             /* soft blue tint */
+  --card-2:#f8fbff;               /* subtle blue tint */
   --line:rgba(15,23,42,.10);
 
   --text:#0f172a;
@@ -23,12 +21,12 @@
   --accent:#4f7df3;
   --accent-2:#7aa4ff;
 
-  /* Gradient (hero/cards) */
-  --grad-1:#4f7df3;  /* Poppins-like blue */
-  --grad-2:#5865f2;  /* Discord-ish indigo */
-  --grad-3:#3b82f6;  /* Tailwind blue */
+  /* Gradient (hero / accents) */
+  --grad-1:#4f7df3;
+  --grad-2:#5865f2;
+  --grad-3:#3b82f6;
 
-  /* KPI/Status */
+  /* Status */
   --ok:#0f9d58;
   --warn:#eab308;
   --danger:#e11d48;
@@ -41,19 +39,23 @@
   --footer-h:56px;
 }
 
+/* Motion */
 @media (prefers-reduced-motion:no-preference){ :root{ --e:.18s cubic-bezier(.2,.7,.2,1); } }
 @media (prefers-reduced-motion:reduce){ :root{ --e:0s; } }
 
-/* ---------- PAGE ---------- */
+/* ---------- Base / Bootstrap touches ---------- */
 html,body{ background:var(--bg); color:var(--text); }
 body{ padding-bottom: var(--footer-h); }
 .container, .container-fluid{ max-width: var(--container); }
 
 a{ color: var(--accent); text-decoration: none; }
 a:hover{ color: var(--accent-2); text-decoration: underline; }
-.text-secondary{ color: var(--muted) !important; }
 
-/* ---------- HERO (like login) ---------- */
+.bg-body-tertiary{ background-color: var(--bg) !important; }
+.text-secondary{ color: var(--muted) !important; }
+.text-primary{ color: var(--accent) !important; }
+
+/* ---------- Hero bar (login-style gradient) ---------- */
 .hero-gradient{
   background: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 45%, var(--grad-3) 100%);
   color:#fff;
@@ -68,21 +70,22 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
 .hero-gradient h1,.hero-gradient h2,.hero-gradient .lead{ margin:0; }
 .hero-gradient .lead{ opacity:.9; }
 
-/* ---------- MAIN WRAPPER ---------- */
+/* ---------- Main wrapper ---------- */
 .main-content{
   margin-top: 14px;
   padding: 20px clamp(12px,2.5vw,24px) 28px;
 }
 .page-title, .main-content h2{
   font-size: clamp(1.2rem, 1.8vw, 1.5rem);
-  font-weight:800; margin:0 0 4px;
-  color:#0b1220;
+  font-weight:800; margin:0 0 4px; color:#0b1220;
 }
+.main-content h3{ font-size:1rem; font-weight:800; margin:8px 0 12px; color:#111827; }
 .muted{ color: var(--muted); font-size:.95rem; }
+.small{ font-size:.925rem; }
 
-/* ---------- CARDS ---------- */
+/* ---------- Cards ---------- */
 .card{
-  background: linear-gradient(180deg, #fff 0%, #f7faff 100%); /* subtle blue tint */
+  background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
@@ -90,6 +93,7 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
   position: relative;
 }
 .card:hover{ transform: translateY(-2px); box-shadow: 0 24px 48px rgba(2,6,23,.12), 0 2px 8px rgba(2,6,23,.06); }
+
 .card-header{
   background: linear-gradient(135deg, #f1f5ff, #eef2ff) !important;
   border-bottom: 1px solid var(--line) !important;
@@ -98,7 +102,7 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
   border-top-right-radius: var(--radius);
 }
 
-/* KPI tile bits */
+/* KPI tiles */
 .kpi-icon{
   font-size: 1.75rem;
   width:48px; height:48px;
@@ -114,21 +118,23 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
   border-bottom-left-radius: var(--radius);
   border-bottom-right-radius: var(--radius);
 }
+/* Slightly larger KPI number */
+.card .fs-4.fw-semibold{ font-size:1.45rem !important; }
 
-/* ---------- BADGES ---------- */
+/* ---------- Badges ---------- */
 .badge{ font-weight:700; letter-spacing:.2px; padding:.45rem .65rem; border-radius:999px; }
-.text-bg-success{ background: rgba(15,157,88,.14) !important; color: var(--ok) !important; }
-.text-bg-warning{ background: rgba(234,179,8,.16) !important; color: #9a7b06 !important; }
-.text-bg-danger{  background: rgba(225,29,72,.14) !important; color: var(--danger) !important; }
-.text-bg-secondary{ background: rgba(2,6,23,.08) !important; color: #334155 !important; }
+.text-bg-success{  background: rgba(15,157,88,.14) !important;  color: var(--ok) !important; }
+.text-bg-warning{  background: rgba(234,179,8,.16) !important;  color: #9a7b06 !important; }
+.text-bg-danger{   background: rgba(225,29,72,.14) !important;  color: var(--danger) !important; }
+.text-bg-secondary{background: rgba(2,6,23,.08) !important;   color: #334155 !important; }
 
-/* ---------- TABLES (with brand blues) ---------- */
+/* ---------- Tables ---------- */
 .table-responsive{
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #ffffff;
   box-shadow: var(--shadow-md);
-  overflow:auto;
+  overflow:hidden; /* keep rounded header corners */
 }
 
 .table{
@@ -140,11 +146,14 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
 }
 .table thead th{
   font-size:12px; text-transform:uppercase; letter-spacing:.4px;
-  color:#1e293b;
-  background: linear-gradient(135deg, #eaf1ff, #e3e9ff) !important; /* blue gradient header */
+  color:#0f172a;
+  background: linear-gradient(135deg, #eaf1ff, #e3e9ff) !important;
   position: sticky; top: 0; z-index: 1;
   border-bottom: 1px solid var(--line) !important;
 }
+.table thead th:first-child { border-top-left-radius: 12px; }
+.table thead th:last-child  { border-top-right-radius: 12px; }
+
 .table td, .table th{
   vertical-align: middle;
   border-color: var(--line) !important;
@@ -155,41 +164,56 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
 .table .text-end{ text-align:right !important; }
 .table.table-sm td, .table.table-sm th{ padding:.55rem .75rem; }
 
-/* “Pill” rows look for lists (optional) */
+/* “Pill” rows look (we add table--soft in HTML) */
 .table--soft tbody tr{
   border-radius: var(--radius-sm);
   box-shadow: inset 0 1px 0 rgba(2,6,23,.04), inset 0 -1px 0 rgba(2,6,23,.04);
 }
 
-/* ---------- HELPERS ---------- */
+/* ---------- Utilities ---------- */
 section .row.g-3 > [class*="col-"] > .card{ height:100%; }
-code{ background:#eef4ff; padding:.15rem .35rem; border-radius:.25rem; color:#1e40af; }
+
+code{
+  background:#eef4ff;
+  padding:.15rem .35rem;
+  border-radius:.25rem;
+  color:#1e40af;
+}
 :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:8px; }
+
 .table-responsive::-webkit-scrollbar{ height:10px; width:10px; }
 .table-responsive::-webkit-scrollbar-thumb{ background: rgba(2,6,23,.18); border-radius:8px; }
 .table-responsive::-webkit-scrollbar-track{ background: rgba(2,6,23,.06); border-radius:8px; }
 
-/* ---------- PRINT ---------- */
+/* ---------- Print ---------- */
 @media print{
   html,body{ background:#fff; color:#111; }
   .card, .table-responsive{ box-shadow:none; border:1px solid #ddd; }
   .card-header{ background:#f8f9fa !important; color:#111; }
 }
 
-/* ---------- FOOTER (optional fixed) ---------- */
+/* ---------- Footer (optional fixed) ---------- */
 footer, .site-footer, .app-footer{
-  /* position: fixed; */ /* enable if your footer is fixed */
+  /* position: fixed; */  /* enable if your footer is fixed */
   left:0; right:0; bottom:0; height: var(--footer-h); z-index:50;
 }
 
-/* ---------- Tiny-screen stacked-table (optional) ---------- */
+/* ---------- Tiny-screen stacked table (optional) ----------
+   Add .table--stack + one of the helper classes to enable.
+*/
 @media (max-width:700px){
   .table--stack thead{ display:none; }
-  .table--stack tbody tr{ display:block; margin:10px; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow-sm); background:#fff !important; }
-  .table--stack tbody td{ display:grid; grid-template-columns: 130px 1fr; gap:10px; padding:.75rem .9rem; }
+  .table--stack tbody tr{
+    display:block; margin:10px; border:1px solid var(--line);
+    border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow-sm); background:#fff !important;
+  }
+  .table--stack tbody td{
+    display:grid; grid-template-columns: 130px 1fr; gap:10px; padding:.75rem .9rem;
+  }
   .table--stack tbody td::before{
     color: var(--muted); text-transform: uppercase; letter-spacing:.3px; font-size:11px; font-weight:700;
   }
+  /* Labels by table type */
   .table--stack.recent-orders tbody td:nth-child(1)::before{ content:"Order #"; }
   .table--stack.recent-orders tbody td:nth-child(2)::before{ content:"Invoice"; }
   .table--stack.recent-orders tbody td:nth-child(3)::before{ content:"Customer"; }
