@@ -1,7 +1,8 @@
 /* RB Stores — Sidebar (Bootstrap 5)
-   Professional + Business look, smooth transitions, mobile offcanvas,
-   fixed left sidebar on ≥ xl screens.
+   Professional + business look, mobile offcanvas, sticky desktop sidebar.
+   NOTE: Place your <header class="app-header"> OUTSIDE the .rb-shell wrapper.
 */
+
 :root {
   --rb-bg: #0e1220;
   --rb-surface: #151a2a;
@@ -18,9 +19,33 @@ body {
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   background: #0b0f1a;
   color: var(--rb-text);
+  margin: 0;
 }
 
-/* Top bar on mobile */
+/* ---------------------- */
+/* Layout wrappers        */
+/* ---------------------- */
+
+/* Wrap ONLY the sidebar + page content in this container */
+.rb-shell {
+  min-height: 100vh;
+}
+
+/* If your site header is fixed, uncomment this to keep it clear of the sidebar on desktop
+@media (min-width: 1200px) {
+  .app-header {
+    margin-left: 300px;  /* match sidebar width */
+  
+
+
+/* Main page content area */
+.rb-main {
+  min-height: 100%;
+  padding: 1rem;
+  color: #dfe7fb;
+}
+
+/* Top bar visible only on mobile (if you use it) */
 .rb-topbar {
   height: 56px;
   display: flex;
@@ -30,7 +55,10 @@ body {
   border-bottom: 1px solid var(--rb-border);
 }
 
-/* Sidebar Offcanvas / Desktop fixed */
+/* ---------------------- */
+/* Sidebar (offcanvas)    */
+/* ---------------------- */
+
 .rb-sidebar {
   background: linear-gradient(180deg, var(--rb-bg), var(--rb-surface));
   color: var(--rb-text);
@@ -38,6 +66,7 @@ body {
   border-right: 1px solid var(--rb-border);
 }
 
+/* Brand */
 .rb-brand {
   border-bottom: 1px solid var(--rb-border);
 }
@@ -46,7 +75,7 @@ body {
   letter-spacing: .3px;
 }
 
-/* Accordion buttons (section headers) */
+/* Accordion head buttons */
 .rb-accordion-btn {
   background: transparent !important;
   color: var(--rb-text) !important;
@@ -62,7 +91,7 @@ body {
 }
 
 /* Inner menu list */
-.rb-menu { margin: 0; padding: 6px 0; }
+.rb-menu { margin: 0; padding: 6px 0; list-style: none; }
 .rb-link {
   display: flex;
   align-items: center;
@@ -70,7 +99,7 @@ body {
   padding: 10px 16px;
   color: var(--rb-muted);
   text-decoration: none;
-  transition: background .2s ease, color .2s ease, padding-left .2s ease, box-shadow .2s ease;
+  transition: background .2s ease, color .2s ease, padding-left .2s ease, box-shadow .2s ease, border-left-color .2s ease;
   border-left: 3px solid transparent;
 }
 .rb-link:hover {
@@ -85,20 +114,18 @@ body {
   box-shadow: inset 0 1px 0 0 rgba(255,255,255,.03);
 }
 
-/* Footer area */
+/* Footer area in sidebar */
 .rb-footer {
   border-top: 1px solid var(--rb-border);
-  background: rgba(0,0,0,.15);
+  background: rgba(0,0,0,.12);
 }
 
-/* Main content spacer if you keep sidebar in-page */
-.rb-main {
-  min-height: 100vh;
-  padding: 1rem;
-  color: #dfe7fb;
-}
+/* ---------------------- */
+/* Desktop behavior       */
+/* ---------------------- */
 
-/* Desktop: make offcanvas behave like a fixed sidebar */
+/* On ≥1200px: make offcanvas behave like a fixed left sidebar,
+   and put .rb-shell into a two-column grid (sidebar + content). */
 @media (min-width: 1200px) {
   .offcanvas.offcanvas-start.rb-sidebar {
     position: sticky;
@@ -108,16 +135,21 @@ body {
     transition: none;
     height: 100vh;
   }
-  body {
+
+  /* IMPORTANT: grid is scoped to .rb-shell (NOT body) */
+  .rb-shell {
     display: grid;
     grid-template-columns: 300px 1fr;
   }
+
   .rb-main {
     padding: 2rem;
   }
 }
 
+/* ---------------------- */
 /* Scrollbar styling (WebKit) */
+/* ---------------------- */
 .rb-sidebar ::-webkit-scrollbar {
   width: 10px;
 }
