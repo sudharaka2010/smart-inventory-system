@@ -1,107 +1,233 @@
-/* RB Stores — Sidebar (Bootstrap 5) */
-/* Aligns perfectly with a fixed header and fixed footer. */
+/* ===========================
+   RB Stores — Sidebar Styles
+   Works with Bootstrap 5.3+
+   File: /assets/css/sidebar.css
+   =========================== */
 
 :root{
-  --rb-bg:#0e1220;
-  --rb-surface:#151a2a;
-  --rb-border:#232a3d;
-  --rb-text:#e9eef7;
-  --rb-muted:#a9b3c9;
-  --rb-accent:#2e7df6;
-  --rb-accent-weak:rgba(46,125,246,.15);
-
-  /* set your actual header/footer heights here */
-  --header-h: 64px;
-  --footer-h: 56px;
+  --rb-sidebar-width: 280px;
+  --rb-topbar-height: 56px;
+  --rb-bg: #0f172a;            /* slate-900 */
+  --rb-bg-elev: #111827;       /* near-slate-900 */
+  --rb-text: #cbd5e1;          /* slate-300 */
+  --rb-text-dim: #94a3b8;      /* slate-400 */
+  --rb-accent: #22c55e;        /* emerald-500 */
+  --rb-accent-weak: rgba(34,197,94,.14);
+  --rb-border: rgba(255,255,255,0.08);
+  --rb-hover: rgba(255,255,255,0.06);
+  --rb-active: rgba(34,197,94,0.18);
+  --rb-shadow: 0 10px 30px rgba(0,0,0,.25);
+  --rb-radius: 14px;
+  --rb-transition: 180ms cubic-bezier(.2,.6,.2,1);
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
-  background:#0b0f1a;color:var(--rb-text);
+/* Base reset */
+html, body {
+  height: 100%;
+}
+body {
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+  background: #0b1220;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ====== LAYOUT WRAPPER ====== */
-.rb-shell{min-height:100vh}
-
-/* If your <header> and <footer> are NOT fixed, remove these. */
-.app-header{height:var(--header-h)}
-.app-footer{height:var(--footer-h)}
-
-/* When header/footer are fixed, add these body classes in HTML:
-   <body class="has-fixed-header has-fixed-footer"> */
-.has-fixed-header .rb-shell{padding-top:var(--header-h)}
-.has-fixed-footer .rb-shell{padding-bottom:var(--footer-h)}
-
-/* ====== MAIN CONTENT ====== */
-.rb-main{min-height:100%;padding:1rem;color:#dfe7fb}
-
-/* ====== SIDEBAR (offcanvas mobile / sticky desktop) ====== */
-.rb-sidebar{
-  background:linear-gradient(180deg,var(--rb-bg),var(--rb-surface));
-  color:var(--rb-text);
-  width:300px;
-  border-right:1px solid var(--rb-border);
+/* ===========================
+   Mobile Top Bar
+   =========================== */
+.rb-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1045; /* above offcanvas backdrop */
+  height: var(--rb-topbar-height);
+  display: flex;
+  align-items: center;
+  padding: 0 .75rem;
+  background: var(--rb-bg);
+  border-bottom: 1px solid var(--rb-border);
+  color: var(--rb-text);
 }
 
-/* Brand */
-.rb-brand{border-bottom:1px solid var(--rb-border)}
-.rb-brand .rb-brand-text{font-weight:600;letter-spacing:.3px}
-
-/* Accordion header buttons */
-.rb-accordion-btn{
-  background:transparent!important;color:var(--rb-text)!important;
-  padding:14px 16px;gap:.5rem;border-bottom:1px solid var(--rb-border);font-weight:500;
-}
-.rb-accordion-btn:not(.collapsed){
-  background:var(--rb-accent-weak)!important;color:var(--rb-text)!important;
-  box-shadow:inset 3px 0 0 0 var(--rb-accent);
+/* Push page content below the topbar on mobile/tablet */
+.rb-main {
+  padding: 1rem;
+  padding-top: calc(var(--rb-topbar-height) + 0.5rem);
 }
 
-/* Inner menu */
-.rb-menu{margin:0;padding:6px 0;list-style:none}
-.rb-link{
-  display:flex;align-items:center;gap:.5rem;padding:10px 16px;
-  color:var(--rb-muted);text-decoration:none;border-left:3px solid transparent;
-  transition:background .2s,color .2s,padding-left .2s,border-left-color .2s,box-shadow .2s;
-}
-.rb-link:hover{color:var(--rb-text);background:#121729;padding-left:20px}
-.rb-link.active{
-  color:var(--rb-text);background:#11172a;border-left-color:var(--rb-accent);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+/* ===========================
+   Sidebar Container
+   - Offcanvas on mobile/tablet
+   - Fixed panel on >= xl
+   =========================== */
+.rb-sidebar {
+  background: var(--rb-bg);
+  color: var(--rb-text);
+  border-right: 1px solid var(--rb-border);
 }
 
-/* Sidebar footer area */
-.rb-footer{border-top:1px solid var(--rb-border);background:rgba(0,0,0,.12)}
+/* Offcanvas header (mobile) */
+.rb-sidebar .offcanvas-header {
+  background: var(--rb-bg-elev);
+  border-bottom: 1px solid var(--rb-border);
+  color: var(--rb-text);
+}
 
-/* ====== DESKTOP BEHAVIOR ====== */
-@media (min-width:1200px){
-  /* make offcanvas behave like a fixed/sticky column */
-  .offcanvas.offcanvas-start.rb-sidebar{
-    position:sticky;
-    /* offset below header if header is fixed */
-    top: calc(var(--header-h, 0px));
-    transform:none!important;visibility:visible!important;transition:none;
-    /* shrink so it stops above footer if footer is fixed */
-    height: calc(100vh - var(--header-h, 0px) - var(--footer-h, 0px));
+/* Brand (desktop) */
+.rb-brand {
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-brand .rb-brand-text{
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+
+/* Accordion section headers */
+.rb-accordion-btn {
+  background: transparent;
+  color: var(--rb-text);
+  font-weight: 500;
+  padding: .9rem 1rem;
+  border-radius: 0;
+  border-bottom: 1px solid var(--rb-border);
+  gap: .5rem;
+  transition: background var(--rb-transition), color var(--rb-transition);
+}
+.rb-accordion-btn:hover {
+  background: var(--rb-hover);
+  color: #fff;
+}
+.accordion-button::after {
+  filter: invert(80%); /* lighten the chevron */
+  opacity: .7;
+}
+.accordion-button:not(.collapsed) {
+  color: #fff;
+  background: linear-gradient(0deg, var(--rb-hover), transparent);
+  box-shadow: none;
+}
+
+/* Menu list inside sections */
+.rb-menu {
+  margin: .25rem 0 0 0;
+  padding: .25rem 0 .75rem 0;
+}
+.rb-link {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem 1rem .65rem 1rem;
+  color: var(--rb-text);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background var(--rb-transition), color var(--rb-transition), border-color var(--rb-transition), transform var(--rb-transition);
+}
+.rb-link i {
+  width: 1.1rem;
+  text-align: center;
+  opacity: .9;
+}
+.rb-link:hover {
+  background: var(--rb-hover);
+  color: #fff;
+  border-left-color: var(--rb-accent);
+}
+.rb-link.active {
+  background: var(--rb-active);
+  color: #fff;
+  border-left-color: var(--rb-accent);
+  font-weight: 600;
+}
+
+/* Footer (logout) */
+.rb-footer {
+  border-top: 1px solid var(--rb-border);
+  background: rgba(255,255,255,0.02);
+}
+.rb-footer .rb-link {
+  border-left: 0;
+  padding-left: .25rem;
+}
+
+/* Custom scrollbar (desktop & offcanvas body) */
+.rb-sidebar .offcanvas-body,
+.rb-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rb-accent) transparent;
+}
+.rb-sidebar .offcanvas-body::-webkit-scrollbar,
+.rb-sidebar::-webkit-scrollbar{
+  width: 8px;
+}
+.rb-sidebar .offcanvas-body::-webkit-scrollbar-thumb,
+.rb-sidebar::-webkit-scrollbar-thumb{
+  background: linear-gradient(var(--rb-accent), #16a34a);
+  border-radius: 8px;
+}
+.rb-sidebar .offcanvas-body::-webkit-scrollbar-track,
+.rb-sidebar::-webkit-scrollbar-track{
+  background: transparent;
+}
+
+/* Focus states (accessibility) */
+.rb-link:focus-visible,
+.rb-accordion-btn:focus-visible,
+.rb-topbar button:focus-visible {
+  outline: 2px solid var(--rb-accent);
+  outline-offset: 2px;
+}
+
+/* ===========================
+   Desktop Layout (>= xl)
+   - Sidebar becomes fixed
+   - Main content gets margin-left
+   =========================== */
+@media (min-width: 1200px){
+  /* Hide the offcanvas chrome; turn it into a fixed panel */
+  .rb-sidebar.offcanvas {
+    position: fixed;
+    inset: 0 auto 0 0;                  /* top:0 right:auto bottom:0 left:0 */
+    transform: none !important;         /* keep visible */
+    visibility: visible !important;
+    background: var(--rb-bg);
+    width: var(--rb-sidebar-width) !important;
+    border-right: 1px solid var(--rb-border);
+    box-shadow: var(--rb-shadow);
+  }
+  .rb-sidebar .offcanvas-header{
+    display: none !important;           /* header only for mobile */
+  }
+  .rb-sidebar .offcanvas-body{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;                         /* we handle internal spacing */
+    overflow-y: auto;
   }
 
-  /* grid is scoped to wrapper (keeps header/footer full width) */
-  .rb-shell{display:grid;grid-template-columns:300px 1fr}
-
-  .rb-main{padding:2rem}
+  /* No mobile topbar on desktop; remove top padding */
+  .rb-topbar{ display: none !important; }
+  .rb-main{
+    padding: 1.25rem 1.25rem 1.5rem 1.25rem;
+    margin-left: var(--rb-sidebar-width);
+    min-height: 100vh;
+  }
 }
 
-/* ====== MOBILE TOP BAR (optional) ====== */
-.rb-topbar{
-  height:56px;display:flex;align-items:center;padding:0 .75rem;
-  background:linear-gradient(180deg,#0f1526,#0b0f1a);
-  border-bottom:1px solid var(--rb-border);
-}
+/* ===========================
+   Optional: If you have a global header/footer outside this file,
+   you can uncomment and adjust these to make the sidebar stop under
+   the header or above the footer.
 
-/* ====== SCROLLBAR (webkit) ====== */
-.rb-sidebar ::-webkit-scrollbar{width:10px}
-.rb-sidebar ::-webkit-scrollbar-thumb{background:#1e2436;border-radius:8px}
-.rb-sidebar ::-webkit-scrollbar-track{background:transparent}
+   Replace 64px with your header/footer heights.
+
+   Example:
+   @media (min-width:1200px){
+     .rb-sidebar.offcanvas { top:64px; }
+     .rb-main { margin-top:64px; }
+     footer.site-footer { margin-left: var(--rb-sidebar-width); }
+   }
+   =========================== */
+
+/* Utility tweaks */
+.fa-solid, .fa-regular { vertical-align: -1px; }
