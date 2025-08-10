@@ -1,15 +1,19 @@
 <?php
 // =================== RB Stores — Admin Dashboard (mysqli) ===================
-// Toggle DEV/PROD display
+
+// ---------- ENV ----------
 $IS_DEV = false;
+date_default_timezone_set('Asia/Colombo');
+
+// Errors (quiet in prod)
 ini_set('display_errors', $IS_DEV ? '1' : '0');
 ini_set('display_startup_errors', $IS_DEV ? '1' : '0');
 error_reporting($IS_DEV ? E_ALL : 0);
 
-// Session + Auth
+// ---------- Session + Auth ----------
 if (session_status() === PHP_SESSION_NONE) {
-    // Optional hardening (uncomment if desired):
-    // session_set_cookie_params(['httponly'=>true,'samesite'=>'Lax','secure'=>isset($_SERVER['HTTPS'])]);
+    // Optional cookie hardening:
+    // session_set_cookie_params(['httponly'=>true,'samesite'=>'Lax','secure'=>!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
     session_start();
 }
 if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
@@ -17,31 +21,37 @@ if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
     exit();
 }
 
-// Security headers (dashboard-safe defaults)
+// ---------- Security headers ----------
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: no-referrer-when-downgrade");
 header("X-Frame-Options: SAMEORIGIN");
 header("Permissions-Policy: microphone=(), camera=()");
-header("Content-Security-Policy: ".
-  "default-src 'self' https: data: blob:; ".
-  "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; ".
-  "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
-  "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
-  "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; ".
-  "img-src 'self' https: data: blob:; ".
-  "connect-src 'self'; ".
-  "frame-ancestors 'self';"
-);
 
+if (!$IS_DEV) {
+    header(
+        "Content-Security-Policy: ".
+        "default-src 'self' https: data: blob:; ".
+        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; ".
+        "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
+        "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; ".
+        "img-src 'self' https: data: blob:; ".
+        "connect-src 'self'; ".
+        "frame-ancestors 'self';"
+    );
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+    }
+}
 
-// DB
+// ---------- DB ----------
 require_once(__DIR__ . '/../includes/db_connect.php');
 if (!isset($conn) || !$conn instanceof mysqli) {
     http_response_code(500);
     echo "<h1>Database not connected.</h1>";
     exit();
 }
-@$conn->set_charset('utf8mb4');
+$conn->set_charset('utf8mb4');
 
 // ---------- Helpers ----------
 function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
@@ -102,8 +112,7 @@ $rev_total_amount = 0.00;
 $rev_amount_paid  = 0.00;
 
 if ($hasTotalAmount) {
-    $rev_total_amount = (float)getSafeValue($conn,
-        "SELECT ROUND(COALESCE(SUM(`TotalAmount`),0),2) AS v FROM `order`", 'v');
+    $rev_total_amount = (float)getSafeValue($conn, "SELECT ROUND(COALESCE(SUM(`TotalAmount`),0),2) AS v FROM `order`", 'v');
 } elseif ($hasSubTotal && $hasDiscount && $hasVAT) {
     $rev_total_amount = (float)getSafeValue($conn, "
         SELECT ROUND(COALESCE(SUM(`SubTotal` * (1 - `Discount`/100) * (1 + `VAT`/100)),0),2) AS v
@@ -116,8 +125,7 @@ if ($hasTotalAmount) {
 }
 
 if ($hasAmountPaid) {
-    $rev_amount_paid = (float)getSafeValue($conn,
-        "SELECT ROUND(COALESCE(SUM(`AmountPaid`),0),2) AS v FROM `order`", 'v');
+    $rev_amount_paid = (float)getSafeValue($conn, "SELECT ROUND(COALESCE(SUM(`AmountPaid`),0),2) AS v FROM `order`", 'v');
 }
 
 $rev = [
@@ -156,10 +164,10 @@ $lowStock = fetchAll($conn, "
   LIMIT 10
 ");
 
-// Layout includes (optional)
-$headerFile = __DIR__ . '/header.php';
+// ---------- Layout includes ----------
+$headerFile  = __DIR__ . '/header.php';
 $sidebarFile = __DIR__ . '/sidebar.php';
-$footerFile = __DIR__ . '/footer.php';
+$footerFile  = __DIR__ . '/footer.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -182,13 +190,15 @@ $footerFile = __DIR__ . '/footer.php';
   <div class="row">
     <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
 
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4 main-content">
-      <div class="d-flex flex-wrap align-items-end gap-2 mb-3">
+    <!-- Hero (blue gradient, matches login) -->
+    <div class="hero-gradient">
+      <div class="hero-inner">
         <h2 class="m-0">RB Stores Dashboard</h2>
-        <span class="text-secondary small">
-          As of <?=date('Y-m-d');?> • Balance = <strong>TotalAmount − AmountPaid</strong>
-        </span>
+        <span class="lead">As of <?=date('Y-m-d');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
       </div>
+    </div>
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4 main-content">
 
       <!-- KPI Grid -->
       <section class="mb-4">
@@ -208,22 +218,23 @@ $footerFile = __DIR__ . '/footer.php';
             ['Returns', number_format($kpi['returns']), 'fa-rotate-left','secondary'],
           ];
           foreach ($cards as $c) {
-              [$label,$val,$icon,$variant,$href] = [$c[0],$c[1],$c[2],$c[3],$c[4] ?? null];
-              $inner = '
-                <div class="card h-100 shadow-sm border-0">
-                  <div class="card-body d-flex align-items-center gap-3">
-                    <div class="kpi-icon text-'.$variant.'">
-                      <i class="fa '.$icon.'"></i>
-                    </div>
-                    <div>
-                      <div class="text-secondary small">'.$label.'</div>
-                      <div class="fs-4 fw-semibold">'.$val.'</div>
-                    </div>
+            [$label,$val,$icon,$variant,$href] = [$c[0],$c[1],$c[2],$c[3],$c[4] ?? null];
+            $inner = '
+              <div class="card h-100 shadow-sm border-0 position-relative">
+                <div class="card-body d-flex align-items-center gap-3">
+                  <div class="kpi-icon text-'.$variant.'">
+                    <i class="fa '.$icon.'"></i>
                   </div>
-                </div>';
-              echo '<div class="col-12 col-sm-6 col-lg-4">';
-              echo $href ? '<a class="text-decoration-none" href="'.h($href).'">'.$inner.'</a>' : $inner;
-              echo '</div>';
+                  <div>
+                    <div class="text-secondary small">'.$label.'</div>
+                    <div class="fs-4 fw-semibold">'.$val.'</div>
+                  </div>
+                </div>
+                <span class="kpi-accent"></span>
+              </div>';
+            echo '<div class="col-12 col-sm-6 col-lg-4">';
+            echo $href ? '<a class="text-decoration-none" href="'.h($href).'">'.$inner.'</a>' : $inner;
+            echo '</div>';
           }
           ?>
         </div>
@@ -231,14 +242,15 @@ $footerFile = __DIR__ . '/footer.php';
 
       <!-- Tables -->
       <section class="row g-3">
+        <!-- Recent Orders -->
         <div class="col-12 col-xl-7">
           <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white border-0 pb-0">
+            <div class="card-header border-0 pb-0">
               <h4 class="h6 m-0">Recent Orders</h4>
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table--soft recent-orders">
                   <thead class="table-light">
                     <tr>
                       <th>Order #</th>
@@ -257,7 +269,7 @@ $footerFile = __DIR__ . '/footer.php';
                       <td>#<?= (int)$o['OrderID']; ?></td>
                       <td class="text-primary fw-semibold"><?= h($o['InvoiceID'] ?: '—'); ?></td>
                       <td><?= h($o['CustomerName'] ?? 'Guest'); ?></td>
-                      <td><?= h($o['OrderDate']); /* could format for LK: date('d/m/Y', strtotime(...)) */ ?></td>
+                      <td><?= h($o['OrderDate']); ?></td>
                       <td class="text-end"><?= n2($o['TotalAmount'] ?? 0); ?></td>
                       <td>
                         <?php
@@ -276,14 +288,15 @@ $footerFile = __DIR__ . '/footer.php';
           </div>
         </div>
 
+        <!-- Right column -->
         <div class="col-12 col-xl-5">
           <div class="card shadow-sm border-0 mb-3">
-            <div class="card-header bg-white border-0 pb-0">
+            <div class="card-header border-0 pb-0">
               <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-sm align-middle">
+                <table class="table table-sm align-middle table--soft top-items">
                   <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
                   <tbody>
                   <?php if (!$topItems): ?>
@@ -301,12 +314,12 @@ $footerFile = __DIR__ . '/footer.php';
           </div>
 
           <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-0 pb-0">
+            <div class="card-header border-0 pb-0">
               <h4 class="h6 m-0">Low Stock (≤ 10)</h4>
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-sm align-middle">
+                <table class="table table-sm align-middle table--soft low-stock">
                   <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
                   <tbody>
                   <?php if (!$lowStock): ?>
