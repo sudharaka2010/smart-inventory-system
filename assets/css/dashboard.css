@@ -66,22 +66,25 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
 .text-secondary{ color: var(--muted) !important; }
 .text-primary{ color: var(--accent) !important; }
 
-/* ---------- Hero (blue-purple bar like login navbar) ---------- */
+/* ---------- Hero (full-width blue-purple bar) ---------- */
 .hero-gradient{
+  position: relative;
+  width: 100%;
   background: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 50%, var(--grad-3) 100%);
   color:#fff;
   box-shadow: 0 12px 36px rgba(64,98,247,.35);
-  border-radius: 18px;
-  margin: .75rem 1rem 0;
+  border-radius: 0; /* remove corner rounding for full-width */
+  margin: 0 0 1rem 0; /* no side margins */
+  padding: clamp(12px, 2vw, 18px) clamp(12px, 2.5vw, 24px);
 }
 .hero-gradient .hero-inner{
   max-width: var(--container);
   margin: 0 auto;
-  padding: clamp(12px, 2vw, 18px) clamp(12px, 2.5vw, 24px);
   display:flex; align-items:end; gap:12px; flex-wrap:wrap;
 }
 .hero-gradient h1,.hero-gradient h2,.hero-gradient .lead{ margin:0; }
 .hero-gradient .lead{ opacity:.95; }
+
 
 /* ---------- Main wrapper ---------- */
 .main-content{
