@@ -146,9 +146,8 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
 .kpi-icon{
   font-size: 1.4rem;
   width:48px; height:48px; display:grid; place-items:center;
-  border-radius:12px; color:#fff;
+  border-radius:12px; 
   background: radial-gradient(140% 140% at 30% 10%, #91b1ff 0%, #547cf6 45%, #3244f6 100%);
-  box-shadow: 0 10px 24px rgba(79,125,243,.35), inset 0 0 18px rgba(122,164,255,.25);
   border:1px solid rgba(255,255,255,.10);
 }
 .card .kpi-accent{
