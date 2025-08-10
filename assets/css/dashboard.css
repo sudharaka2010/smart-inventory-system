@@ -1,36 +1,37 @@
-/* ================= RB STORES – LIGHT THEME (Bootstrap 5 compatible) =================
-   Matches login look: white background, blue accent, soft shadows, rounded cards.
-   Works with the updated PHP dashboard (cards, tables, badges).
-===================================================================================== */
+/* ================= RB STORES – LIGHT THEME + BLUE GRADIENT HERO =================
+   White background, blue-accent cards/tables, and a login-like gradient hero bar.
+   Works with Bootstrap 5 and your updated PHP dashboard.
+================================================================================== */
 
-/* ---------- THEME TOKENS (Light default) ---------- */
+/* ---------- TOKENS ---------- */
 :root{
-  /* Layout */
   --container:1280px;
   --radius:14px;
   --radius-sm:10px;
 
-  /* Colors (light) */
-  --bg:#ffffff;                 /* page background */
-  --surface:#ffffff;            /* panel/surface */
-  --card:#ffffff;               /* card body */
-  --card-2:#f9fbff;             /* subtle alt row */
-  --line:rgba(15,23,42,.10);    /* borders/dividers */
+  /* Light base */
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --card:#ffffff;
+  --card-2:#f8fbff;             /* soft blue tint */
+  --line:rgba(15,23,42,.10);
 
-  --text:#0f172a;               /* main text */
-  --muted:#64748b;              /* secondary text */
+  --text:#0f172a;
+  --muted:#64748b;
 
-  --accent:#4f7df3;             /* blue like login page */
+  /* Brand blues (match login) */
+  --accent:#4f7df3;
   --accent-2:#7aa4ff;
 
-  /* KPI gradient strip */
-  --grad-a:#4f46e5;
-  --grad-b:#3b82f6;
+  /* Gradient (hero/cards) */
+  --grad-1:#4f7df3;  /* Poppins-like blue */
+  --grad-2:#5865f2;  /* Discord-ish indigo */
+  --grad-3:#3b82f6;  /* Tailwind blue */
 
-  /* Status */
-  --ok:#0f9d58;     /* success */
-  --warn:#eab308;   /* warning */
-  --danger:#e11d48; /* danger */
+  /* KPI/Status */
+  --ok:#0f9d58;
+  --warn:#eab308;
+  --danger:#e11d48;
 
   /* Shadows */
   --shadow-lg:0 20px 40px rgba(2,6,23,.10), 0 2px 8px rgba(2,6,23,.06);
@@ -40,99 +41,107 @@
   --footer-h:56px;
 }
 
-/* Motion preferences */
 @media (prefers-reduced-motion:no-preference){ :root{ --e:.18s cubic-bezier(.2,.7,.2,1); } }
 @media (prefers-reduced-motion:reduce){ :root{ --e:0s; } }
 
-/* ---------- PAGE & BOOTSTRAP TWEAKS ---------- */
+/* ---------- PAGE ---------- */
 html,body{ background:var(--bg); color:var(--text); }
 body{ padding-bottom: var(--footer-h); }
-
 .container, .container-fluid{ max-width: var(--container); }
-
-.bg-body-tertiary{ background-color: var(--bg) !important; }
-.text-secondary{ color: var(--muted) !important; }
-.text-primary{ color: var(--accent) !important; }
 
 a{ color: var(--accent); text-decoration: none; }
 a:hover{ color: var(--accent-2); text-decoration: underline; }
+.text-secondary{ color: var(--muted) !important; }
 
-/* ---------- HEADINGS & SMALL UI ---------- */
+/* ---------- HERO (like login) ---------- */
+.hero-gradient{
+  background: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 45%, var(--grad-3) 100%);
+  color:#fff;
+  box-shadow: 0 8px 24px rgba(88,101,242,.25);
+}
+.hero-gradient .hero-inner{
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 18px) clamp(12px, 2.5vw, 24px);
+  display:flex; align-items:end; gap:12px; flex-wrap:wrap;
+}
+.hero-gradient h1,.hero-gradient h2,.hero-gradient .lead{ margin:0; }
+.hero-gradient .lead{ opacity:.9; }
+
+/* ---------- MAIN WRAPPER ---------- */
 .main-content{
-  margin-top: 8px;
+  margin-top: 14px;
   padding: 20px clamp(12px,2.5vw,24px) 28px;
 }
 .page-title, .main-content h2{
   font-size: clamp(1.2rem, 1.8vw, 1.5rem);
   font-weight:800; margin:0 0 4px;
-  color: #0b1220;
+  color:#0b1220;
 }
-.main-content h3{ font-size:1rem; font-weight:800; margin:8px 0 12px; color:#111827; }
-.highlight{ color: var(--accent); font-weight:700; }
 .muted{ color: var(--muted); font-size:.95rem; }
-.small{ font-size:.925rem; }
 
 /* ---------- CARDS ---------- */
 .card{
-  background: var(--card);
+  background: linear-gradient(180deg, #fff 0%, #f7faff 100%); /* subtle blue tint */
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   transition: transform var(--e), box-shadow var(--e);
+  position: relative;
 }
 .card:hover{ transform: translateY(-2px); box-shadow: 0 24px 48px rgba(2,6,23,.12), 0 2px 8px rgba(2,6,23,.06); }
 .card-header{
-  background:#f1f5f9 !important;
+  background: linear-gradient(135deg, #f1f5ff, #eef2ff) !important;
   border-bottom: 1px solid var(--line) !important;
-  color:#0f172a;
+  color:#111827;
   border-top-left-radius: var(--radius);
   border-top-right-radius: var(--radius);
 }
 
-/* KPI tiles (icon + numbers) */
+/* KPI tile bits */
 .kpi-icon{
   font-size: 1.75rem;
   width:48px; height:48px;
   display:grid; place-items:center;
   border-radius:12px;
-  background: linear-gradient(145deg, rgba(79,125,243,.15), rgba(122,164,255,.15));
-  color: var(--accent);
+  color:#fff;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-3));
+  box-shadow: 0 8px 24px rgba(79,125,243,.25);
 }
 .card .kpi-accent{
   position:absolute; inset:auto 0 0 0; height:3px;
-  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  background: linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-3));
   border-bottom-left-radius: var(--radius);
   border-bottom-right-radius: var(--radius);
 }
 
-/* ---------- BADGES (Bootstrap mapping) ---------- */
+/* ---------- BADGES ---------- */
 .badge{ font-weight:700; letter-spacing:.2px; padding:.45rem .65rem; border-radius:999px; }
 .text-bg-success{ background: rgba(15,157,88,.14) !important; color: var(--ok) !important; }
 .text-bg-warning{ background: rgba(234,179,8,.16) !important; color: #9a7b06 !important; }
 .text-bg-danger{  background: rgba(225,29,72,.14) !important; color: var(--danger) !important; }
 .text-bg-secondary{ background: rgba(2,6,23,.08) !important; color: #334155 !important; }
 
-/* ---------- TABLES ---------- */
+/* ---------- TABLES (with brand blues) ---------- */
 .table-responsive{
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: #ffffff;
   box-shadow: var(--shadow-md);
   overflow:auto;
 }
 
 .table{
-  margin:0;
-  color: var(--text);
+  margin:0; color: var(--text);
   --bs-table-bg: transparent;
-  --bs-table-striped-bg: #f6f9ff;
-  --bs-table-hover-bg: #eef4ff;
+  --bs-table-striped-bg: #f3f7ff; /* light blue stripe */
+  --bs-table-hover-bg: #ebf2ff;   /* hover blue */
   --bs-table-border-color: var(--line);
 }
 .table thead th{
   font-size:12px; text-transform:uppercase; letter-spacing:.4px;
-  color:#475569;
-  background:#f1f5f9 !important;
+  color:#1e293b;
+  background: linear-gradient(135deg, #eaf1ff, #e3e9ff) !important; /* blue gradient header */
   position: sticky; top: 0; z-index: 1;
   border-bottom: 1px solid var(--line) !important;
 }
@@ -142,32 +151,23 @@ a:hover{ color: var(--accent-2); text-decoration: underline; }
 }
 .table tbody tr{ background: #fff; transition: background var(--e); }
 .table tbody tr:nth-child(odd){ background: var(--card-2); }
-.table tbody tr:hover{ background: #eef4ff; }
+.table tbody tr:hover{ background: var(--bs-table-hover-bg); }
 .table .text-end{ text-align:right !important; }
 .table.table-sm td, .table.table-sm th{ padding:.55rem .75rem; }
 
-/* optional: pill rows for the Top Items + Low Stock lists */
+/* “Pill” rows look for lists (optional) */
 .table--soft tbody tr{
   border-radius: var(--radius-sm);
   box-shadow: inset 0 1px 0 rgba(2,6,23,.04), inset 0 -1px 0 rgba(2,6,23,.04);
 }
 
-/* ---------- GRID & HEIGHT HELPERS ---------- */
+/* ---------- HELPERS ---------- */
 section .row.g-3 > [class*="col-"] > .card{ height:100%; }
-
-/* ---------- CODE & UTILITY ---------- */
-code{
-  background: #eef4ff;
-  padding: .15rem .35rem;
-  border-radius: .25rem;
-  color: #1e40af;
-}
-:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
-
-/* Scrollbars where needed */
-.table-responsive::-webkit-scrollbar{ height: 10px; width: 10px; }
-.table-responsive::-webkit-scrollbar-thumb{ background: rgba(2,6,23,.18); border-radius: 8px; }
-.table-responsive::-webkit-scrollbar-track{ background: rgba(2,6,23,.06); border-radius: 8px; }
+code{ background:#eef4ff; padding:.15rem .35rem; border-radius:.25rem; color:#1e40af; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:8px; }
+.table-responsive::-webkit-scrollbar{ height:10px; width:10px; }
+.table-responsive::-webkit-scrollbar-thumb{ background: rgba(2,6,23,.18); border-radius:8px; }
+.table-responsive::-webkit-scrollbar-track{ background: rgba(2,6,23,.06); border-radius:8px; }
 
 /* ---------- PRINT ---------- */
 @media print{
@@ -178,25 +178,17 @@ code{
 
 /* ---------- FOOTER (optional fixed) ---------- */
 footer, .site-footer, .app-footer{
-  /* If your footer is fixed, uncomment: */
-  /* position: fixed; */
-  left:0; right:0; bottom:0;
-  height: var(--footer-h);
-  z-index: 50;
+  /* position: fixed; */ /* enable if your footer is fixed */
+  left:0; right:0; bottom:0; height: var(--footer-h); z-index:50;
 }
 
-/* ---------- OPTIONAL: stacked-table pattern for tiny screens ----------
-   If you want the mobile “cards” look, add .table--stack + one of the
-   helper classes below to your table. Otherwise .table-responsive is enough. */
+/* ---------- Tiny-screen stacked-table (optional) ---------- */
 @media (max-width:700px){
   .table--stack thead{ display:none; }
   .table--stack tbody tr{ display:block; margin:10px; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow-sm); background:#fff !important; }
   .table--stack tbody td{ display:grid; grid-template-columns: 130px 1fr; gap:10px; padding:.75rem .9rem; }
   .table--stack tbody td::before{
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .3px;
-    font-size: 11px; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing:.3px; font-size:11px; font-weight:700;
   }
   .table--stack.recent-orders tbody td:nth-child(1)::before{ content:"Order #"; }
   .table--stack.recent-orders tbody td:nth-child(2)::before{ content:"Invoice"; }
