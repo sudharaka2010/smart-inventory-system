@@ -1,190 +1,130 @@
-/* ===== Responsive Business Sidebar Navigation - sidebar.css ===== */
-
-/* Font & Root Setup */
+/* RB Stores — Sidebar (Bootstrap 5)
+   Professional + Business look, smooth transitions, mobile offcanvas,
+   fixed left sidebar on ≥ xl screens.
+*/
 :root {
-    --sidebar-bg: #3b5683;
-    --sidebar-text: #f8fafc;
-    --sidebar-hover: #3e69a5;
-    --submenu-bg: #3b5683;
-    --active-bg: #2563eb;
-    --active-text: #ffffff;
-    --border-color: #1e3c66;
-    --transition: 0.3s;
-    --font-main: 'Poppins', sans-serif;
-    --header-height: 60px;
+  --rb-bg: #0e1220;
+  --rb-surface: #151a2a;
+  --rb-border: #232a3d;
+  --rb-text: #e9eef7;
+  --rb-muted: #a9b3c9;
+  --rb-accent: #2e7df6;
+  --rb-accent-weak: rgba(46,125,246,.15);
 }
 
-/* Reset and Base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
-    font-family: var(--font-main);
-    background-color: #f1f5f9;
-    color: #111827;
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background: #0b0f1a;
+  color: var(--rb-text);
 }
 
-
-
-/* ===== Sidebar ===== */
-.sidebar {
-    position: fixed;
-    top: var(--header-height);
-    left: 0;
-    height: calc(100vh - var(--header-height));
-    width: 260px;
-    background-color: var(--sidebar-bg);
-    color: var(--sidebar-text);
-    overflow-y: auto;
-    padding-top: 20px;
-    transition: transform var(--transition);
-    z-index: 999;
+/* Top bar on mobile */
+.rb-topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 .75rem;
+  background: linear-gradient(180deg, #0f1526, #0b0f1a);
+  border-bottom: 1px solid var(--rb-border);
 }
 
-/* Scrollbar */
-.sidebar::-webkit-scrollbar {
-    width: 6px;
-}
-.sidebar::-webkit-scrollbar-thumb {
-    background-color: #64748b;
-    border-radius: 4px;
-}
-
-/* Toggle Button (Mobile) */
-.sidebar-toggle-btn {
-    display: none;
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    z-index: 1001;
-    background-color: var(--sidebar-bg);
-    color: var(--sidebar-text);
-    border: none;
-    padding: 10px 14px;
-    font-size: 20px;
-    border-radius: 6px;
-    cursor: pointer;
+/* Sidebar Offcanvas / Desktop fixed */
+.rb-sidebar {
+  background: linear-gradient(180deg, var(--rb-bg), var(--rb-surface));
+  color: var(--rb-text);
+  width: 300px;
+  border-right: 1px solid var(--rb-border);
 }
 
-/* Menu List */
-.sidebar ul {
-    list-style: none;
+.rb-brand {
+  border-bottom: 1px solid var(--rb-border);
+}
+.rb-brand .rb-brand-text {
+  font-weight: 600;
+  letter-spacing: .3px;
 }
 
-/* Menu Item */
-.sidebar .menu-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background var(--transition);
-    border-bottom: 1px solid var(--border-color);
-    user-select: none;
+/* Accordion buttons (section headers) */
+.rb-accordion-btn {
+  background: transparent !important;
+  color: var(--rb-text) !important;
+  padding: 14px 16px;
+  gap: .5rem;
+  border-bottom: 1px solid var(--rb-border);
+  font-weight: 500;
+}
+.rb-accordion-btn:not(.collapsed) {
+  background: var(--rb-accent-weak) !important;
+  color: var(--rb-text) !important;
+  box-shadow: inset 3px 0 0 0 var(--rb-accent);
 }
 
-.sidebar .menu-item:hover {
-    background-color: var(--sidebar-hover);
+/* Inner menu list */
+.rb-menu { margin: 0; padding: 6px 0; }
+.rb-link {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 10px 16px;
+  color: var(--rb-muted);
+  text-decoration: none;
+  transition: background .2s ease, color .2s ease, padding-left .2s ease, box-shadow .2s ease;
+  border-left: 3px solid transparent;
+}
+.rb-link:hover {
+  color: var(--rb-text);
+  background: #121729;
+  padding-left: 20px;
+}
+.rb-link.active {
+  color: var(--rb-text);
+  background: #11172a;
+  border-left-color: var(--rb-accent);
+  box-shadow: inset 0 1px 0 0 rgba(255,255,255,.03);
 }
 
-.sidebar .menu-item i {
-    margin-right: 10px;
+/* Footer area */
+.rb-footer {
+  border-top: 1px solid var(--rb-border);
+  background: rgba(0,0,0,.15);
 }
 
-/* Dropdown Arrow */
-.dropdown-icon {
-    transition: transform var(--transition);
-}
-.sidebar li.open .dropdown-icon {
-    transform: rotate(180deg);
-}
-
-/* Submenu */
-.submenu {
-    display: none;
-    flex-direction: column;
-    background-color: var(--submenu-bg);
+/* Main content spacer if you keep sidebar in-page */
+.rb-main {
+  min-height: 100vh;
+  padding: 1rem;
+  color: #dfe7fb;
 }
 
-.sidebar li.open .submenu {
-    display: flex;
+/* Desktop: make offcanvas behave like a fixed sidebar */
+@media (min-width: 1200px) {
+  .offcanvas.offcanvas-start.rb-sidebar {
+    position: sticky;
+    top: 0;
+    transform: none !important;
+    visibility: visible !important;
+    transition: none;
+    height: 100vh;
+  }
+  body {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+  }
+  .rb-main {
+    padding: 2rem;
+  }
 }
 
-.submenu li a {
-    padding: 12px 20px;
-    display: block;
-    text-decoration: none;
-    color: #cbd5e1;
-    font-size: 15px;
-    transition: background var(--transition);
-    border-bottom: 1px solid var(--border-color);
+/* Scrollbar styling (WebKit) */
+.rb-sidebar ::-webkit-scrollbar {
+  width: 10px;
 }
-
-.submenu li a:hover {
-    background-color: var(--sidebar-hover);
-    color: var(--active-text);
+.rb-sidebar ::-webkit-scrollbar-thumb {
+  background: #1e2436;
+  border-radius: 8px;
 }
-
-/* Active Highlight */
-.sidebar a.active,
-.sidebar .menu-item.active {
-    background-color: var(--active-bg);
-    color: var(--active-text);
-}
-
-/* ===== Main Content Area ===== */
-.main-content {
-    margin-left: 260px;
-    margin-top: var(--header-height);
-    padding: 20px;
-    transition: margin-left var(--transition);
-}
-
-/* ===== Responsive Breakpoints ===== */
-@media screen and (max-width: 1024px) {
-    .sidebar {
-        width: 220px;
-    }
-
-    .sidebar .menu-item {
-        font-size: 15px;
-    }
-
-    .header {
-        padding-left: 240px;
-    }
-
-    .main-content {
-        margin-left: 220px;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-        width: 220px;
-        z-index: 999;
-    }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .sidebar-toggle-btn {
-        display: block;
-    }
-
-    .header {
-        padding-left: 20px;
-    }
-
-    .main-content {
-        margin-left: 0;
-        margin-top: var(--header-height);
-    }
+.rb-sidebar ::-webkit-scrollbar-track {
+  background: transparent;
 }
