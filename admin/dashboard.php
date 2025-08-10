@@ -190,15 +190,17 @@ $footerFile  = __DIR__ . '/footer.php';
   <div class="row">
     <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
 
-    <!-- Hero (blue gradient) -->
+
+
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4 main-content">
+
+        <!-- Hero (blue gradient) -->
     <div class="hero-gradient">
       <div class="hero-inner">
         <h2 class="m-0">RB Stores Dashboard</h2>
         <span class="lead">As of <?=date('Y-m-d');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
       </div>
     </div>
-
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4 main-content">
 
       <?php
         $hasLowStock  = $kpi['low_stock_cnt'] > 0;
