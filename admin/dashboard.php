@@ -1,6 +1,6 @@
 <?php
 // =================== RB Stores — Admin Dashboard (mysqli) ===================
-// File: /admin/index.php
+// File: /admin/dashboard.php
 
 // ---------- ENV ----------
 $IS_DEV = false;
@@ -21,7 +21,7 @@ if ($IS_DEV) {
 }
 
 // ---------- Session + Auth ----------
-// Extra-tough session defaults (before session_start)
+// Hardened session defaults BEFORE session_start
 ini_set('session.use_strict_mode', '1');
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_secure', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? '1' : '0');
@@ -29,28 +29,28 @@ ini_set('session.cookie_samesite', 'Lax');
 session_name('RBSTORESSESSID');
 session_set_cookie_params([
   'httponly' => true,
-  'samesite' => 'Lax', // consider 'Strict' if all flows are same-site
+  'samesite' => 'Lax', // use 'Strict' if all flows are same-site
   'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
 ]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Periodic session ID rotation (mitigate fixation)
+// Periodic session ID rotation
 if (!isset($_SESSION['regen_at']) || time() - ($_SESSION['regen_at'] ?? 0) > 600) {
     session_regenerate_id(true);
     $_SESSION['regen_at'] = time();
 }
 
-// Simple role gate (extend as needed)
+// Simple role gate
 function requireRole(string|array $roles) {
     $roles = (array)$roles;
     $ok = isset($_SESSION['username']) && in_array($_SESSION['role'] ?? '', $roles, true);
     if (!$ok) {
-        header("Location: /admin/dashboard.php");
+        header("Location: /login.php"); // redirect to login if not authorized
         exit();
     }
 }
-requireRole(['Admin']); // Only admins here
+requireRole(['Admin']); // Only Admins
 
 // ---------- Security headers ----------
 // Avoid caching sensitive dashboard data
@@ -61,7 +61,7 @@ $cspNonce = base64_encode(random_bytes(16));
 
 // Remove any pre-set CSP to avoid duplicates (e.g., from server config)
 if (function_exists('header_remove')) {
-    header_remove('Content-Security-Policy');
+    @header_remove('Content-Security-Policy');
 }
 
 header("X-Content-Type-Options: nosniff");
@@ -72,7 +72,7 @@ header("X-XSS-Protection: 0"); // rely on CSP
 header("Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()");
 
 if (!$IS_DEV) {
-    // ONE coherent CSP
+    // Single coherent CSP
     $csp = implode(' ', [
         "default-src 'self';",
         "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$cspNonce}';",
@@ -88,9 +88,6 @@ if (!$IS_DEV) {
         "worker-src 'self' blob:;",
         "upgrade-insecure-requests;",
     ]);
-    // Optional: add reporting if you have an endpoint
-    // header(\"Report-To: {\\\"group\\\":\\\"csp-endpoint\\\",\\\"max_age\\\":10886400,\\\"endpoints\\\":[{\\\"url\\\":\\\"https://your-collector.example/csp\\\"}]} \");
-    // $csp .= ' report-to csp-endpoint;';
     header("Content-Security-Policy: $csp");
 
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
@@ -102,7 +99,7 @@ if (!$IS_DEV) {
     header("Cross-Origin-Resource-Policy: same-site");
 }
 
-// ---------- CSRF helpers (use on POST forms in other admin pages) ----------
+// ---------- CSRF helpers (for POST forms on other admin pages) ----------
 function csrf_token(): string {
     if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
     return $_SESSION['csrf'];
@@ -112,8 +109,8 @@ function verify_csrf(?string $t): bool {
 }
 
 // ---------- DB ----------
-require_once(__DIR__ . '/../includes/db_connect.php');
-if (!isset($conn) || !$conn instanceof mysqli) {
+require_once(__DIR__ . '/../includes/db_connect.php'); // should set $conn (mysqli)
+if (!isset($conn) || !($conn instanceof mysqli)) {
     http_response_code(500);
     echo "<h1>Database not connected.</h1>";
     exit();
@@ -128,7 +125,12 @@ function d($s){ return $s ? date('Y-m-d', strtotime((string)$s)) : '—'; }
 function getSafeValue(mysqli $conn, string $query, string $field) {
     // NOTE: Use only with static queries. NEVER pass user input here.
     $res = $conn->query($query);
-    if ($res && ($row = $res->fetch_assoc())) { $res->free(); return $row[$field] ?? 0; }
+    if ($res) {
+        $row = $res->fetch_assoc();
+        $val = $row[$field] ?? 0;
+        $res->free();
+        return $val;
+    }
     return 0;
 }
 function fetchAll(mysqli $conn, string $query): array {
@@ -203,6 +205,7 @@ if ($hasTotalAmount) {
         FROM `order`", 'v');
     $rev_path = 'order (computed)';
 } elseif (tableExists($conn, 'orderdetails')) {
+    // Fallback if order table doesn't carry totals
     $rev_total_amount = (float)getSafeValue($conn, "
         SELECT ROUND(COALESCE(SUM(od.`Subtotal`),0),2) AS v
         FROM `orderdetails` od
