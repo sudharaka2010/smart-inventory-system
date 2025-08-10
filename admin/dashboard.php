@@ -1,16 +1,16 @@
 <?php
 // =================== RB Stores — Admin Dashboard (mysqli) ===================
+// File: /admin/index.php
 
 // ---------- ENV ----------
 $IS_DEV = false;
 date_default_timezone_set('Asia/Colombo');
 
-// Errors (quiet in prod)
+// ---------- Errors ----------
 if ($IS_DEV) {
     ini_set('display_errors', '1');
     ini_set('display_startup_errors', '1');
     error_reporting(E_ALL);
-    // In dev, surface SQL errors early:
     if (function_exists('mysqli_report')) {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     }
@@ -21,21 +21,36 @@ if ($IS_DEV) {
 }
 
 // ---------- Session + Auth ----------
-// Harden cookies BEFORE session_start()
+// Extra-tough session defaults (before session_start)
+ini_set('session.use_strict_mode', '1');
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_secure', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? '1' : '0');
+ini_set('session.cookie_samesite', 'Lax');
+session_name('RBSTORESSESSID');
 session_set_cookie_params([
   'httponly' => true,
-  'samesite' => 'Lax', // try 'Strict' if it doesn't break flows (e.g., external redirects)
+  'samesite' => 'Lax', // consider 'Strict' if all flows are same-site
   'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
 ]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-// Auth gate
-if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
-    header("Location: /auth/login.php");
-    exit();
+// Periodic session ID rotation (mitigate fixation)
+if (!isset($_SESSION['regen_at']) || time() - ($_SESSION['regen_at'] ?? 0) > 600) {
+    session_regenerate_id(true);
+    $_SESSION['regen_at'] = time();
 }
+
+// Simple role gate (extend as needed)
+function requireRole(string|array $roles) {
+    $roles = (array)$roles;
+    $ok = isset($_SESSION['username']) && in_array($_SESSION['role'] ?? '', $roles, true);
+    if (!$ok) {
+        header("Location: /auth/login.php");
+        exit();
+    }
+}
+requireRole(['Admin']); // Only admins here
 
 // ---------- Security headers ----------
 // Avoid caching sensitive dashboard data
@@ -44,25 +59,23 @@ header("Pragma: no-cache");
 
 $cspNonce = base64_encode(random_bytes(16));
 
-// Ensure only one CSP header is present (avoid duplicates from server/.htaccess/includes)
+// Remove any pre-set CSP to avoid duplicates (e.g., from server config)
 if (function_exists('header_remove')) {
     header_remove('Content-Security-Policy');
 }
 
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
-// Legacy clickjacking header (CSP frame-ancestors is primary)
-header("X-Frame-Options: SAMEORIGIN");
-header("Permissions-Policy: camera=(), microphone=()");
+header("X-Frame-Options: SAMEORIGIN"); // legacy; CSP frame-ancestors is primary
 header("X-XSS-Protection: 0"); // rely on CSP
+// Least-privilege Permissions-Policy
+header("Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()");
 
 if (!$IS_DEV) {
-    // Build ONE coherent CSP and send it ONCE
+    // ONE coherent CSP
     $csp = implode(' ', [
         "default-src 'self';",
-        // Allow your CDNs + nonce for the inline script block below
         "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$cspNonce}';",
-        // If you remove all inline styles in future, drop 'unsafe-inline' here for tighter CSP
         "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
         "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
@@ -75,15 +88,27 @@ if (!$IS_DEV) {
         "worker-src 'self' blob:;",
         "upgrade-insecure-requests;",
     ]);
+    // Optional: add reporting if you have an endpoint
+    // header(\"Report-To: {\\\"group\\\":\\\"csp-endpoint\\\",\\\"max_age\\\":10886400,\\\"endpoints\\\":[{\\\"url\\\":\\\"https://your-collector.example/csp\\\"}]} \");
+    // $csp .= ' report-to csp-endpoint;';
     header("Content-Security-Policy: $csp");
 
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        // Once stable on HTTPS, you can raise to 2 years
         header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
     }
 
-    // Process isolation defaults
     header("Cross-Origin-Opener-Policy: same-origin");
     header("Cross-Origin-Resource-Policy: same-site");
+}
+
+// ---------- CSRF helpers (use on POST forms in other admin pages) ----------
+function csrf_token(): string {
+    if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    return $_SESSION['csrf'];
+}
+function verify_csrf(?string $t): bool {
+    return hash_equals($_SESSION['csrf'] ?? '', (string)$t);
 }
 
 // ---------- DB ----------
@@ -101,7 +126,7 @@ function n2($v){ return number_format((float)$v, 2, '.', ','); }
 function d($s){ return $s ? date('Y-m-d', strtotime((string)$s)) : '—'; }
 
 function getSafeValue(mysqli $conn, string $query, string $field) {
-    // NOTE: Only use with static queries. NEVER pass user input here.
+    // NOTE: Use only with static queries. NEVER pass user input here.
     $res = $conn->query($query);
     if ($res && ($row = $res->fetch_assoc())) { $res->free(); return $row[$field] ?? 0; }
     return 0;
@@ -135,15 +160,28 @@ function columnExists(mysqli $conn, string $table, string $column): bool {
     return (int)($row['c'] ?? 0) > 0;
 }
 
+// Currency formatter (LKR) with safe fallback
+$fmt = class_exists('NumberFormatter') ? new NumberFormatter('en_LK', NumberFormatter::CURRENCY) : null;
+function lkr($v){
+    global $fmt;
+    $v = (float)$v;
+    if ($fmt) { return $fmt->formatCurrency($v, 'LKR'); }
+    return 'Rs '.number_format($v, 2, '.', ',');
+}
+
 // ---------- KPIs ----------
 $kpi = [];
-$kpi['customers']        = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `customer`", 'c');
-$kpi['orders']           = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order`", 'c');
-$kpi['stock_qty']        = (int)getSafeValue($conn, "SELECT COALESCE(SUM(`Quantity`),0) AS s FROM `inventoryitem`", 's');
-$kpi['low_stock_cnt']    = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `inventoryitem` WHERE `Quantity` <= 5", 'c');
-$kpi['returns']          = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `returnitem`", 'c');
-$kpi['pending_orders']   = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order` WHERE `Status`='Pending'", 'c');
-$kpi['deliveries_today'] = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `transport` WHERE `DeliveryDate` = CURDATE()", 'c');
+try {
+    $kpi['customers']        = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `customer`", 'c');
+    $kpi['orders']           = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order`", 'c');
+    $kpi['stock_qty']        = (int)getSafeValue($conn, "SELECT COALESCE(SUM(`Quantity`),0) AS s FROM `inventoryitem`", 's');
+    $kpi['low_stock_cnt']    = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `inventoryitem` WHERE `Quantity` <= 5", 'c');
+    $kpi['returns']          = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `returnitem`", 'c');
+    $kpi['pending_orders']   = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order` WHERE `Status`='Pending'", 'c');
+    $kpi['deliveries_today'] = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `transport` WHERE `DeliveryDate` = CURDATE()", 'c');
+} catch (Throwable $e) {
+    error_log("Dashboard KPI error: ".$e->getMessage());
+}
 
 // ---------- Revenue ----------
 $hasTotalAmount = columnExists($conn, 'order', 'TotalAmount');
@@ -154,18 +192,22 @@ $hasVAT         = columnExists($conn, 'order', 'VAT');
 
 $rev_total_amount = 0.00;
 $rev_amount_paid  = 0.00;
+$rev_path = 'none';
 
 if ($hasTotalAmount) {
     $rev_total_amount = (float)getSafeValue($conn, "SELECT ROUND(COALESCE(SUM(`TotalAmount`),0),2) AS v FROM `order`", 'v');
+    $rev_path = 'order.TotalAmount';
 } elseif ($hasSubTotal && $hasDiscount && $hasVAT) {
     $rev_total_amount = (float)getSafeValue($conn, "
         SELECT ROUND(COALESCE(SUM(`SubTotal` * (1 - `Discount`/100) * (1 + `VAT`/100)),0),2) AS v
         FROM `order`", 'v');
+    $rev_path = 'order (computed)';
 } elseif (tableExists($conn, 'orderdetails')) {
     $rev_total_amount = (float)getSafeValue($conn, "
         SELECT ROUND(COALESCE(SUM(od.`Subtotal`),0),2) AS v
         FROM `orderdetails` od
         JOIN `order` o ON o.`OrderID` = od.`OrderID`", 'v');
+    $rev_path = 'orderdetails.Subtotal';
 }
 
 if ($hasAmountPaid) {
@@ -176,16 +218,17 @@ $rev = [
     'total_amount' => $rev_total_amount,
     'amount_paid'  => $rev_amount_paid,
     'balance_due'  => round($rev_total_amount - $rev_amount_paid, 2),
+    'path'         => $rev_path,
 ];
 
-// ---------- Tables ----------
+// ---------- Tables (server-limited) ----------
 $recentOrders = fetchAll($conn, "
   SELECT o.`OrderID`, o.`InvoiceID`, o.`OrderDate`, o.`TotalAmount`, o.`Status`,
          c.`NAME` AS CustomerName
   FROM `order` o
   LEFT JOIN `customer` c ON c.`CustomerID` = o.`CustomerID`
   ORDER BY o.`OrderDate` DESC, o.`OrderID` DESC
-  LIMIT 10
+  LIMIT 50
 ");
 
 $topItems = [];
@@ -236,16 +279,19 @@ $footerFile  = __DIR__ . '/footer.php';
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4 main-content">
 
-      <!-- Hero (blue gradient) -->
+      <!-- Hero -->
       <div class="hero-gradient">
         <div class="hero-inner">
           <h2 class="m-0">RB Stores Dashboard</h2>
           <span class="lead">As of <?=date('Y-m-d');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
+          <?php if ($rev['path'] !== 'none'): ?>
+            <span class="badge text-bg-secondary ms-2">Revenue via: <?=h($rev['path']);?></span>
+          <?php endif; ?>
         </div>
       </div>
 
       <?php
-        $hasLowStock  = $kpi['low_stock_cnt'] > 0;
+        $hasLowStock  = ($kpi['low_stock_cnt'] ?? 0) > 0;
         $hasBalance   = ($rev['balance_due'] ?? 0) > 0;
       ?>
       <!-- Alerts -->
@@ -253,14 +299,14 @@ $footerFile  = __DIR__ . '/footer.php';
         <?php if ($hasLowStock): ?>
           <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2" role="alert">
             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            <div><strong>Low stock:</strong> <?=$kpi['low_stock_cnt'];?> item(s) at or below threshold.</div>
+            <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below threshold.</div>
             <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php" aria-label="Review low stock">Review</a>
           </div>
         <?php endif; ?>
         <?php if ($hasBalance): ?>
           <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3" role="alert">
             <i class="fa-solid fa-sack-xmark" aria-hidden="true"></i>
-            <div><strong>Balance due:</strong> Rs <?=n2($rev['balance_due']);?> outstanding.</div>
+            <div><strong>Balance due:</strong> <?=h(lkr($rev['balance_due']));?> outstanding.</div>
             <a class="ms-auto btn btn-sm btn-outline-danger" href="/billing/view_billing.php" aria-label="Collect payments">Collect</a>
           </div>
         <?php endif; ?>
@@ -288,16 +334,16 @@ $footerFile  = __DIR__ . '/footer.php';
         <div class="row g-3">
           <?php
           $cards = [
-            ['Customers',$kpi['customers'], 'fa-users', 'primary'],
-            ['Orders',$kpi['orders'], 'fa-receipt','secondary'],
-            ['Revenue (TotalAmount)', 'Rs '.n2($rev['total_amount']), 'fa-coins','success'],
-            ['Amount Paid','Rs '.n2($rev['amount_paid']), 'fa-hand-holding-dollar','info'],
-            ['Balance Due','Rs '.n2($rev['balance_due']), 'fa-scale-balanced','danger'],
-            ['Low Stock (≤5)', number_format($kpi['low_stock_cnt']), 'fa-warehouse','warning', '/admin/low_stock.php'],
-            ['Items in Stock', number_format($kpi['stock_qty']), 'fa-cubes','dark'],
-            ['Pending Orders', number_format($kpi['pending_orders']), 'fa-hourglass-half','warning'],
-            ['Deliveries Today', number_format($kpi['deliveries_today']), 'fa-truck-ramp-box','primary', '/admin/pending_deliveries.php'],
-            ['Returns', number_format($kpi['returns']), 'fa-rotate-left','secondary'],
+            ['Customers',$kpi['customers'] ?? 0, 'fa-users', 'primary'],
+            ['Orders',$kpi['orders'] ?? 0, 'fa-receipt','secondary'],
+            ['Revenue (TotalAmount)', h(lkr($rev['total_amount'] ?? 0)), 'fa-coins','success'],
+            ['Amount Paid', h(lkr($rev['amount_paid'] ?? 0)), 'fa-hand-holding-dollar','info'],
+            ['Balance Due', h(lkr($rev['balance_due'] ?? 0)), 'fa-scale-balanced','danger'],
+            ['Low Stock (≤5)', number_format($kpi['low_stock_cnt'] ?? 0), 'fa-warehouse','warning', '/admin/low_stock.php'],
+            ['Items in Stock', number_format($kpi['stock_qty'] ?? 0), 'fa-cubes','dark'],
+            ['Pending Orders', number_format($kpi['pending_orders'] ?? 0), 'fa-hourglass-half','warning'],
+            ['Deliveries Today', number_format($kpi['deliveries_today'] ?? 0), 'fa-truck-ramp-box','primary', '/admin/pending_deliveries.php'],
+            ['Returns', number_format($kpi['returns'] ?? 0), 'fa-rotate-left','secondary'],
           ];
           foreach ($cards as $c) {
             [$label,$val,$icon,$variant,$href] = [$c[0],$c[1],$c[2],$c[3],$c[4] ?? null];
@@ -500,3 +546,6 @@ $footerFile  = __DIR__ . '/footer.php';
 </script>
 </body>
 </html>
+<?php
+// ---------- Tidy up ----------
+$conn->close();
