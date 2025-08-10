@@ -14,12 +14,7 @@ function isOpen($files) {
   return in_array($current, $files) ? 'show' : '';
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RB Stores - Sidebar</title>
+
 
   <!-- Google Fonts, Font Awesome, Bootstrap -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -28,8 +23,7 @@ function isOpen($files) {
 
   <!-- Sidebar Stylesheet -->
   <link rel="stylesheet" href="/assets/css/sidebar.css" />
-</head>
-<body>
+
 
 <!-- Mobile Top Bar -->
 <header class="rb-topbar d-xl-none">
@@ -269,12 +263,8 @@ function isOpen($files) {
   </nav>
 </aside>
 
-<!-- Your page content goes here -->
-<main class="rb-main">
-  <!-- Example placeholder; remove if you include this sidebar as a partial -->
-</main>
+
 
 <!-- Bootstrap JS (required for offcanvas/collapse) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
