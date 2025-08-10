@@ -211,14 +211,14 @@ $footerFile  = __DIR__ . '/footer.php';
         <div class="mb-3">
           <?php if ($hasLowStock): ?>
             <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2" role="alert">
-              <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
               <div><strong>Low stock:</strong> <?=$kpi['low_stock_cnt'];?> item(s) at or below threshold.</div>
               <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php" aria-label="Review low stock">Review</a>
             </div>
           <?php endif; ?>
           <?php if ($hasBalance): ?>
             <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3" role="alert">
-              <i class="fa fa-sack-xmark" aria-hidden="true"></i>
+              <i class="fa-solid fa-sack-xmark" aria-hidden="true"></i>
               <div><strong>Balance due:</strong> Rs <?=n2($rev['balance_due']);?> outstanding.</div>
               <a class="ms-auto btn btn-sm btn-outline-danger" href="/billing/view_billing.php" aria-label="Collect payments">Collect</a>
             </div>
@@ -229,16 +229,16 @@ $footerFile  = __DIR__ . '/footer.php';
       <!-- Quick actions -->
       <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
         <a href="/billing/billing.php" class="btn btn-primary btn-action">
-          <i class="fa fa-plus me-2" aria-hidden="true"></i>New Order
+          <i class="fa-solid fa-plus me-2" aria-hidden="true"></i>New Order
         </a>
         <a href="/inventory/add_inventory.php" class="btn btn-outline-primary btn-action">
-          <i class="fa fa-boxes-packing me-2" aria-hidden="true"></i>Add Stock
+          <i class="fa-solid fa-boxes-packing me-2" aria-hidden="true"></i>Add Stock
         </a>
         <a href="/transport/add_transport.php" class="btn btn-outline-secondary btn-action">
-          <i class="fa fa-truck me-2" aria-hidden="true"></i>Schedule Delivery
+          <i class="fa-solid fa-truck me-2" aria-hidden="true"></i>Schedule Delivery
         </a>
         <a href="/reports/" class="btn btn-outline-dark btn-action">
-          <i class="fa fa-chart-line me-2" aria-hidden="true"></i>Reports
+          <i class="fa-solid fa-chart-line me-2" aria-hidden="true"></i>Reports
         </a>
       </div>
 
