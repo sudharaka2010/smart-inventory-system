@@ -22,10 +22,7 @@
   display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px;
 }
 
-/* Skip to content */
-.skip-link{position:absolute; top:-40px; left:12px; background:#111827; color:#fff;
-  padding:8px 12px; border-radius:8px; transition:top .2s ease; z-index:10000}
-.skip-link:focus{top:12px}
+
 
 /* Logo */
 .header__logo{display:inline-flex; align-items:center; gap:10px; cursor:pointer}
