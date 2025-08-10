@@ -11,7 +11,7 @@ if (!isset($page_title)) $page_title = "RB Stores";
 <link rel="stylesheet" href="/assets/css/header.css"/>
 
 <header class="header" role="banner">
-  <a class="skip-link" href="#main">Skip to content</a>
+  
 
   <div class="header__container">
     <button class="header__toggle" id="menuToggle"
@@ -33,7 +33,7 @@ if (!isset($page_title)) $page_title = "RB Stores";
       <a class="header__link<?= navActive('about.php'); ?>" href="about.php">About</a>
       <a class="header__link<?= navActive('contact.php'); ?>" href="contact.php">Contact</a>
       <a class="header__link<?= navActive('support.php'); ?>" href="support.php">Support <i class="fas fa-headset" aria-hidden="true"></i></a>
-      <a class="header__link header__link--logout" href="/rbstores/auth/logout.php">
+      <a class="header__link header__link--logout" href="/auth/logout.php">
         <i class="fas fa-sign-out-alt" aria-hidden="true"></i> <span>Logout</span>
       </a>
     </nav>
@@ -68,4 +68,4 @@ if (!isset($page_title)) $page_title = "RB Stores";
 })();
 </script>
 
-<main id="main" class="page">
+
