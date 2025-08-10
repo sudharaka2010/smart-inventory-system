@@ -1,19 +1,22 @@
 <?php
-// RB Stores — Header (include)
-// Usage at top of your page:
-//   <?php $page_title = "RB Stores — Dashboard"; require __DIR__."/partials/header.php"; ?>
-// Make sure to place </main> and the footer before closing </body></html> in your layout.
-
 // Detect current page for active nav highlighting
 $current = basename($_SERVER['PHP_SELF']);
+
+/**
+ * Returns the "is-active" class if the current page matches the given filename.
+ * Usage: <a class="header__link<?= navActive('dashboard.php'); ?>" href="dashboard.php">Dashboard</a>
+ */
 function navActive($file) {
-  global $current;
-  return $current === $file ? ' is-active' : '';
+    global $current;
+    return $current === $file ? ' is-active' : '';
 }
 
 // Optional: page title fallback
-if (!isset($page_title)) { $page_title = "RB Stores"; }
+if (!isset($page_title)) {
+    $page_title = "RB Stores";
+}
 ?>
+
 <!-- HEADER START -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
