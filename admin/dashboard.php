@@ -12,8 +12,12 @@ error_reporting($IS_DEV ? E_ALL : 0);
 
 // ---------- Session + Auth ----------
 if (session_status() === PHP_SESSION_NONE) {
-    // Optional cookie hardening:
-    // session_set_cookie_params(['httponly'=>true,'samesite'=>'Lax','secure'=>!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
+    // Optional cookie hardening (uncomment if desired):
+    // session_set_cookie_params([
+    //   'httponly' => true,
+    //   'samesite' => 'Lax',
+    //   'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+    // ]);
     session_start();
 }
 if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
@@ -22,38 +26,44 @@ if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
 }
 
 // ---------- Security headers ----------
-
 $cspNonce = base64_encode(random_bytes(16));
 
-
 header("X-Content-Type-Options: nosniff");
-header("Referrer-Policy: no-referrer-when-downgrade");
+// Safer modern default than no-referrer-when-downgrade
+header("Referrer-Policy: strict-origin-when-cross-origin");
+// Legacy clickjacking header (optional if using frame-ancestors below)
 header("X-Frame-Options: SAMEORIGIN");
-header("Permissions-Policy: microphone=(), camera=()");
-header("X-XSS-Protection: 0"); // modern browsers use CSP
+header("Permissions-Policy: camera=(), microphone=()");
+header("X-XSS-Protection: 0"); // modern browsers rely on CSP
+
 if (!$IS_DEV) {
-    header(
-        "Content-Security-Policy: ".
-        "default-src 'self' https: data: blob:; ".
-        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; ".
-        "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
-        "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; ".
-        "img-src 'self' https: data: blob:; ".
-        "connect-src 'self'; ".
-        "frame-ancestors 'self';"
-    );
+    // Build ONE coherent CSP and send it ONCE
+    $csp = implode(' ', [
+        "default-src 'self';",
+        // Allow your CDNs + nonce for your inline script block
+        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$cspNonce}';",
+        // If you rely on inline styles/Bootstrap, keep 'unsafe-inline' for style-src
+        "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
+        "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
+        "img-src 'self' https: data: blob:;",
+        "connect-src 'self';",
+        "frame-ancestors 'self';",
+        "base-uri 'self';",
+        "form-action 'self';",
+        "object-src 'none';",
+        "worker-src 'self' blob:;",
+        "upgrade-insecure-requests;",
+    ]);
     header("Content-Security-Policy: $csp");
 
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
         header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
     }
 
-        // Optional modern isolation (safe defaults):
+    // Optional process isolation (safe defaults)
     header("Cross-Origin-Opener-Policy: same-origin");
     header("Cross-Origin-Resource-Policy: same-site");
-
-
 }
 
 // ---------- DB ----------
@@ -202,17 +212,15 @@ $footerFile  = __DIR__ . '/footer.php';
   <div class="row">
     <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
 
-
-
     <main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4 main-content">
 
-        <!-- Hero (blue gradient) -->
-    <div class="hero-gradient">
-      <div class="hero-inner">
-        <h2 class="m-0">RB Stores Dashboard</h2>
-        <span class="lead">As of <?=date('Y-m-d');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
+      <!-- Hero (blue gradient) -->
+      <div class="hero-gradient">
+        <div class="hero-inner">
+          <h2 class="m-0">RB Stores Dashboard</h2>
+          <span class="lead">As of <?=date('Y-m-d');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
+        </div>
       </div>
-    </div>
 
       <?php
         $hasLowStock  = $kpi['low_stock_cnt'] > 0;
@@ -416,11 +424,11 @@ $footerFile  = __DIR__ . '/footer.php';
 
 <?php if (file_exists($footerFile)) include $footerFile; ?>
 
-<!-- JS (Bootstrap) -->
+<!-- JS (Bootstrap external) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-<!-- UX Scripts: tooltips + client-side filters -->
-<script>
+<!-- UX Scripts: tooltips + client-side filters (inline, protected by CSP nonce) -->
+<script nonce="<?= $cspNonce ?>">
   // Enable Bootstrap tooltips
   document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{
     new bootstrap.Tooltip(el);
