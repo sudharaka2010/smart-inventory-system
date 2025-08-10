@@ -15,15 +15,7 @@
   --sidebar-w-collapsed: 72px;
 }
 
-/* --------- Base / fixes --------- */
-html, body { margin: 0; padding: 0; }
-*{ box-sizing: border-box }
-.header a{ text-decoration: none }
-.header img{ display: block }
 
-/* Stop the first content block from collapsing up under the header */
-#main.page > *:first-child { margin-top: 0; }
-#main.page { padding-top: 16px; }
 
 /* --------- Header shell --------- */
 .header{
