@@ -1,47 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RB Stores Dashboard</title>
+<?php
+// RB Stores — Header (include)
+// Usage at top of your page:
+//   <?php $page_title = "RB Stores — Dashboard"; require __DIR__."/partials/header.php"; ?>
+// Make sure to place </main> and the footer before closing </body></html> in your layout.
 
-  <!-- Font and Icon Libraries -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+// Detect current page for active nav highlighting
+$current = basename($_SERVER['PHP_SELF']);
+function navActive($file) {
+  global $current;
+  return $current === $file ? ' is-active' : '';
+}
 
-  <!-- Header CSS -->
-  <link rel="stylesheet" href="/assets/css/header.css">
-</head>
-<body>
+// Optional: page title fallback
+if (!isset($page_title)) { $page_title = "RB Stores"; }
+?>
+<!-- HEADER START -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="/assets/css/header.css" />
 
-<header class="header">
+<header class="header" role="banner">
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <div class="header__container">
-    <div class="header__logo" onclick="window.location='dashboard.php'">
-      <img src="/assets/images/rb.png" alt="RB Stores Logo" class="header__logo-img">
+    <button class="header__toggle" id="menuToggle"
+            aria-label="Open menu" aria-controls="navbar" aria-expanded="false">
+      <i class="fas fa-bars" aria-hidden="true"></i>
+    </button>
+
+    <div class="header__logo" role="link" tabindex="0" aria-label="Go to Dashboard"
+         onclick="window.location='dashboard.php'"
+         onkeypress="if(event.key==='Enter') window.location='dashboard.php'">
+      <img src="/assets/images/rb.png" alt="RB Stores logo" class="header__logo-img" />
       <span class="header__logo-text">RB Stores</span>
     </div>
 
-    <nav class="header__nav" id="navbar">
-      <a href="dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      <a href="about.php">About</a>
-      <a href="contact.php">Contact</a>
-      <a href="support.php">Support <i class="fas fa-headset"></i></a>
-      <a href="/rbstorsg/auth/logout.php" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <nav class="header__nav" id="navbar" role="navigation" aria-label="Primary">
+      <a class="header__link<?= navActive('dashboard.php'); ?>" href="dashboard.php">
+        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="header__link<?= navActive('about.php'); ?>" href="about.php">About</a>
+      <a class="header__link<?= navActive('contact.php'); ?>" href="contact.php">Contact</a>
+      <a class="header__link<?= navActive('support.php'); ?>" href="support.php">
+        <span>Support</span> <i class="fas fa-headset" aria-hidden="true"></i>
+      </a>
+      <!-- Check this path; looks like a typo earlier (/rbstorsg/). Update if needed. -->
+      <a class="header__link header__link--logout" href="/rbstores/auth/logout.php">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> <span>Logout</span>
+      </a>
     </nav>
-
-    <button class="header__toggle" id="menuToggle">
-      <i class="fas fa-bars"></i>
-    </button>
   </div>
 </header>
 
 <script>
-  const toggle = document.getElementById('menuToggle');
-  const nav = document.getElementById('navbar');
-  toggle.addEventListener('click', () => {
-    nav.classList.toggle('header__nav--active');
-  });
-</script>
+  (function () {
+    const toggle  = document.getElementById('menuToggle');
+    const nav     = document.getElementById('navbar');
+    let lastFocused = null;
 
-</body>
-</html>
+    // Open/close menu
+    function setOpen(open) {
+      nav.classList.toggle('header__nav--active', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open) {
+        lastFocused = document.activeElement;
+        // Focus first link for keyboard users
+        const firstLink = nav.querySelector('a');
+        if (firstLink) firstLink.focus();
+        document.body.style.overflow = 'hidden';
+      } else {
+        if (lastFocused) lastFocused.focus();
+        document.body.style.overflow = '';
+      }
+    }
+
+    toggle.addEventListener('click', () => {
+      const open = !nav.classList.contains('header__nav--active');
+      setOpen(open);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('header__nav--active')) {
+        setOpen(false);
+      }
+    });
+
+    // Close on resize to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 992 && nav.classList.contains('header__nav--active')) {
+        setOpen(false);
+      }
+    });
+
+    // Click outside to close (mobile)
+    document.addEventListener('click', (e) => {
+      if (!nav.contains(e.target) && !toggle.contains(e.target) && nav.classList.contains('header__nav--active')) {
+        setOpen(false);
+      }
+    });
+  })();
+</script>
+<!-- HEADER END -->
+
+<!-- Optional main landmark start in your page template -->
+<main id="main" class="page">
