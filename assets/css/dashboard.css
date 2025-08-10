@@ -1,17 +1,22 @@
-/* ================== THEME & TOKENS ================== */
+/* ============================== RB STORES – DASHBOARD THEME (Bootstrap 5 compatible) ============================== */
+/* This file themes Bootstrap components used by the updated PHP dashboard (cards, tables, badges, layout).          */
+/* Safe to use alongside Bootstrap 5 + Font Awesome. Keeps your dark, professional look with clean business polish.  */
+
+/* =============== THEME TOKENS =============== */
 :root{
   --sidebar-w:260px;
 
-  --bg:#0b1020;
-  --surface:#0e1530;
-  --card:#0f172a;
-  --card-2:#0b1220;
+  --bg:#0b1020;           /* page bg */
+  --surface:#0e1530;      /* panels/surfaces */
+  --card:#0f172a;         /* card body */
+  --card-2:#0b1220;       /* table rows */
+  --line:rgba(148,163,184,.14);
 
   --text:#e5e7eb;
   --muted:#94a3b8;
   --accent:#60a5fa;
 
-  --grad-a:#3b82f6;
+  --grad-a:#3b82f6;       /* KPI gradients */
   --grad-b:#8b5cf6;
 
   --ok:#10b981;
@@ -27,256 +32,187 @@
 
   --container:1280px;
 
-  /* KPI / Footer controls */
-  --kpi-cols-desktop:4;
-  --kpi-cols-tablet:3;
-  --kpi-cols-mobile:2;
-  --kpi-height:150px;
   --footer-h:56px;
 }
 
-/* Motion-respect */
+/* Motion */
 @media (prefers-reduced-motion:no-preference){ :root{ --e:.18s cubic-bezier(.2,.7,.2,1); } }
 @media (prefers-reduced-motion:reduce){ :root{ --e:0s; } }
 
-/* ================== BASE & LAYOUT ================== */
+/* =============== PAGE & BOOTSTRAP OVERRIDES =============== */
 html,body{ background:var(--bg); color:var(--text); }
-body{ padding-bottom: var(--footer-h); } /* keeps content above fixed footers */
+body{ padding-bottom: var(--footer-h); }
 
-.container{
+.container, .container-fluid{
   max-width: var(--container);
-  margin-inline:auto;
-  padding-inline: clamp(12px, 2.5vw, 24px);
 }
 
+/* Bootstrap palette tweaks for dark theme */
+.bg-body-tertiary{ background-color: var(--bg) !important; }
+.text-secondary{ color: var(--muted) !important; }
+.text-primary{ color: var(--accent) !important; }
+
+/* Links */
+a{ color: var(--accent); }
+a:hover{ color:#3a8df2; }
+
+/* =============== LAYOUT =============== */
 .main-content{
-  margin-left: var(--sidebar-w);
   margin-top: 8px;
   padding: 20px clamp(12px,2.5vw,24px) 28px;
 }
-@media (max-width:1024px){ .main-content{ margin-left:0; } }
+@media (min-width: 992px){
+  /* When sidebar is present as a Bootstrap column, margin-left isn’t needed */
+  .main-content{ margin-left: 0; }
+}
 
 .page-title, .main-content h2{
   font-size: clamp(1.2rem, 1.8vw, 1.4rem);
   font-weight:800; margin:0 0 4px;
 }
 .main-content h3{ font-size:1rem; font-weight:800; margin:8px 0 12px; color:#e2e8f0; }
-
 .highlight{ color:#6366f1; font-weight:700; }
 .muted{ color:var(--muted); font-size:.95rem; }
 .accent{ color:var(--accent); }
 
-/* ================== KPI / STATUS CARDS ================== */
-.status-panel{ margin-top:10px; }
-
-/* Equal-size grid */
-.status-grid{
-  display:grid;
-  gap:16px;
-  grid-template-columns: repeat(var(--kpi-cols-desktop), minmax(0,1fr));
-  grid-auto-rows: var(--kpi-height);
-  align-items: stretch;
-}
-@media (max-width:1200px){
-  .status-grid{ grid-template-columns: repeat(var(--kpi-cols-tablet), minmax(0,1fr)); }
-}
-@media (max-width:680px){
-  .status-grid{ grid-template-columns: repeat(var(--kpi-cols-mobile), minmax(0,1fr)); }
-}
-
-.status-card-link{ display:block; height:100%; text-decoration:none; color:inherit; }
-.status-grid > .status-card-link,
-.status-grid > .status-card{ min-width:0; }
-
-.status-card{
-  background: linear-gradient(145deg, var(--grad-a), var(--grad-b));
-  color:#f8fafc;
-  border-radius: var(--radius);
-  padding:18px;
-  box-shadow: var(--shadow-md);
-  transition: transform var(--e), box-shadow var(--e), filter var(--e);
-  display:grid;
-  grid-template-columns: 48px 1fr;
-  grid-template-rows: auto 1fr; /* title / value */
-  column-gap:12px; row-gap:10px;
-  height:100%;
-  position:relative; overflow:hidden; isolation:isolate;
-}
-.status-card:hover{ transform: translateY(-2px); box-shadow: var(--shadow-lg); filter:saturate(1.05); }
-
-.status-card i{
-  grid-row:1 / span 2;
-  width:48px; height:48px; font-size:24px;
-  display:grid; place-items:center;
-  background: rgba(255,255,255,.16);
-  border-radius:12px;
-}
-.status-card h4{
-  margin:0;
-  font-size:.98rem;
-  font-weight:700;
-  letter-spacing:.2px;
-}
-.status-card p{
-  margin:0;
-  font-size: clamp(1.15rem, 2.2vw, 1.35rem);
-  font-weight:900;
-  letter-spacing:.2px;
-  align-self:end;
-}
-.status-card p.danger{ color: var(--danger); background: transparent; padding: 0; }
-
-/* ================== BADGES ================== */
-.badge{
-  display:inline-block; padding:4px 10px; border-radius:999px;
-  font-size:12px; font-weight:700; letter-spacing:.2px;
-}
-.ok{ color:var(--ok); background:rgba(16,185,129,.15); }
-.warn{ color:var(--warn); background:rgba(245,158,11,.15); }
-.danger{ color:var(--danger); background:rgba(239,68,68,.15); }
-
-/* ================== SECTION CARDS ================== */
-.cards-2{
-  display:grid; grid-template-columns: repeat(12, minmax(0,1fr));
-  gap:18px; margin-top:18px;
-}
-.cards-2 > .card:first-child{ grid-column: span 7; }
-.cards-2 > .card:last-child{  grid-column: span 5; }
-@media (max-width:1200px){ .cards-2 > .card{ grid-column: span 12; } }
-
+/* =============== CARDS (Bootstrap .card) =============== */
 .card{
   background: var(--card);
-  border: 1px solid rgba(148,163,184,.12);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 16px;
   box-shadow: var(--shadow-lg);
 }
-
-.section-title{
-  font-size: 1rem; font-weight: 800; margin: 4px 0 12px;
-  color: #e2e8f0; letter-spacing: .2px;
-  position: sticky; top: 0; padding-top: 4px;
+.card-header{
   background: linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.92));
-  z-index: 2;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--text);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+.card-body{ color: var(--text); }
+.card:hover{ transform: translateY(-1px); transition: transform var(--e), box-shadow var(--e); box-shadow: 0 .25rem .75rem rgba(0,0,0,.22); }
+
+/* KPI cards (the ones we render in PHP with an icon + two lines) */
+.kpi-icon{
+  font-size: 1.75rem;
+  width:48px; height:48px;
+  display:grid; place-items:center;
+  border-radius:12px;
+  background: rgba(255,255,255,.08);
 }
 
-/* Optional chart wrapper */
-.chart-wrap{
-  background:var(--surface);
-  border:1px solid rgba(148,163,184,.12);
-  border-radius:var(--radius);
-  padding:10px;
+/* Optional gradient accent strip for KPI cards */
+.card .kpi-accent{
+  position:absolute; inset:auto 0 0 0; height:3px;
+  background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
-/* ================== TABLES ================== */
-.table-wrap{ width:100%; overflow:auto; }
+/* =============== BADGES (maps to Bootstrap .badge text-bg-*) =============== */
+.badge{ font-weight:700; letter-spacing:.2px; padding:.4rem .6rem; border-radius: 999px; }
+.text-bg-success{ background: rgba(16,185,129,.16) !important; color: var(--ok) !important; }
+.text-bg-warning{ background: rgba(245,158,11,.16) !important; color: var(--warn) !important; }
+.text-bg-danger{ background: rgba(239,68,68,.16) !important; color: var(--danger) !important; }
+.text-bg-secondary{ background: rgba(148,163,184,.18) !important; color: #cbd5e1 !important; }
+
+/* =============== TABLES (.table inside .table-responsive) =============== */
+.table-responsive{
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  overflow: auto;
+}
 
 .table{
-  width:100%;
-  border-collapse: separate;
-  border-spacing: 0 10px;           /* row gap */
-  table-layout: fixed;              /* equalized columns without HTML changes */
+  margin:0;
+  color: var(--text);
 }
 .table thead th{
   font-size:12px; text-transform:uppercase; letter-spacing:.4px;
-  color:var(--muted); font-weight:800; padding:10px 14px; white-space:nowrap;
-  position:sticky; top:0; z-index:1;
-  background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(15,23,42,.85));
-  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
-  text-align:left;
+  color:var(--muted);
+  background: linear-gradient(180deg, rgba(11,18,36,.92), rgba(11,18,36,.92)) !important;
+  position: sticky; top: 0; z-index: 1;
+  border-bottom: 1px solid var(--line) !important;
 }
-.table thead th:nth-child(2),
-.table thead th:nth-child(3){ text-align:right; } /* numeric cols */
-
 .table tbody tr{
   background: var(--card-2);
   box-shadow: inset 0 1px 0 rgba(148,163,184,.08), inset 0 -1px 0 rgba(148,163,184,.08);
-  transition: background var(--e), transform .05s ease;
-  min-height:44px;
+  transition: background var(--e);
 }
 .table tbody tr:hover{ background:#0e1a33; }
 
-.table tbody td{
-  padding:10px 14px;
-  color:var(--text);
-  vertical-align:middle;
-  font-size:.92rem; line-height:1.4;
+.table td, .table th{
+  vertical-align: middle;
+  border-color: var(--line) !important;
 }
-.table tbody tr td:first-child{ border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
-.table tbody tr td:last-child{  border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
+.table .text-end{ text-align:right !important; }
 
-/* numeric alignment for common 2nd/3rd columns (Qty / Invoice or Qty Sold) */
-.table tbody td:nth-child(2),
-.table tbody td:nth-child(3){ text-align:right; }
+/* Compact variant for the small tables on the right */
+.table.table-sm td, .table.table-sm th{ padding:.5rem .75rem; }
 
-/* heat */
-.table td.warn{ color:var(--warn); font-weight:700; }
-.table td.danger{ color:var(--danger); font-weight:700; }
+/* =============== GRID SPACING (sections) =============== */
+section .row.g-3 > [class*="col-"] > .card{ height:100%; }
 
-/* clickable rows if used */
-.table .row-link{ text-decoration:none; color:inherit; display:block; padding:12px; border-radius: var(--radius-sm); }
+/* =============== UTILITIES =============== */
+code{
+  background: rgba(13,110,253,.08);
+  padding: .15rem .35rem;
+  border-radius: .25rem;
+  color: #cce0ff;
+}
+:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.small{ font-size:.925rem; }
 
-/* Column width hints so Top Items & Low Stock look balanced */
-.card .table thead th:first-child,
-.card .table tbody td:first-child{ width: 60%; }  /* item */
-.card .table thead th:nth-child(2),
-.card .table tbody td:nth-child(2){ width: 20%; } /* qty / qty sold */
-.card .table thead th:nth-child(3),
-.card .table tbody td:nth-child(3){ width: 20%; } /* invoice */
+/* Scrollbars (only where scrolling happens) */
+.table-responsive::-webkit-scrollbar{ height: 10px; width: 10px; }
+.table-responsive::-webkit-scrollbar-thumb{ background: rgba(148,163,184,.25); border-radius: 8px; }
+.table-responsive::-webkit-scrollbar-track{ background: rgba(148,163,184,.08); border-radius: 8px; }
 
-/* ======= MOBILE: table → cards (no HTML change) ======= */
+/* =============== PRINT =============== */
+@media print{
+  html,body{ background:#fff; color:#111; }
+  .card, .table-responsive{ box-shadow:none; border:1px solid #ddd; }
+  .card-header{ background:#f8f9fa !important; color:#111; }
+}
+
+/* =============== FOOTER (optional fixed) =============== */
+footer, .site-footer, .app-footer{
+  /* If your footer is fixed, uncomment the next line */
+  /* position: fixed; */
+  left:0; right:0; bottom:0;
+  height: var(--footer-h);
+  z-index: 50;
+}
+
+/* =============== OPTIONAL: “stacked table” pattern for tiny screens ===============
+   Not required because we already use .table-responsive, but you can enable
+   this pattern by adding class .table--stack to any table you want to convert.
+   Keeps semantics; no HTML changes needed.
+*/
 @media (max-width:700px){
-  .table thead{ display:none; }
-  .table, .table tbody, .table tr, .table td{ display:block; width:100%; }
-  .table tbody tr{
-    margin-bottom:10px; border:1px solid rgba(148,163,184,.12);
-    border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm);
-  }
-  .table tbody td{
-    display:grid; grid-template-columns: 120px 1fr; gap:10px; padding:10px 14px;
-    text-align:left !important; /* reset right alignment on mobile */
-  }
-  .table tbody td::before{
-    content: attr(data-label);
+  .table--stack thead{ display:none; }
+  .table--stack tbody tr{ display:block; margin:10px; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow-sm); }
+  .table--stack tbody td{ display:grid; grid-template-columns: 130px 1fr; gap:10px; padding:.75rem .9rem; }
+  .table--stack tbody td::before{
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: .3px;
     font-size: 11px; font-weight: 700;
   }
-  /* fallback labels if data-label not provided */
-  .table tbody tr td:nth-child(1)::before{ content: attr(data-label, "Order #"); }
-  .table tbody tr td:nth-child(2)::before{ content: attr(data-label, "Invoice / Qty"); }
-  .table tbody tr td:nth-child(3)::before{ content: attr(data-label, "Customer / Invoice"); }
-  .table tbody tr td:nth-child(4)::before{ content: attr(data-label, "Date"); }
-  .table tbody tr td:nth-child(5)::before{ content: attr(data-label, "Total (Rs)"); }
-  .table tbody tr td:nth-child(6)::before{ content: attr(data-label, "Status"); }
-}
+  /* Labels by column index (adjust per table) */
+  .table--stack.recent-orders tbody td:nth-child(1)::before{ content:"Order #"; }
+  .table--stack.recent-orders tbody td:nth-child(2)::before{ content:"Invoice"; }
+  .table--stack.recent-orders tbody td:nth-child(3)::before{ content:"Customer"; }
+  .table--stack.recent-orders tbody td:nth-child(4)::before{ content:"Date"; }
+  .table--stack.recent-orders tbody td:nth-child(5)::before{ content:"Total (Rs)"; }
+  .table--stack.recent-orders tbody td:nth-child(6)::before{ content:"Status"; }
 
-/* ================== UTILITIES & A11Y ================== */
-.truncate{ max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.center{ text-align: center; }
-.right{ text-align: right; }
-:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  .table--stack.top-items tbody td:nth-child(1)::before{ content:"Item"; }
+  .table--stack.top-items tbody td:nth-child(2)::before{ content:"Qty Sold"; }
 
-/* Nice scrollbar (table area only) */
-.table-wrap::-webkit-scrollbar{ height: 10px; }
-.table-wrap::-webkit-scrollbar-thumb{ background: rgba(148,163,184,.25); border-radius: 8px; }
-.table-wrap::-webkit-scrollbar-track{ background: rgba(148,163,184,.08); border-radius: 8px; }
-
-/* ================== PRINT ================== */
-@media print{
-  body{ background:#fff; color:#111; padding-bottom:0; }
-  .card, .status-card{ box-shadow:none; border:1px solid #ddd; }
-  .table tbody tr{ box-shadow:none; }
-}
-
-/* ================== OPTIONAL: fixed footer selector ================== */
-/* If your footer is fixed, ensure it uses one of these classes/element.
-   If NOT fixed, you can delete this block. */
-footer, .site-footer, .app-footer{
-  /* comment the next line if your footer is NOT fixed */
-  /* position: fixed; */
-  left:0; right:0; bottom:0;
-  height: var(--footer-h);
-  z-index: 50;
+  .table--stack.low-stock tbody td:nth-child(1)::before{ content:"Item"; }
+  .table--stack.low-stock tbody td:nth-child(2)::before{ content:"Qty"; }
+  .table--stack.low-stock tbody td:nth-child(3)::before{ content:"Invoice"; }
 }
