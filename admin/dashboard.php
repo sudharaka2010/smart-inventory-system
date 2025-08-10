@@ -6,43 +6,58 @@ $IS_DEV = false;
 date_default_timezone_set('Asia/Colombo');
 
 // Errors (quiet in prod)
-ini_set('display_errors', $IS_DEV ? '1' : '0');
-ini_set('display_startup_errors', $IS_DEV ? '1' : '0');
-error_reporting($IS_DEV ? E_ALL : 0);
+if ($IS_DEV) {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+    // In dev, surface SQL errors early:
+    if (function_exists('mysqli_report')) {
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    }
+} else {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    error_reporting(0);
+}
 
 // ---------- Session + Auth ----------
+// Harden cookies BEFORE session_start()
+session_set_cookie_params([
+  'httponly' => true,
+  'samesite' => 'Lax', // try 'Strict' if it doesn't break flows (e.g., external redirects)
+  'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+]);
 if (session_status() === PHP_SESSION_NONE) {
-    // Optional cookie hardening (uncomment if desired):
-    // session_set_cookie_params([
-    //   'httponly' => true,
-    //   'samesite' => 'Lax',
-    //   'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
-    // ]);
     session_start();
 }
+
+// Auth gate
 if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
     header("Location: /auth/login.php");
     exit();
 }
 
 // ---------- Security headers ----------
+// Avoid caching sensitive dashboard data
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+
 $cspNonce = base64_encode(random_bytes(16));
 
 header("X-Content-Type-Options: nosniff");
-// Safer modern default than no-referrer-when-downgrade
 header("Referrer-Policy: strict-origin-when-cross-origin");
-// Legacy clickjacking header (optional if using frame-ancestors below)
+// Legacy clickjacking header (CSP frame-ancestors is primary)
 header("X-Frame-Options: SAMEORIGIN");
 header("Permissions-Policy: camera=(), microphone=()");
-header("X-XSS-Protection: 0"); // modern browsers rely on CSP
+header("X-XSS-Protection: 0"); // rely on CSP
 
 if (!$IS_DEV) {
     // Build ONE coherent CSP and send it ONCE
     $csp = implode(' ', [
         "default-src 'self';",
-        // Allow your CDNs + nonce for your inline script block
+        // Allow your CDNs + nonce for the inline script block below
         "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$cspNonce}';",
-        // If you rely on inline styles/Bootstrap, keep 'unsafe-inline' for style-src
+        // If you remove all inline styles in future, drop 'unsafe-inline' here for tighter CSP
         "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
         "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
@@ -61,7 +76,7 @@ if (!$IS_DEV) {
         header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
     }
 
-    // Optional process isolation (safe defaults)
+    // Process isolation defaults
     header("Cross-Origin-Opener-Policy: same-origin");
     header("Cross-Origin-Resource-Policy: same-site");
 }
@@ -78,8 +93,10 @@ $conn->set_charset('utf8mb4');
 // ---------- Helpers ----------
 function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 function n2($v){ return number_format((float)$v, 2, '.', ','); }
+function d($s){ return $s ? date('Y-m-d', strtotime((string)$s)) : '—'; }
 
 function getSafeValue(mysqli $conn, string $query, string $field) {
+    // NOTE: Only use with static queries. NEVER pass user input here.
     $res = $conn->query($query);
     if ($res && ($row = $res->fetch_assoc())) { $res->free(); return $row[$field] ?? 0; }
     return 0;
@@ -200,7 +217,7 @@ $footerFile  = __DIR__ . '/footer.php';
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <!-- Font Awesome -->
+  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
   <!-- Custom -->
   <link rel="stylesheet" href="/assets/css/dashboard.css" />
@@ -227,24 +244,22 @@ $footerFile  = __DIR__ . '/footer.php';
         $hasBalance   = ($rev['balance_due'] ?? 0) > 0;
       ?>
       <!-- Alerts -->
-      <?php if ($hasLowStock || $hasBalance): ?>
-        <div class="mb-3">
-          <?php if ($hasLowStock): ?>
-            <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2" role="alert">
-              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-              <div><strong>Low stock:</strong> <?=$kpi['low_stock_cnt'];?> item(s) at or below threshold.</div>
-              <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php" aria-label="Review low stock">Review</a>
-            </div>
-          <?php endif; ?>
-          <?php if ($hasBalance): ?>
-            <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3" role="alert">
-              <i class="fa-solid fa-sack-xmark" aria-hidden="true"></i>
-              <div><strong>Balance due:</strong> Rs <?=n2($rev['balance_due']);?> outstanding.</div>
-              <a class="ms-auto btn btn-sm btn-outline-danger" href="/billing/view_billing.php" aria-label="Collect payments">Collect</a>
-            </div>
-          <?php endif; ?>
-        </div>
-      <?php endif; ?>
+      <div class="mb-3" aria-live="polite">
+        <?php if ($hasLowStock): ?>
+          <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2" role="alert">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <div><strong>Low stock:</strong> <?=$kpi['low_stock_cnt'];?> item(s) at or below threshold.</div>
+            <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php" aria-label="Review low stock">Review</a>
+          </div>
+        <?php endif; ?>
+        <?php if ($hasBalance): ?>
+          <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3" role="alert">
+            <i class="fa-solid fa-sack-xmark" aria-hidden="true"></i>
+            <div><strong>Balance due:</strong> Rs <?=n2($rev['balance_due']);?> outstanding.</div>
+            <a class="ms-auto btn btn-sm btn-outline-danger" href="/billing/view_billing.php" aria-label="Collect payments">Collect</a>
+          </div>
+        <?php endif; ?>
+      </div>
 
       <!-- Quick actions -->
       <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
@@ -268,15 +283,15 @@ $footerFile  = __DIR__ . '/footer.php';
         <div class="row g-3">
           <?php
           $cards = [
-            ['Customers',$kpi['customers'], 'fa-user-friends', 'primary'],
+            ['Customers',$kpi['customers'], 'fa-users', 'primary'],
             ['Orders',$kpi['orders'], 'fa-receipt','secondary'],
             ['Revenue (TotalAmount)', 'Rs '.n2($rev['total_amount']), 'fa-coins','success'],
-            ['Amount Paid','Rs '.n2($rev['amount_paid']), 'fa-hand-holding-usd','info'],
+            ['Amount Paid','Rs '.n2($rev['amount_paid']), 'fa-hand-holding-dollar','info'],
             ['Balance Due','Rs '.n2($rev['balance_due']), 'fa-scale-balanced','danger'],
             ['Low Stock (≤5)', number_format($kpi['low_stock_cnt']), 'fa-warehouse','warning', '/admin/low_stock.php'],
             ['Items in Stock', number_format($kpi['stock_qty']), 'fa-cubes','dark'],
             ['Pending Orders', number_format($kpi['pending_orders']), 'fa-hourglass-half','warning'],
-            ['Deliveries Today', number_format($kpi['deliveries_today']), 'fa-truck-loading','primary', '/admin/pending_deliveries.php'],
+            ['Deliveries Today', number_format($kpi['deliveries_today']), 'fa-truck-ramp-box','primary', '/admin/pending_deliveries.php'],
             ['Returns', number_format($kpi['returns']), 'fa-rotate-left','secondary'],
           ];
           foreach ($cards as $c) {
@@ -343,7 +358,7 @@ $footerFile  = __DIR__ . '/footer.php';
                       <td>#<?= (int)$o['OrderID']; ?></td>
                       <td class="text-primary fw-semibold"><?= h($o['InvoiceID'] ?: '—'); ?></td>
                       <td><?= h($o['CustomerName'] ?? 'Guest'); ?></td>
-                      <td><?= h($o['OrderDate']); ?></td>
+                      <td><?= h(d($o['OrderDate'])); ?></td>
                       <td class="text-end"><?= n2($o['TotalAmount'] ?? 0); ?></td>
                       <td>
                         <?php
@@ -439,6 +454,10 @@ $footerFile  = __DIR__ . '/footer.php';
     const search   = document.getElementById('orderSearch');
     const status   = document.getElementById('orderStatusFilter');
     const rows     = Array.from(document.querySelectorAll('.recent-orders tbody tr'));
+    const hasRows  = rows.some(tr => !tr.querySelector('td[colspan]'));
+
+    if (search) search.disabled = !hasRows;
+    if (status) status.disabled = !hasRows;
 
     function apply(){
       const q = (search?.value || '').trim().toLowerCase();
@@ -460,6 +479,9 @@ $footerFile  = __DIR__ . '/footer.php';
   (function(){
     const search = document.getElementById('itemSearch');
     const rows   = Array.from(document.querySelectorAll('.top-items tbody tr'));
+    const hasRows = rows.some(tr => !tr.querySelector('td[colspan]'));
+    if (search) search.disabled = !hasRows;
+
     function apply(){
       const q = (search?.value || '').trim().toLowerCase();
       rows.forEach(tr=>{
