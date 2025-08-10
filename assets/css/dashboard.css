@@ -1,107 +1,103 @@
-/* ============================== RB STORES – DASHBOARD THEME (Bootstrap 5 compatible) ============================== */
-/* This file themes Bootstrap components used by the updated PHP dashboard (cards, tables, badges, layout).          */
-/* Safe to use alongside Bootstrap 5 + Font Awesome. Keeps your dark, professional look with clean business polish.  */
+/* ================= RB STORES – LIGHT THEME (Bootstrap 5 compatible) =================
+   Matches login look: white background, blue accent, soft shadows, rounded cards.
+   Works with the updated PHP dashboard (cards, tables, badges).
+===================================================================================== */
 
-/* =============== THEME TOKENS =============== */
+/* ---------- THEME TOKENS (Light default) ---------- */
 :root{
-  --sidebar-w:260px;
-
-  --bg:#0b1020;           /* page bg */
-  --surface:#0e1530;      /* panels/surfaces */
-  --card:#0f172a;         /* card body */
-  --card-2:#0b1220;       /* table rows */
-  --line:rgba(148,163,184,.14);
-
-  --text:#e5e7eb;
-  --muted:#94a3b8;
-  --accent:#60a5fa;
-
-  --grad-a:#3b82f6;       /* KPI gradients */
-  --grad-b:#8b5cf6;
-
-  --ok:#10b981;
-  --warn:#f59e0b;
-  --danger:#ef4444;
-
+  /* Layout */
+  --container:1280px;
   --radius:14px;
   --radius-sm:10px;
 
-  --shadow-lg:0 10px 24px rgba(2,6,23,.35);
-  --shadow-md:0 6px 18px rgba(0,0,0,.18);
-  --shadow-sm:0 2px 10px rgba(0,0,0,.12);
+  /* Colors (light) */
+  --bg:#ffffff;                 /* page background */
+  --surface:#ffffff;            /* panel/surface */
+  --card:#ffffff;               /* card body */
+  --card-2:#f9fbff;             /* subtle alt row */
+  --line:rgba(15,23,42,.10);    /* borders/dividers */
 
-  --container:1280px;
+  --text:#0f172a;               /* main text */
+  --muted:#64748b;              /* secondary text */
+
+  --accent:#4f7df3;             /* blue like login page */
+  --accent-2:#7aa4ff;
+
+  /* KPI gradient strip */
+  --grad-a:#4f46e5;
+  --grad-b:#3b82f6;
+
+  /* Status */
+  --ok:#0f9d58;     /* success */
+  --warn:#eab308;   /* warning */
+  --danger:#e11d48; /* danger */
+
+  /* Shadows */
+  --shadow-lg:0 20px 40px rgba(2,6,23,.10), 0 2px 8px rgba(2,6,23,.06);
+  --shadow-md:0 12px 24px rgba(2,6,23,.08), 0 1px 4px rgba(2,6,23,.06);
+  --shadow-sm:0 6px 12px rgba(2,6,23,.06), 0 1px 3px rgba(2,6,23,.04);
 
   --footer-h:56px;
 }
 
-/* Motion */
+/* Motion preferences */
 @media (prefers-reduced-motion:no-preference){ :root{ --e:.18s cubic-bezier(.2,.7,.2,1); } }
 @media (prefers-reduced-motion:reduce){ :root{ --e:0s; } }
 
-/* =============== PAGE & BOOTSTRAP OVERRIDES =============== */
+/* ---------- PAGE & BOOTSTRAP TWEAKS ---------- */
 html,body{ background:var(--bg); color:var(--text); }
 body{ padding-bottom: var(--footer-h); }
 
-.container, .container-fluid{
-  max-width: var(--container);
-}
+.container, .container-fluid{ max-width: var(--container); }
 
-/* Bootstrap palette tweaks for dark theme */
 .bg-body-tertiary{ background-color: var(--bg) !important; }
 .text-secondary{ color: var(--muted) !important; }
 .text-primary{ color: var(--accent) !important; }
 
-/* Links */
-a{ color: var(--accent); }
-a:hover{ color:#3a8df2; }
+a{ color: var(--accent); text-decoration: none; }
+a:hover{ color: var(--accent-2); text-decoration: underline; }
 
-/* =============== LAYOUT =============== */
+/* ---------- HEADINGS & SMALL UI ---------- */
 .main-content{
   margin-top: 8px;
   padding: 20px clamp(12px,2.5vw,24px) 28px;
 }
-@media (min-width: 992px){
-  /* When sidebar is present as a Bootstrap column, margin-left isn’t needed */
-  .main-content{ margin-left: 0; }
-}
-
 .page-title, .main-content h2{
-  font-size: clamp(1.2rem, 1.8vw, 1.4rem);
+  font-size: clamp(1.2rem, 1.8vw, 1.5rem);
   font-weight:800; margin:0 0 4px;
+  color: #0b1220;
 }
-.main-content h3{ font-size:1rem; font-weight:800; margin:8px 0 12px; color:#e2e8f0; }
-.highlight{ color:#6366f1; font-weight:700; }
-.muted{ color:var(--muted); font-size:.95rem; }
-.accent{ color:var(--accent); }
+.main-content h3{ font-size:1rem; font-weight:800; margin:8px 0 12px; color:#111827; }
+.highlight{ color: var(--accent); font-weight:700; }
+.muted{ color: var(--muted); font-size:.95rem; }
+.small{ font-size:.925rem; }
 
-/* =============== CARDS (Bootstrap .card) =============== */
+/* ---------- CARDS ---------- */
 .card{
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
+  transition: transform var(--e), box-shadow var(--e);
 }
+.card:hover{ transform: translateY(-2px); box-shadow: 0 24px 48px rgba(2,6,23,.12), 0 2px 8px rgba(2,6,23,.06); }
 .card-header{
-  background: linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.92));
+  background:#f1f5f9 !important;
   border-bottom: 1px solid var(--line) !important;
-  color: var(--text);
+  color:#0f172a;
   border-top-left-radius: var(--radius);
   border-top-right-radius: var(--radius);
 }
-.card-body{ color: var(--text); }
-.card:hover{ transform: translateY(-1px); transition: transform var(--e), box-shadow var(--e); box-shadow: 0 .25rem .75rem rgba(0,0,0,.22); }
 
-/* KPI cards (the ones we render in PHP with an icon + two lines) */
+/* KPI tiles (icon + numbers) */
 .kpi-icon{
   font-size: 1.75rem;
   width:48px; height:48px;
   display:grid; place-items:center;
   border-radius:12px;
-  background: rgba(255,255,255,.08);
+  background: linear-gradient(145deg, rgba(79,125,243,.15), rgba(122,164,255,.15));
+  color: var(--accent);
 }
-
-/* Optional gradient accent strip for KPI cards */
 .card .kpi-accent{
   position:absolute; inset:auto 0 0 0; height:3px;
   background: linear-gradient(90deg, var(--grad-a), var(--grad-b));
@@ -109,91 +105,92 @@ a:hover{ color:#3a8df2; }
   border-bottom-right-radius: var(--radius);
 }
 
-/* =============== BADGES (maps to Bootstrap .badge text-bg-*) =============== */
-.badge{ font-weight:700; letter-spacing:.2px; padding:.4rem .6rem; border-radius: 999px; }
-.text-bg-success{ background: rgba(16,185,129,.16) !important; color: var(--ok) !important; }
-.text-bg-warning{ background: rgba(245,158,11,.16) !important; color: var(--warn) !important; }
-.text-bg-danger{ background: rgba(239,68,68,.16) !important; color: var(--danger) !important; }
-.text-bg-secondary{ background: rgba(148,163,184,.18) !important; color: #cbd5e1 !important; }
+/* ---------- BADGES (Bootstrap mapping) ---------- */
+.badge{ font-weight:700; letter-spacing:.2px; padding:.45rem .65rem; border-radius:999px; }
+.text-bg-success{ background: rgba(15,157,88,.14) !important; color: var(--ok) !important; }
+.text-bg-warning{ background: rgba(234,179,8,.16) !important; color: #9a7b06 !important; }
+.text-bg-danger{  background: rgba(225,29,72,.14) !important; color: var(--danger) !important; }
+.text-bg-secondary{ background: rgba(2,6,23,.08) !important; color: #334155 !important; }
 
-/* =============== TABLES (.table inside .table-responsive) =============== */
+/* ---------- TABLES ---------- */
 .table-responsive{
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-md);
-  overflow: auto;
+  overflow:auto;
 }
 
 .table{
   margin:0;
   color: var(--text);
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: #f6f9ff;
+  --bs-table-hover-bg: #eef4ff;
+  --bs-table-border-color: var(--line);
 }
 .table thead th{
   font-size:12px; text-transform:uppercase; letter-spacing:.4px;
-  color:var(--muted);
-  background: linear-gradient(180deg, rgba(11,18,36,.92), rgba(11,18,36,.92)) !important;
+  color:#475569;
+  background:#f1f5f9 !important;
   position: sticky; top: 0; z-index: 1;
   border-bottom: 1px solid var(--line) !important;
 }
-.table tbody tr{
-  background: var(--card-2);
-  box-shadow: inset 0 1px 0 rgba(148,163,184,.08), inset 0 -1px 0 rgba(148,163,184,.08);
-  transition: background var(--e);
-}
-.table tbody tr:hover{ background:#0e1a33; }
-
 .table td, .table th{
   vertical-align: middle;
   border-color: var(--line) !important;
 }
+.table tbody tr{ background: #fff; transition: background var(--e); }
+.table tbody tr:nth-child(odd){ background: var(--card-2); }
+.table tbody tr:hover{ background: #eef4ff; }
 .table .text-end{ text-align:right !important; }
+.table.table-sm td, .table.table-sm th{ padding:.55rem .75rem; }
 
-/* Compact variant for the small tables on the right */
-.table.table-sm td, .table.table-sm th{ padding:.5rem .75rem; }
+/* optional: pill rows for the Top Items + Low Stock lists */
+.table--soft tbody tr{
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 1px 0 rgba(2,6,23,.04), inset 0 -1px 0 rgba(2,6,23,.04);
+}
 
-/* =============== GRID SPACING (sections) =============== */
+/* ---------- GRID & HEIGHT HELPERS ---------- */
 section .row.g-3 > [class*="col-"] > .card{ height:100%; }
 
-/* =============== UTILITIES =============== */
+/* ---------- CODE & UTILITY ---------- */
 code{
-  background: rgba(13,110,253,.08);
+  background: #eef4ff;
   padding: .15rem .35rem;
   border-radius: .25rem;
-  color: #cce0ff;
+  color: #1e40af;
 }
 :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
-.small{ font-size:.925rem; }
 
-/* Scrollbars (only where scrolling happens) */
+/* Scrollbars where needed */
 .table-responsive::-webkit-scrollbar{ height: 10px; width: 10px; }
-.table-responsive::-webkit-scrollbar-thumb{ background: rgba(148,163,184,.25); border-radius: 8px; }
-.table-responsive::-webkit-scrollbar-track{ background: rgba(148,163,184,.08); border-radius: 8px; }
+.table-responsive::-webkit-scrollbar-thumb{ background: rgba(2,6,23,.18); border-radius: 8px; }
+.table-responsive::-webkit-scrollbar-track{ background: rgba(2,6,23,.06); border-radius: 8px; }
 
-/* =============== PRINT =============== */
+/* ---------- PRINT ---------- */
 @media print{
   html,body{ background:#fff; color:#111; }
   .card, .table-responsive{ box-shadow:none; border:1px solid #ddd; }
   .card-header{ background:#f8f9fa !important; color:#111; }
 }
 
-/* =============== FOOTER (optional fixed) =============== */
+/* ---------- FOOTER (optional fixed) ---------- */
 footer, .site-footer, .app-footer{
-  /* If your footer is fixed, uncomment the next line */
+  /* If your footer is fixed, uncomment: */
   /* position: fixed; */
   left:0; right:0; bottom:0;
   height: var(--footer-h);
   z-index: 50;
 }
 
-/* =============== OPTIONAL: “stacked table” pattern for tiny screens ===============
-   Not required because we already use .table-responsive, but you can enable
-   this pattern by adding class .table--stack to any table you want to convert.
-   Keeps semantics; no HTML changes needed.
-*/
+/* ---------- OPTIONAL: stacked-table pattern for tiny screens ----------
+   If you want the mobile “cards” look, add .table--stack + one of the
+   helper classes below to your table. Otherwise .table-responsive is enough. */
 @media (max-width:700px){
   .table--stack thead{ display:none; }
-  .table--stack tbody tr{ display:block; margin:10px; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow-sm); }
+  .table--stack tbody tr{ display:block; margin:10px; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; box-shadow: var(--shadow-sm); background:#fff !important; }
   .table--stack tbody td{ display:grid; grid-template-columns: 130px 1fr; gap:10px; padding:.75rem .9rem; }
   .table--stack tbody td::before{
     color: var(--muted);
@@ -201,7 +198,6 @@ footer, .site-footer, .app-footer{
     letter-spacing: .3px;
     font-size: 11px; font-weight: 700;
   }
-  /* Labels by column index (adjust per table) */
   .table--stack.recent-orders tbody td:nth-child(1)::before{ content:"Order #"; }
   .table--stack.recent-orders tbody td:nth-child(2)::before{ content:"Invoice"; }
   .table--stack.recent-orders tbody td:nth-child(3)::before{ content:"Customer"; }
