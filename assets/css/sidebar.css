@@ -22,16 +22,7 @@
 }
 
 /* Base reset */
-html, body {
-  height: 100%;
-}
-body {
-  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
-  background: #0b1220;
-  color: #e2e8f0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+
 
 /* ===========================
    Mobile Top Bar
