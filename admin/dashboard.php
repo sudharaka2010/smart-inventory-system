@@ -44,6 +44,11 @@ header("Pragma: no-cache");
 
 $cspNonce = base64_encode(random_bytes(16));
 
+// Ensure only one CSP header is present (avoid duplicates from server/.htaccess/includes)
+if (function_exists('header_remove')) {
+    header_remove('Content-Security-Policy');
+}
+
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 // Legacy clickjacking header (CSP frame-ancestors is primary)
