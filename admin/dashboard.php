@@ -22,6 +22,10 @@ if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
 }
 
 // ---------- Security headers ----------
+
+$cspNonce = base64_encode(random_bytes(16));
+
+
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: no-referrer-when-downgrade");
 header("X-Frame-Options: SAMEORIGIN");
@@ -39,9 +43,17 @@ if (!$IS_DEV) {
         "connect-src 'self'; ".
         "frame-ancestors 'self';"
     );
+    header("Content-Security-Policy: $csp");
+
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
         header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
     }
+
+        // Optional modern isolation (safe defaults):
+    header("Cross-Origin-Opener-Policy: same-origin");
+    header("Cross-Origin-Resource-Policy: same-site");
+
+
 }
 
 // ---------- DB ----------
