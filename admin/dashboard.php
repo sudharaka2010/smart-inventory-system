@@ -22,7 +22,17 @@ header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: no-referrer-when-downgrade");
 header("X-Frame-Options: SAMEORIGIN");
 header("Permissions-Policy: microphone=(), camera=()");
-header("Content-Security-Policy: default-src 'self' https: data: blob:; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https: data:; frame-ancestors 'self';");
+header("Content-Security-Policy: ".
+  "default-src 'self' https: data: blob:; ".
+  "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; ".
+  "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
+  "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ".
+  "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; ".
+  "img-src 'self' https: data: blob:; ".
+  "connect-src 'self'; ".
+  "frame-ancestors 'self';"
+);
+
 
 // DB
 require_once(__DIR__ . '/../includes/db_connect.php');
