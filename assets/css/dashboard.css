@@ -314,3 +314,40 @@ footer, .site-footer, .app-footer{
   .hero-gradient{ background:#fff !important; color:#111; box-shadow:none; }
   a, .text-primary{ color:#0d6efd !important; }
 }
+
+/* ---- Tweaks / overrides (contrast, spacing, sticky head shadow) ---- */
+
+/* Better outline button contrast on glassy surfaces */
+.btn-outline-primary.btn-action,
+.btn-outline-secondary.btn-action,
+.btn-outline-dark.btn-action{
+  border-color: rgba(255,255,255,.28);
+}
+
+/* Card header control cluster spacing on wrap */
+.card-header .d-flex { row-gap: 8px; }
+
+/* “View all” links inside headers */
+.card-header .btn.btn-outline-light {
+  --bs-btn-color: #eaf2ff;
+  --bs-btn-border-color: rgba(255,255,255,.28);
+  --bs-btn-hover-bg: rgba(255,255,255,.1);
+  --bs-btn-hover-border-color: rgba(255,255,255,.4);
+  border-radius: 999px;
+  padding: .25rem .6rem;
+}
+
+/* Make sticky thead more visible when scrolling */
+.table thead th {
+  box-shadow: 0 2px 0 rgba(255,255,255,.06);
+}
+
+/* Improve focus ring on glass backgrounds */
+:focus-visible{
+  outline:2px solid #bcd0ff; outline-offset:2px; border-radius:8px;
+}
+
+/* Tweak stacked rows label width on very small screens */
+@media (max-width:420px){
+  .table--stack tbody td{ grid-template-columns: 104px 1fr; }
+}
