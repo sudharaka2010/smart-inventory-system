@@ -77,12 +77,10 @@ if (function_exists('header_remove')) {
     @header_remove('Content-Security-Policy');
 }
 
-/* Tighter CSP:
-   - Inline scripts are allowed via nonce only.
-   - Styles from known CDNs; no 'unsafe-inline' for styles (ensure no inline style attributes). */
+/* Tightened CSP (no jQuery host since not used) */
 $CSP = implode(' ', [
     "default-src 'self';",
-    "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com 'nonce-{$cspNonce}';",
+    "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'nonce-{$cspNonce}';",
     "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;",
     "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;",
     "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
@@ -103,8 +101,15 @@ header("X-XSS-Protection: 0");            // rely on CSP
 header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()");
 
-// HSTS (safe on HTTPS)
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+// HSTS only when actually on HTTPS
+$hstsHttps = (
+    (($_SERVER['HTTPS'] ?? '') === 'on') ||
+    (($_SERVER['SERVER_PORT'] ?? null) == 443) ||
+    (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https')
+);
+if ($hstsHttps) {
+    header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+}
 
 // ---------- Auth helpers (no redirect loop) ----------
 function redirect_to_login(): never {
@@ -157,20 +162,22 @@ function fetchAll(mysqli $conn, string $query): array {
 function tableExists(mysqli $conn, string $table): bool {
     $sql = "SELECT COUNT(*) AS c FROM INFORMATION_SCHEMA.TABLES
             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?";
-    $stmt = $conn->prepare($sql);
+    if (!$stmt = $conn->prepare($sql)) { return false; }
     $stmt->bind_param('s', $table);
     $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : ['c'=>0];
     $stmt->close();
     return (int)($row['c'] ?? 0) > 0;
 }
 function columnExists(mysqli $conn, string $table, string $column): bool {
     $sql = "SELECT COUNT(*) AS c FROM INFORMATION_SCHEMA.COLUMNS
             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?";
-    $stmt = $conn->prepare($sql);
+    if (!$stmt = $conn->prepare($sql)) { return false; }
     $stmt->bind_param('ss', $table, $column);
     $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : ['c'=>0];
     $stmt->close();
     return (int)($row['c'] ?? 0) > 0;
 }
@@ -261,13 +268,13 @@ if (tableExists($conn, 'orderdetails')) {
     ");
 }
 
-// Low-stock list (unified threshold ≤5)
+// Low-stock list (unified threshold ≤5) — show a bit more
 $lowStock = fetchAll($conn, "
   SELECT `ItemID`, `InvoiceID`, `NAME`, `Quantity`
   FROM `inventoryitem`
   WHERE `Quantity` <= 5
   ORDER BY `Quantity` ASC
-  LIMIT 10
+  LIMIT 25
 ");
 
 // ---------- Layout includes ----------
@@ -301,8 +308,8 @@ $footerFile  = __DIR__ . '/footer.php';
       <!-- Hero -->
       <div class="hero-gradient">
         <div class="hero-inner">
-          <h2 class="m-0">RB Stores Dashboard</h2>
-          <span class="lead">As of <?=date('Y-m-d');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
+          <h1 class="m-0">RB Stores Dashboard</h1>
+          <span class="lead">As of <?=date('Y-m-d H:i');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
           <?php if ($rev['path'] !== 'none' && $IS_DEV): ?>
             <span class="badge text-bg-secondary ms-2">Revenue via: <?=h($rev['path']);?></span>
           <?php endif; ?>
@@ -395,7 +402,7 @@ $footerFile  = __DIR__ . '/footer.php';
             <div class="card-header border-0 pb-0">
               <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                 <h4 class="h6 m-0">Recent Orders</h4>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                   <select id="orderStatusFilter" class="form-select form-select-sm" style="min-width:130px" data-bs-toggle="tooltip" title="Filter by status">
                     <option value="">All statuses</option>
                     <option>Paid</option>
@@ -404,12 +411,13 @@ $footerFile  = __DIR__ . '/footer.php';
                     <option>Refunded</option>
                   </select>
                   <input id="orderSearch" class="form-control form-control-sm" placeholder="Search invoice / customer" style="min-width:220px" />
+                  <a class="btn btn-sm btn-outline-light" href="/billing/view_billing.php">View all</a>
                 </div>
               </div>
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-hover align-middle table--soft recent-orders">
+                <table class="table table-hover align-middle table--soft table--stack recent-orders">
                   <thead class="table-light">
                     <tr>
                       <th>Order #</th>
@@ -444,6 +452,13 @@ $footerFile  = __DIR__ . '/footer.php';
                 </table>
               </div>
             </div>
+            <div class="card-footer border-0 pt-0 small text-secondary">
+              Status legend:
+              <span class="badge text-bg-success">Paid</span>
+              <span class="badge text-bg-warning">Pending</span>
+              <span class="badge text-bg-danger">Cancelled</span>
+              <span class="badge text-bg-secondary">Refunded</span>
+            </div>
           </div>
         </div>
 
@@ -453,12 +468,14 @@ $footerFile  = __DIR__ . '/footer.php';
             <div class="card-header border-0 pb-0">
               <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                 <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
-                <input id="itemSearch" class="form-control form-control-sm" placeholder="Search item…" style="min-width:220px" />
+                <div class="d-flex gap-2">
+                  <input id="itemSearch" class="form-control form-control-sm" placeholder="Search item…" style="min-width:220px" />
+                </div>
               </div>
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-sm align-middle table--soft top-items">
+                <table class="table table-sm align-middle table--soft table--stack top-items">
                   <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
                   <tbody>
                   <?php if (!$topItems): ?>
@@ -477,11 +494,14 @@ $footerFile  = __DIR__ . '/footer.php';
 
           <div class="card shadow-sm border-0">
             <div class="card-header border-0 pb-0">
-              <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
+                <a class="btn btn-sm btn-outline-light" href="/admin/low_stock.php" aria-label="All low stock">View all</a>
+              </div>
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-sm align-middle table--soft low-stock">
+                <table class="table table-sm align-middle table--soft table--stack low-stock">
                   <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
                   <tbody>
                   <?php if (!$lowStock): ?>
@@ -570,3 +590,4 @@ $footerFile  = __DIR__ . '/footer.php';
 <?php
 // ---------- Tidy up ----------
 $conn->close();
+if (ob_get_level() > 0) { ob_end_flush(); }
