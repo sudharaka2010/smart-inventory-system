@@ -26,7 +26,7 @@ header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: no-referrer-when-downgrade");
 header("X-Frame-Options: SAMEORIGIN");
 header("Permissions-Policy: microphone=(), camera=()");
-
+header("X-XSS-Protection: 0"); // modern browsers use CSP
 if (!$IS_DEV) {
     header(
         "Content-Security-Policy: ".
@@ -190,7 +190,7 @@ $footerFile  = __DIR__ . '/footer.php';
   <div class="row">
     <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
 
-    <!-- Hero (blue gradient, matches login) -->
+    <!-- Hero (blue gradient) -->
     <div class="hero-gradient">
       <div class="hero-inner">
         <h2 class="m-0">RB Stores Dashboard</h2>
@@ -199,6 +199,46 @@ $footerFile  = __DIR__ . '/footer.php';
     </div>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-4 py-4 main-content">
+
+      <?php
+        $hasLowStock  = $kpi['low_stock_cnt'] > 0;
+        $hasBalance   = ($rev['balance_due'] ?? 0) > 0;
+      ?>
+      <!-- Alerts -->
+      <?php if ($hasLowStock || $hasBalance): ?>
+        <div class="mb-3">
+          <?php if ($hasLowStock): ?>
+            <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2" role="alert">
+              <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+              <div><strong>Low stock:</strong> <?=$kpi['low_stock_cnt'];?> item(s) at or below threshold.</div>
+              <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php" aria-label="Review low stock">Review</a>
+            </div>
+          <?php endif; ?>
+          <?php if ($hasBalance): ?>
+            <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3" role="alert">
+              <i class="fa fa-sack-xmark" aria-hidden="true"></i>
+              <div><strong>Balance due:</strong> Rs <?=n2($rev['balance_due']);?> outstanding.</div>
+              <a class="ms-auto btn btn-sm btn-outline-danger" href="/billing/view_billing.php" aria-label="Collect payments">Collect</a>
+            </div>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- Quick actions -->
+      <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
+        <a href="/billing/billing.php" class="btn btn-primary btn-action">
+          <i class="fa fa-plus me-2" aria-hidden="true"></i>New Order
+        </a>
+        <a href="/inventory/add_inventory.php" class="btn btn-outline-primary btn-action">
+          <i class="fa fa-boxes-packing me-2" aria-hidden="true"></i>Add Stock
+        </a>
+        <a href="/transport/add_transport.php" class="btn btn-outline-secondary btn-action">
+          <i class="fa fa-truck me-2" aria-hidden="true"></i>Schedule Delivery
+        </a>
+        <a href="/reports/" class="btn btn-outline-dark btn-action">
+          <i class="fa fa-chart-line me-2" aria-hidden="true"></i>Reports
+        </a>
+      </div>
 
       <!-- KPI Grid -->
       <section class="mb-4">
@@ -223,7 +263,7 @@ $footerFile  = __DIR__ . '/footer.php';
               <div class="card h-100 shadow-sm border-0 position-relative">
                 <div class="card-body d-flex align-items-center gap-3">
                   <div class="kpi-icon text-'.$variant.'">
-                    <i class="fa '.$icon.'"></i>
+                    <i class="fa '.$icon.'" aria-hidden="true"></i>
                   </div>
                   <div>
                     <div class="text-secondary small">'.$label.'</div>
@@ -233,7 +273,7 @@ $footerFile  = __DIR__ . '/footer.php';
                 <span class="kpi-accent"></span>
               </div>';
             echo '<div class="col-12 col-sm-6 col-lg-4">';
-            echo $href ? '<a class="text-decoration-none" href="'.h($href).'">'.$inner.'</a>' : $inner;
+            echo $href ? '<a class="text-decoration-none" href="'.h($href).'" aria-label="'.h($label).'">'.$inner.'</a>' : $inner;
             echo '</div>';
           }
           ?>
@@ -246,7 +286,19 @@ $footerFile  = __DIR__ . '/footer.php';
         <div class="col-12 col-xl-7">
           <div class="card shadow-sm border-0 h-100">
             <div class="card-header border-0 pb-0">
-              <h4 class="h6 m-0">Recent Orders</h4>
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                <h4 class="h6 m-0">Recent Orders</h4>
+                <div class="d-flex gap-2">
+                  <select id="orderStatusFilter" class="form-select form-select-sm" style="min-width:130px" data-bs-toggle="tooltip" title="Filter by status">
+                    <option value="">All statuses</option>
+                    <option>Paid</option>
+                    <option>Pending</option>
+                    <option>Cancelled</option>
+                    <option>Refunded</option>
+                  </select>
+                  <input id="orderSearch" class="form-control form-control-sm" placeholder="Search invoice / customer" style="min-width:220px" />
+                </div>
+              </div>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -292,7 +344,10 @@ $footerFile  = __DIR__ . '/footer.php';
         <div class="col-12 col-xl-5">
           <div class="card shadow-sm border-0 mb-3">
             <div class="card-header border-0 pb-0">
-              <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
+                <input id="itemSearch" class="form-control form-control-sm" placeholder="Search item…" style="min-width:220px" />
+              </div>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -349,5 +404,50 @@ $footerFile  = __DIR__ . '/footer.php';
 
 <!-- JS (Bootstrap) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<!-- UX Scripts: tooltips + client-side filters -->
+<script>
+  // Enable Bootstrap tooltips
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{
+    new bootstrap.Tooltip(el);
+  });
+
+  // ----- Recent Orders filter/search -----
+  (function(){
+    const search   = document.getElementById('orderSearch');
+    const status   = document.getElementById('orderStatusFilter');
+    const rows     = Array.from(document.querySelectorAll('.recent-orders tbody tr'));
+
+    function apply(){
+      const q = (search?.value || '').trim().toLowerCase();
+      const s = (status?.value || '').trim().toLowerCase();
+      rows.forEach(tr=>{
+        if (tr.querySelector('td[colspan]')) return; // skip "No orders yet."
+        const text = tr.innerText.toLowerCase();
+        const badge = tr.querySelector('.badge')?.innerText.toLowerCase() || '';
+        const okQ = !q || text.includes(q);
+        const okS = !s || badge === s;
+        tr.style.display = (okQ && okS) ? '' : 'none';
+      });
+    }
+    search && search.addEventListener('input', apply);
+    status && status.addEventListener('change', apply);
+  })();
+
+  // ----- Top Items search -----
+  (function(){
+    const search = document.getElementById('itemSearch');
+    const rows   = Array.from(document.querySelectorAll('.top-items tbody tr'));
+    function apply(){
+      const q = (search?.value || '').trim().toLowerCase();
+      rows.forEach(tr=>{
+        if (tr.querySelector('td[colspan]')) return; // skip "No sales yet."
+        const t = tr.innerText.toLowerCase();
+        tr.style.display = !q || t.includes(q) ? '' : 'none';
+      });
+    }
+    search && search.addEventListener('input', apply);
+  })();
+</script>
 </body>
 </html>
