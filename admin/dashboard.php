@@ -3,17 +3,26 @@
 // File: /admin/dashboard.php
 
 // ---------- ENV ----------
-$IS_DEV = false;
+$IS_DEV = false; // set true for local development
 date_default_timezone_set('Asia/Colombo');
 
 // ---------- BOOTSTRAP ----------
 ob_start();
 
-/* ---- HTTPS ENFORCEMENT (Heroku friendly) ---- */
-$proto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ($_SERVER['REQUEST_SCHEME'] ?? '');
-if ($proto !== 'https') {
-    header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], true, 301);
-    exit;
+/* ---- HTTPS ENFORCEMENT (Heroku / proxies) ----
+   In production force HTTPS; in dev don't redirect so local HTTP works. */
+if (!$IS_DEV) {
+    $xfp   = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+    $https = $_SERVER['HTTPS'] ?? '';
+    $port  = (int)($_SERVER['SERVER_PORT'] ?? 0);
+    $isHttps = ($xfp === 'https') || ($https === 'on') || ($port === 443);
+
+    if (!$isHttps) {
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $uri  = $_SERVER['REQUEST_URI'] ?? '/';
+        header('Location: https://' . $host . $uri, true, 301);
+        exit;
+    }
 }
 
 /* ---- Cache controls ---- */
@@ -34,19 +43,22 @@ if ($IS_DEV) {
     error_reporting(0);
 }
 
-/* ---- Strong session config (align with login.php) ---- */
+/* ---- Strong session config (align with login.php) ----
+   Use secure cookies in prod; allow non-secure in local dev to avoid breakage. */
+$cookieSecure = !$IS_DEV;
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path'     => '/',
     'domain'   => '',
-    'secure'   => true,      // always true on Heroku (served via HTTPS)
+    'secure'   => $cookieSecure,
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
 session_start([
     'use_strict_mode'  => true,
     'use_only_cookies' => true,
-    'cookie_secure'    => true,
+    'cookie_secure'    => $cookieSecure,
     'cookie_httponly'  => true,
     'cookie_samesite'  => 'Lax'
 ]);
@@ -65,11 +77,14 @@ if (function_exists('header_remove')) {
     @header_remove('Content-Security-Policy');
 }
 
+/* Tighter CSP:
+   - Inline scripts are allowed via nonce only.
+   - Styles from known CDNs; no 'unsafe-inline' for styles (ensure no inline style attributes). */
 $CSP = implode(' ', [
     "default-src 'self';",
     "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com 'nonce-{$cspNonce}';",
-    "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
-    "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
+    "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;",
+    "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;",
     "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
     "img-src 'self' https: data: blob:;",
     "connect-src 'self';",
@@ -83,12 +98,12 @@ $CSP = implode(' ', [
 header("Content-Security-Policy: $CSP");
 
 header("X-Content-Type-Options: nosniff");
-header("X-Frame-Options: SAMEORIGIN"); // legacy; CSP frame-ancestors is primary
-header("X-XSS-Protection: 0");         // rely on CSP
+header("X-Frame-Options: DENY");          // aligns with frame-ancestors 'none'
+header("X-XSS-Protection: 0");            // rely on CSP
 header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()");
 
-// HSTS (safe on Heroku HTTPS)
+// HSTS (safe on HTTPS)
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 
 // ---------- Auth helpers (no redirect loop) ----------
@@ -175,6 +190,7 @@ try {
     $kpi['customers']        = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `customer`", 'c');
     $kpi['orders']           = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order`", 'c');
     $kpi['stock_qty']        = (int)getSafeValue($conn, "SELECT COALESCE(SUM(`Quantity`),0) AS s FROM `inventoryitem`", 's');
+    // unified threshold ≤5
     $kpi['low_stock_cnt']    = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `inventoryitem` WHERE `Quantity` <= 5", 'c');
     $kpi['returns']          = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `returnitem`", 'c');
     $kpi['pending_orders']   = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order` WHERE `Status`='Pending'", 'c');
@@ -232,6 +248,7 @@ $recentOrders = fetchAll($conn, "
   LIMIT 50
 ");
 
+// Optional aggregation only if orderdetails table exists
 $topItems = [];
 if (tableExists($conn, 'orderdetails')) {
     $topItems = fetchAll($conn, "
@@ -244,10 +261,11 @@ if (tableExists($conn, 'orderdetails')) {
     ");
 }
 
+// Low-stock list (unified threshold ≤5)
 $lowStock = fetchAll($conn, "
   SELECT `ItemID`, `InvoiceID`, `NAME`, `Quantity`
   FROM `inventoryitem`
-  WHERE `Quantity` <= 10
+  WHERE `Quantity` <= 5
   ORDER BY `Quantity` ASC
   LIMIT 10
 ");
@@ -266,7 +284,7 @@ $footerFile  = __DIR__ . '/footer.php';
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <!-- Font Awesome 6 -->
+  <!-- Font Awesome 6 (add SRI if you have the exact hash for your version) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
   <!-- Custom -->
   <link rel="stylesheet" href="/assets/css/dashboard.css" />
@@ -285,7 +303,7 @@ $footerFile  = __DIR__ . '/footer.php';
         <div class="hero-inner">
           <h2 class="m-0">RB Stores Dashboard</h2>
           <span class="lead">As of <?=date('Y-m-d');?> • Balance = <b>TotalAmount − AmountPaid</b></span>
-          <?php if ($rev['path'] !== 'none'): ?>
+          <?php if ($rev['path'] !== 'none' && $IS_DEV): ?>
             <span class="badge text-bg-secondary ms-2">Revenue via: <?=h($rev['path']);?></span>
           <?php endif; ?>
         </div>
@@ -300,7 +318,7 @@ $footerFile  = __DIR__ . '/footer.php';
         <?php if ($hasLowStock): ?>
           <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2" role="alert">
             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below threshold.</div>
+            <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below threshold (≤5).</div>
             <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php" aria-label="Review low stock">Review</a>
           </div>
         <?php endif; ?>
@@ -398,7 +416,7 @@ $footerFile  = __DIR__ . '/footer.php';
                       <th>Invoice</th>
                       <th>Customer</th>
                       <th>Date</th>
-                      <th class="text-end">Total (Rs)</th>
+                      <th class="text-end">Total</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -411,7 +429,7 @@ $footerFile  = __DIR__ . '/footer.php';
                       <td class="text-primary fw-semibold"><?= h($o['InvoiceID'] ?: '—'); ?></td>
                       <td><?= h($o['CustomerName'] ?? 'Guest'); ?></td>
                       <td><?= h(d($o['OrderDate'])); ?></td>
-                      <td class="text-end"><?= n2($o['TotalAmount'] ?? 0); ?></td>
+                      <td class="text-end"><?= h(lkr($o['TotalAmount'] ?? 0)); ?></td>
                       <td>
                         <?php
                           $status = $o['Status'] ?? 'Pending';
@@ -459,7 +477,7 @@ $footerFile  = __DIR__ . '/footer.php';
 
           <div class="card shadow-sm border-0">
             <div class="card-header border-0 pb-0">
-              <h4 class="h6 m-0">Low Stock (≤ 10)</h4>
+              <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -470,7 +488,7 @@ $footerFile  = __DIR__ . '/footer.php';
                     <tr><td colspan="3" class="text-secondary">All good.</td></tr>
                   <?php else: foreach ($lowStock as $ls): ?>
                     <?php $q = (int)$ls['Quantity'];
-                          $qCls = ($q <= 3) ? 'text-danger fw-semibold' : (($q <= 7) ? 'text-warning' : ''); ?>
+                          $qCls = ($q <= 3) ? 'text-danger fw-semibold' : (($q <= 5) ? 'text-warning' : ''); ?>
                     <tr>
                       <td><?= h($ls['NAME']); ?> <span class="text-secondary">(ID: <?= (int)$ls['ItemID']; ?>)</span></td>
                       <td class="text-end <?=$qCls;?>"><?= number_format($q); ?></td>
@@ -492,7 +510,9 @@ $footerFile  = __DIR__ . '/footer.php';
 <?php if (file_exists($footerFile)) include $footerFile; ?>
 
 <!-- JS (Bootstrap external) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
 <!-- UX Scripts: tooltips + client-side filters (inline, protected by CSP nonce) -->
 <script nonce="<?= $cspNonce ?>">
