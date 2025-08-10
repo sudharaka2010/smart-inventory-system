@@ -68,11 +68,12 @@ if (function_exists('header_remove')) {
 $CSP = implode(' ', [
     "default-src 'self';",
     "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com 'nonce-{$cspNonce}';",
-    "style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';", // allows inline style attributes used in markup
+    "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
+    "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
     "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
     "img-src 'self' https: data: blob:;",
     "connect-src 'self';",
-    "frame-ancestors 'none';", // do not allow embedding in iframes
+    "frame-ancestors 'none';",
     "base-uri 'self';",
     "form-action 'self';",
     "object-src 'none';",
