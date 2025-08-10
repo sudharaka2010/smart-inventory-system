@@ -46,7 +46,7 @@ function requireRole(string|array $roles) {
     $roles = (array)$roles;
     $ok = isset($_SESSION['username']) && in_array($_SESSION['role'] ?? '', $roles, true);
     if (!$ok) {
-        header("Location: /login.php"); // redirect to login if not authorized
+        header("Location: /admin/dashboard.php"); // redirect to dashboard if not authorized
         exit();
     }
 }
