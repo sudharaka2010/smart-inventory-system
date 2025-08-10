@@ -10,6 +10,7 @@ if ($IS_DEV) {
     ini_set('display_errors', '1');
     ini_set('display_startup_errors', '1');
     error_reporting(E_ALL);
+    // In dev, surface SQL errors early:
     if (function_exists('mysqli_report')) {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     }
@@ -23,12 +24,14 @@ if ($IS_DEV) {
 // Harden cookies BEFORE session_start()
 session_set_cookie_params([
   'httponly' => true,
-  'samesite' => 'Lax', // try 'Strict' if it doesn't break flows
+  'samesite' => 'Lax', // try 'Strict' if it doesn't break flows (e.g., external redirects)
   'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
 ]);
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Auth gate
 if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
     header("Location: /auth/login.php");
     exit();
@@ -39,38 +42,49 @@ if (!isset($_SESSION['username']) || (($_SESSION['role'] ?? '') !== 'Admin')) {
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 
-header("X-Content-Type-Options: nosniff");
-header("Referrer-Policy: strict-origin-when-cross-origin");
-header("X-Frame-Options: SAMEORIGIN");
-header("Permissions-Policy: camera=(), microphone=()");
-header("X-XSS-Protection: 0");
+$cspNonce = base64_encode(random_bytes(16));
 
-// Ensure only one CSP (remove any set by server/.htaccess/includes)
+// Ensure only one CSP header is present (avoid duplicates from server/.htaccess/includes)
 if (function_exists('header_remove')) {
     header_remove('Content-Security-Policy');
 }
-// Single CSP, no nonce needed (no inline JS)
-$csp = implode(' ', [
-    "default-src 'self';",
-    "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;", // external only
-    "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
-    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
-    "img-src 'self' https: data: blob:;",
-    "connect-src 'self';",
-    "frame-ancestors 'self';",
-    "base-uri 'self';",
-    "form-action 'self';",
-    "object-src 'none';",
-    "worker-src 'self' blob:;",
-    "upgrade-insecure-requests;",
-]);
-header("Content-Security-Policy: $csp");
 
-if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-    header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+// Legacy clickjacking header (CSP frame-ancestors is primary)
+header("X-Frame-Options: SAMEORIGIN");
+header("Permissions-Policy: camera=(), microphone=()");
+header("X-XSS-Protection: 0"); // rely on CSP
+
+if (!$IS_DEV) {
+    // Build ONE coherent CSP and send it ONCE
+    $csp = implode(' ', [
+        "default-src 'self';",
+        // Allow your CDNs + nonce for the inline script block below
+        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$cspNonce}';",
+        // If you remove all inline styles in future, drop 'unsafe-inline' here for tighter CSP
+        "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
+        "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
+        "img-src 'self' https: data: blob:;",
+        "connect-src 'self';",
+        "frame-ancestors 'self';",
+        "base-uri 'self';",
+        "form-action 'self';",
+        "object-src 'none';",
+        "worker-src 'self' blob:;",
+        "upgrade-insecure-requests;",
+    ]);
+    header("Content-Security-Policy: $csp");
+
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+    }
+
+    // Process isolation defaults
+    header("Cross-Origin-Opener-Policy: same-origin");
+    header("Cross-Origin-Resource-Policy: same-site");
 }
-header("Cross-Origin-Opener-Policy: same-origin");
-header("Cross-Origin-Resource-Policy: same-site");
 
 // ---------- DB ----------
 require_once(__DIR__ . '/../includes/db_connect.php');
@@ -207,8 +221,7 @@ $footerFile  = __DIR__ . '/footer.php';
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
   <!-- Custom -->
@@ -432,11 +445,58 @@ $footerFile  = __DIR__ . '/footer.php';
 <?php if (file_exists($footerFile)) include $footerFile; ?>
 
 <!-- JS (Bootstrap external) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-<!-- App JS (external, no inline) -->
-<script src="/assets/js/dashboard.js" defer></script>
+<!-- UX Scripts: tooltips + client-side filters (inline, protected by CSP nonce) -->
+<script nonce="<?= $cspNonce ?>">
+  // Enable Bootstrap tooltips
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{
+    new bootstrap.Tooltip(el);
+  });
+
+  // ----- Recent Orders filter/search -----
+  (function(){
+    const search   = document.getElementById('orderSearch');
+    const status   = document.getElementById('orderStatusFilter');
+    const rows     = Array.from(document.querySelectorAll('.recent-orders tbody tr'));
+    const hasRows  = rows.some(tr => !tr.querySelector('td[colspan]'));
+
+    if (search) search.disabled = !hasRows;
+    if (status) status.disabled = !hasRows;
+
+    function apply(){
+      const q = (search?.value || '').trim().toLowerCase();
+      const s = (status?.value || '').trim().toLowerCase();
+      rows.forEach(tr=>{
+        if (tr.querySelector('td[colspan]')) return; // skip "No orders yet."
+        const text = tr.innerText.toLowerCase();
+        const badge = tr.querySelector('.badge')?.innerText.toLowerCase() || '';
+        const okQ = !q || text.includes(q);
+        const okS = !s || badge === s;
+        tr.style.display = (okQ && okS) ? '' : 'none';
+      });
+    }
+    search && search.addEventListener('input', apply);
+    status && status.addEventListener('change', apply);
+  })();
+
+  // ----- Top Items search -----
+  (function(){
+    const search = document.getElementById('itemSearch');
+    const rows   = Array.from(document.querySelectorAll('.top-items tbody tr'));
+    const hasRows = rows.some(tr => !tr.querySelector('td[colspan]'));
+    if (search) search.disabled = !hasRows;
+
+    function apply(){
+      const q = (search?.value || '').trim().toLowerCase();
+      rows.forEach(tr=>{
+        if (tr.querySelector('td[colspan]')) return; // skip "No sales yet."
+        const t = tr.innerText.toLowerCase();
+        tr.style.display = !q || t.includes(q) ? '' : 'none';
+      });
+    }
+    search && search.addEventListener('input', apply);
+  })();
+</script>
 </body>
 </html>
