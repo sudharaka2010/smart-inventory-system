@@ -6,7 +6,21 @@
 $IS_DEV = false;
 date_default_timezone_set('Asia/Colombo');
 
-// ---------- Errors ----------
+// ---------- BOOTSTRAP ----------
+ob_start();
+
+/* ---- HTTPS ENFORCEMENT (Heroku friendly) ---- */
+$proto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ($_SERVER['REQUEST_SCHEME'] ?? '');
+if ($proto !== 'https') {
+    header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], true, 301);
+    exit;
+}
+
+/* ---- Cache controls ---- */
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+
+/* ---- Errors ---- */
 if ($IS_DEV) {
     ini_set('display_errors', '1');
     ini_set('display_startup_errors', '1');
@@ -20,43 +34,30 @@ if ($IS_DEV) {
     error_reporting(0);
 }
 
-// ---------- Session + Auth ----------
-// Hardened session defaults BEFORE session_start
-ini_set('session.use_strict_mode', '1');
-ini_set('session.cookie_httponly', '1');
-ini_set('session.cookie_secure', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? '1' : '0');
-ini_set('session.cookie_samesite', 'Lax');
-session_name('RBSTORESSESSID');
+/* ---- Strong session config (align with login.php) ---- */
 session_set_cookie_params([
-  'httponly' => true,
-  'samesite' => 'Lax', // use 'Strict' if all flows are same-site
-  'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+    'lifetime' => 0,
+    'path'     => '/',
+    'domain'   => '',
+    'secure'   => true,      // always true on Heroku (served via HTTPS)
+    'httponly' => true,
+    'samesite' => 'Lax'
 ]);
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start([
+    'use_strict_mode'  => true,
+    'use_only_cookies' => true,
+    'cookie_secure'    => true,
+    'cookie_httponly'  => true,
+    'cookie_samesite'  => 'Lax'
+]);
+
 // Periodic session ID rotation
 if (!isset($_SESSION['regen_at']) || time() - ($_SESSION['regen_at'] ?? 0) > 600) {
     session_regenerate_id(true);
     $_SESSION['regen_at'] = time();
 }
 
-// Simple role gate
-function requireRole(string|array $roles) {
-    $roles = (array)$roles;
-    $ok = isset($_SESSION['username']) && in_array($_SESSION['role'] ?? '', $roles, true);
-    if (!$ok) {
-        header("Location: /admin/dashboard.php"); // redirect to dashboard if not authorized
-        exit();
-    }
-}
-requireRole(['Admin']); // Only Admins
-
-// ---------- Security headers ----------
-// Avoid caching sensitive dashboard data
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-
+/* ---- CSP nonce + security headers (consistent) ---- */
 $cspNonce = base64_encode(random_bytes(16));
 
 // Remove any pre-set CSP to avoid duplicates (e.g., from server config)
@@ -64,49 +65,45 @@ if (function_exists('header_remove')) {
     @header_remove('Content-Security-Policy');
 }
 
+$CSP = implode(' ', [
+    "default-src 'self';",
+    "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com 'nonce-{$cspNonce}';",
+    "style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';", // allows inline style attributes used in markup
+    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
+    "img-src 'self' https: data: blob:;",
+    "connect-src 'self';",
+    "frame-ancestors 'none';", // do not allow embedding in iframes
+    "base-uri 'self';",
+    "form-action 'self';",
+    "object-src 'none';",
+    "worker-src 'self' blob:;",
+    "upgrade-insecure-requests;"
+]);
+header("Content-Security-Policy: $CSP");
+
 header("X-Content-Type-Options: nosniff");
-header("Referrer-Policy: strict-origin-when-cross-origin");
 header("X-Frame-Options: SAMEORIGIN"); // legacy; CSP frame-ancestors is primary
-header("X-XSS-Protection: 0"); // rely on CSP
-// Least-privilege Permissions-Policy
+header("X-XSS-Protection: 0");         // rely on CSP
+header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()");
 
-if (!$IS_DEV) {
-    // Single coherent CSP
-    $csp = implode(' ', [
-        "default-src 'self';",
-        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$cspNonce}';",
-        "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
-        "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline';",
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
-        "img-src 'self' https: data: blob:;",
-        "connect-src 'self';",
-        "frame-ancestors 'self';",
-        "base-uri 'self';",
-        "form-action 'self';",
-        "object-src 'none';",
-        "worker-src 'self' blob:;",
-        "upgrade-insecure-requests;",
-    ]);
-    header("Content-Security-Policy: $csp");
+// HSTS (safe on Heroku HTTPS)
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 
-    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-        // Once stable on HTTPS, you can raise to 2 years
-        header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-    }
-
-    header("Cross-Origin-Opener-Policy: same-origin");
-    header("Cross-Origin-Resource-Policy: same-site");
+// ---------- Auth helpers (no redirect loop) ----------
+function redirect_to_login(): never {
+    header("Location: /auth/login.php?denied=1");
+    exit();
 }
-
-// ---------- CSRF helpers (for POST forms on other admin pages) ----------
-function csrf_token(): string {
-    if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
-    return $_SESSION['csrf'];
+function requireLogin(): void {
+    if (empty($_SESSION['username']) || empty($_SESSION['role'])) redirect_to_login();
 }
-function verify_csrf(?string $t): bool {
-    return hash_equals($_SESSION['csrf'] ?? '', (string)$t);
+function requireRole(string|array $roles): void {
+    requireLogin();
+    $roles = (array)$roles;
+    if (!in_array($_SESSION['role'] ?? '', $roles, true)) redirect_to_login();
 }
+requireRole(['Admin']); // Only Admins
 
 // ---------- DB ----------
 require_once(__DIR__ . '/../includes/db_connect.php'); // should set $conn (mysqli)
