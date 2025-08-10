@@ -46,7 +46,7 @@ function requireRole(string|array $roles) {
     $roles = (array)$roles;
     $ok = isset($_SESSION['username']) && in_array($_SESSION['role'] ?? '', $roles, true);
     if (!$ok) {
-        header("Location: /auth/dashboard.php");
+        header("Location: /admin/dashboard.php");
         exit();
     }
 }
