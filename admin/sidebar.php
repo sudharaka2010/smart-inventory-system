@@ -1,135 +1,395 @@
 <?php
-// ===== RB Stores — Isolated Sidebar (no global CSS bleed) =====
-
-// current file for active states
+// ================ RB Stores — Isolated Sidebar (Bootstrap 5 + Bootstrap Icons) ================
+// Safe current page detection (ignores query strings)
 $urlPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
 $current = basename($urlPath) ?: 'index.php';
 
-// helpers (same API you already use)
+// Helpers (same signatures you use)
 function isActive($files){ global $current; $files=(array)$files; return in_array($current,$files,true) ? 'active' : ''; }
-function isOpen($files){ global $current; $files=(array)$files; return in_array($current,$files,true); }
+function isOpen($files){ global $current; $files=(array)$files; return in_array($current,$files,true) ? 'show' : ''; }
 
-// optional base path to work from any folder
-$APP_BASE = $APP_BASE ?? ''; // e.g. set $APP_BASE = '/admin' before including
+// Base path (so links work from any subfolder). Set this before include if you need it.
+$APP_BASE = $APP_BASE ?? '';
 
-// load the isolated CSS (safe to include on all pages)
+// Tiny URL helper for hrefs
+$href = function(string $path) use ($APP_BASE){
+  return rtrim($APP_BASE, '/') . '/' . ltrim($path, '/');
+};
+
+// Control asset loading from pages
+$RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
 ?>
-<link rel="stylesheet" href="/assets/css/sidebar.css"/>
 
-<aside class="rb-sb" data-rb-scope>
-  <!-- mobile header (optional) -->
-  <div class="rb-sb-top">
-    <button class="rb-sb-toggle" aria-controls="rb-sb-panel" aria-expanded="false">☰</button>
-    <span class="rb-sb-brand">RB Stores</span>
+<?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
+  <!-- Bootstrap & Icons (only if not already loaded by header.php) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<?php endif; ?>
+
+<!-- Sidebar Styles (scoped; won’t affect header/footer) -->
+<link rel="stylesheet" href="/assets/css/sidebar.css" />
+
+<!-- Mobile Top Bar (scoped) -->
+<header class="rb-sb-topbar d-xl-none" role="banner" data-rb-scope="sidebar">
+  <button class="btn rb-sb-topbar-btn fs-3" type="button"
+          data-bs-toggle="offcanvas" data-bs-target="#rbSidebar" aria-controls="rbSidebar" aria-label="Open sidebar">
+    <i class="bi bi-list" aria-hidden="true"></i>
+  </button>
+  <div class="ms-2 fw-semibold">RB Stores</div>
+</header>
+
+<!-- Sidebar (Offcanvas on mobile, sticky on desktop) -->
+<aside id="rbSidebar"
+       class="offcanvas offcanvas-start rb-sb offcanvas-shadow"
+       tabindex="-1"
+       aria-labelledby="rbSidebarLabel"
+       data-bs-scroll="true" data-bs-backdrop="false"
+       data-rb-scope="sidebar">
+
+  <div class="offcanvas-header d-xl-none">
+    <h5 class="offcanvas-title" id="rbSidebarLabel">Navigation</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
 
-  <div id="rb-sb-panel" class="rb-sb-panel">
-    <!-- brand (desktop) -->
-    <div class="rb-sb-logo">
-      <span class="rb-sb-logo-mark">🏬</span>
-      <span class="rb-sb-logo-text">RB Stores</span>
+  <nav class="offcanvas-body p-0 d-flex flex-column" role="navigation" aria-label="Main">
+    <!-- Brand (desktop) -->
+    <div class="rb-sb-brand d-none d-xl-flex align-items-center gap-2 px-3 py-3">
+      <i class="bi bi-shop fs-5" aria-hidden="true"></i>
+      <span class="rb-sb-brand-text">RB Stores</span>
     </div>
 
-    <!-- groups use details/summary; PHP opens the right one -->
-    <?php $stockFiles = ['add_inventory.php','inventory.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($stockFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Stock</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('add_inventory.php'); ?>" href="<?=$APP_BASE?>/add_inventory.php">➕ Add Inventory</a>
-        <a class="rb-sb-link <?php echo isActive('inventory.php'); ?>" href="<?=$APP_BASE?>/inventory.php">📃 View Inventory</a>
-      </nav>
-    </details>
+    <div class="accordion" id="rbAccordion">
 
-    <?php $billingFiles = ['billing.php','view_billing.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($billingFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Billing</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('billing.php'); ?>" href="<?=$APP_BASE?>/billing.php">➕ Billing Invoice</a>
-        <a class="rb-sb-link <?php echo isActive('view_billing.php'); ?>" href="<?=$APP_BASE?>/view_billing.php">📃 View Invoices</a>
-      </nav>
-    </details>
+      <!-- Stock -->
+      <?php $stockFiles = ['add_inventory.php','inventory.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingStock">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuStock"
+                  aria-expanded="<?php echo isOpen($stockFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuStock">
+            <i class="bi bi-box-seam me-2" aria-hidden="true"></i> Stock
+          </button>
+        </h2>
+        <div id="menuStock" class="accordion-collapse collapse <?php echo isOpen($stockFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('add_inventory.php'); ?>"
+                   href="<?= $href('add_inventory.php'); ?>"
+                   <?php echo $current==='add_inventory.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Inventory
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('inventory.php'); ?>"
+                   href="<?= $href('inventory.php'); ?>"
+                   <?php echo $current==='inventory.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Inventory
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <?php $supplierFiles = ['add_supplier.php','supplier.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($supplierFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Supplier</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('add_supplier.php'); ?>" href="<?=$APP_BASE?>/add_supplier.php">➕ Add Supplier</a>
-        <a class="rb-sb-link <?php echo isActive('supplier.php'); ?>" href="<?=$APP_BASE?>/supplier.php">📃 View Suppliers</a>
-      </nav>
-    </details>
+      <!-- Billing -->
+      <?php $billingFiles = ['billing.php','view_billing.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingBilling">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuBilling"
+                  aria-expanded="<?php echo isOpen($billingFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuBilling">
+            <i class="bi bi-receipt me-2" aria-hidden="true"></i> Billing
+          </button>
+        </h2>
+        <div id="menuBilling" class="accordion-collapse collapse <?php echo isOpen($billingFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('billing.php'); ?>"
+                   href="<?= $href('billing.php'); ?>"
+                   <?php echo $current==='billing.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-file-earmark-plus me-2" aria-hidden="true"></i>Billing Invoice
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('view_billing.php'); ?>"
+                   href="<?= $href('view_billing.php'); ?>"
+                   <?php echo $current==='view_billing.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-journal-text me-2" aria-hidden="true"></i>View Invoices
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <?php $employeeFiles = ['add_employee.php','employee.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($employeeFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Employee</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('add_employee.php'); ?>" href="<?=$APP_BASE?>/add_employee.php">➕ Add Employee</a>
-        <a class="rb-sb-link <?php echo isActive('employee.php'); ?>" href="<?=$APP_BASE?>/employee.php">📃 View Employees</a>
-      </nav>
-    </details>
+      <!-- Supplier -->
+      <?php $supplierFiles = ['add_supplier.php','supplier.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingSupplier">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuSupplier"
+                  aria-expanded="<?php echo isOpen($supplierFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuSupplier">
+            <i class="bi bi-truck me-2" aria-hidden="true"></i> Supplier
+          </button>
+        </h2>
+        <div id="menuSupplier" class="accordion-collapse collapse <?php echo isOpen($supplierFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('add_supplier.php'); ?>"
+                   href="<?= $href('add_supplier.php'); ?>"
+                   <?php echo $current==='add_supplier.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Supplier
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('supplier.php'); ?>"
+                   href="<?= $href('supplier.php'); ?>"
+                   <?php echo $current==='supplier.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Suppliers
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <?php $transportFiles = ['add_transport.php','transport.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($transportFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Transport</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('add_transport.php'); ?>" href="<?=$APP_BASE?>/add_transport.php">➕ Add Transport</a>
-        <a class="rb-sb-link <?php echo isActive('transport.php'); ?>" href="<?=$APP_BASE?>/transport.php">📃 View Transport</a>
-      </nav>
-    </details>
+      <!-- Employee -->
+      <?php $employeeFiles = ['add_employee.php','employee.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingEmployee">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuEmployee"
+                  aria-expanded="<?php echo isOpen($employeeFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuEmployee">
+            <i class="bi bi-person-badge me-2" aria-hidden="true"></i> Employee
+          </button>
+        </h2>
+        <div id="menuEmployee" class="accordion-collapse collapse <?php echo isOpen($employeeFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('add_employee.php'); ?>"
+                   href="<?= $href('add_employee.php'); ?>"
+                   <?php echo $current==='add_employee.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Employee
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('employee.php'); ?>"
+                   href="<?= $href('employee.php'); ?>"
+                   <?php echo $current==='employee.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Employees
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <?php $customerFiles = ['add_customer.php','customer.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($customerFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Customer</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('add_customer.php'); ?>" href="<?=$APP_BASE?>/add_customer.php">➕ Add Customer</a>
-        <a class="rb-sb-link <?php echo isActive('customer.php'); ?>" href="<?=$APP_BASE?>/customer.php">📃 View Customers</a>
-      </nav>
-    </details>
+      <!-- Transport -->
+      <?php $transportFiles = ['add_transport.php','transport.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingTransport">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuTransport"
+                  aria-expanded="<?php echo isOpen($transportFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuTransport">
+            <i class="bi bi-truck-front me-2" aria-hidden="true"></i> Transport
+          </button>
+        </h2>
+        <div id="menuTransport" class="accordion-collapse collapse <?php echo isOpen($transportFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('add_transport.php'); ?>"
+                   href="<?= $href('add_transport.php'); ?>"
+                   <?php echo $current==='add_transport.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Transport
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('transport.php'); ?>"
+                   href="<?= $href('transport.php'); ?>"
+                   <?php echo $current==='transport.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Transport
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <?php $returnFiles = ['add_return.php','view_return.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($returnFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Returns</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('add_return.php'); ?>" href="<?=$APP_BASE?>/add_return.php">➕ Add Return</a>
-        <a class="rb-sb-link <?php echo isActive('view_return.php'); ?>" href="<?=$APP_BASE?>/view_return.php">📃 View Returns</a>
-      </nav>
-    </details>
+      <!-- Customer -->
+      <?php $customerFiles = ['add_customer.php','customer.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingCustomer">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuCustomer"
+                  aria-expanded="<?php echo isOpen($customerFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuCustomer">
+            <i class="bi bi-people me-2" aria-hidden="true"></i> Customer
+          </button>
+        </h2>
+        <div id="menuCustomer" class="accordion-collapse collapse <?php echo isOpen($customerFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('add_customer.php'); ?>"
+                   href="<?= $href('add_customer.php'); ?>"
+                   <?php echo $current==='add_customer.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Customer
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('customer.php'); ?>"
+                   href="<?= $href('customer.php'); ?>"
+                   <?php echo $current==='customer.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Customers
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <?php $feedbackFiles = ['add_feedback.php','feedback.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($feedbackFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Feedback</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('add_feedback.php'); ?>" href="<?=$APP_BASE?>/add_feedback.php">➕ Add Feedback</a>
-        <a class="rb-sb-link <?php echo isActive('feedback.php'); ?>" href="<?=$APP_BASE?>/feedback.php">💬 View Feedback</a>
-      </nav>
-    </details>
+      <!-- Returns -->
+      <?php $returnFiles = ['add_return.php','view_return.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingReturns">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuReturns"
+                  aria-expanded="<?php echo isOpen($returnFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuReturns">
+            <i class="bi bi-arrow-counterclockwise me-2" aria-hidden="true"></i> Returns
+          </button>
+        </h2>
+        <div id="menuReturns" class="accordion-collapse collapse <?php echo isOpen($returnFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('add_return.php'); ?>"
+                   href="<?= $href('add_return.php'); ?>"
+                   <?php echo $current==='add_return.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Return
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('view_return.php'); ?>"
+                   href="<?= $href('view_return.php'); ?>"
+                   <?php echo $current==='view_return.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-list-ul me-2" aria-hidden="true"></i>View Returns
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <?php $reportFiles = ['sales_report.php','inventory_report.php']; ?>
-    <details class="rb-sb-group" <?php echo isOpen($reportFiles) ? 'open':''; ?>>
-      <summary class="rb-sb-summary"><span>Reports</span></summary>
-      <nav class="rb-sb-nav">
-        <a class="rb-sb-link <?php echo isActive('sales_report.php'); ?>" href="<?=$APP_BASE?>/sales_report.php">📄 Sales Report</a>
-        <a class="rb-sb-link <?php echo isActive('inventory_report.php'); ?>" href="<?=$APP_BASE?>/inventory_report.php">📄 Inventory Report</a>
-      </nav>
-    </details>
+      <!-- Feedback -->
+      <?php $feedbackFiles = ['add_feedback.php','feedback.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingFeedback">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuFeedback"
+                  aria-expanded="<?php echo isOpen($feedbackFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuFeedback">
+            <i class="bi bi-chat-dots me-2" aria-hidden="true"></i> Feedback
+          </button>
+        </h2>
+        <div id="menuFeedback" class="accordion-collapse collapse <?php echo isOpen($feedbackFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('add_feedback.php'); ?>"
+                   href="<?= $href('add_feedback.php'); ?>"
+                   <?php echo $current==='add_feedback.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Feedback
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('feedback.php'); ?>"
+                   href="<?= $href('feedback.php'); ?>"
+                   <?php echo $current==='feedback.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>View Feedback
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <div class="rb-sb-footer">
-      <a class="rb-sb-link" href="<?=$APP_BASE?>/logout.php">⎋ Logout</a>
+      <!-- Reports -->
+      <?php $reportFiles = ['sales_report.php','inventory_report.php']; ?>
+      <div class="accordion-item rb-sb-acc-item">
+        <h2 class="accordion-header" id="headingReports">
+          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#menuReports"
+                  aria-expanded="<?php echo isOpen($reportFiles) ? 'true' : 'false'; ?>"
+                  aria-controls="menuReports">
+            <i class="bi bi-graph-up me-2" aria-hidden="true"></i> Reports
+          </button>
+        </h2>
+        <div id="menuReports" class="accordion-collapse collapse <?php echo isOpen($reportFiles); ?>"
+             data-bs-parent="#rbAccordion">
+          <div class="accordion-body p-0">
+            <ul class="rb-sb-menu list-unstyled">
+              <li>
+                <a class="rb-sb-link <?php echo isActive('sales_report.php'); ?>"
+                   href="<?= $href('sales_report.php'); ?>"
+                   <?php echo $current==='sales_report.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Sales Report
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('inventory_report.php'); ?>"
+                   href="<?= $href('inventory_report.php'); ?>"
+                   <?php echo $current==='inventory_report.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Inventory Report
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
+
+    <!-- Footer / Logout -->
+    <div class="mt-auto rb-sb-footer px-3 py-3">
+      <a href="<?= $href('logout.php'); ?>" class="rb-sb-link d-inline-flex align-items-center">
+        <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i> Logout
+      </a>
+    </div>
+  </nav>
 </aside>
 
-<script>
-// tiny mobile toggle (scoped)
-(function(){
-  const scope = document.querySelector('[data-rb-scope]');
-  if(!scope) return;
-  const btn = scope.querySelector('.rb-sb-toggle');
-  const panel = scope.querySelector('#rb-sb-panel');
-  if(!btn || !panel) return;
+<?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
+  <!-- Bootstrap JS (only if not already loaded by header.php) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php endif; ?>
 
-  btn.addEventListener('click', () => {
-    const open = panel.classList.toggle('is-open');
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  });
-})();
+<!-- Keep aria-expanded in sync on first paint (scoped) -->
+<script>
+  (function(){
+    var root = document.querySelector('#rbSidebar');
+    if(!root) return;
+    root.querySelectorAll('.accordion-collapse').forEach(function(c){
+      var btn = root.querySelector('[data-bs-target="#'+c.id+'"]');
+      if (btn) btn.setAttribute('aria-expanded', c.classList.contains('show') ? 'true' : 'false');
+    });
+  })();
 </script>
