@@ -324,8 +324,11 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <script>
-/* ---------- Tooltips ---------- */
-document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>new bootstrap.Tooltip(el));
+/* ---------- Tooltips (only if used) ---------- */
+(()=>{
+  const els = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  if (els.length) els.forEach(el => new bootstrap.Tooltip(el));
+})();
 
 /* ---------- Recent Orders filter/search ---------- */
 (()=>{
@@ -360,36 +363,81 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>new bootstra
   q&&q.addEventListener('input',apply);
 })();
 
-/* ---------- Lightweight Theme Switcher (cards/tables/text colors) ----------
-   Uses Bootstrap 5.3 CSS variables; persisted in localStorage.
-   Presets adjust primary/success/warning/danger/info/secondary at once. */
+/* ---------- Theme Switcher (updates Bootstrap component vars) ---------- */
 (()=>{
-  const root=document.documentElement, key='rb_theme_preset';
-  const presets={
-    default: {},
-    ocean:   {'--bs-primary':'#0ea5e9','--bs-success':'#10b981','--bs-warning':'#eab308','--bs-danger':'#ef4444','--bs-info':'#38bdf8','--bs-secondary':'#64748b'},
-    emerald: {'--bs-primary':'#059669','--bs-success':'#16a34a','--bs-warning':'#f59e0b','--bs-danger':'#dc2626','--bs-info':'#14b8a6','--bs-secondary':'#6b7280'},
-    crimson: {'--bs-primary':'#e11d48','--bs-success':'#22c55e','--bs-warning':'#f59e0b','--bs-danger':'#b91c1c','--bs-info':'#3b82f6','--bs-secondary':'#4b5563'}
+  const key  = 'rb_theme_preset';
+  const sel  = document.getElementById('themePreset');
+  const reset= document.getElementById('themeReset');
+
+  const presets = {
+    default: null,
+    ocean:   {primary:'#0ea5e9', success:'#10b981', warning:'#eab308', danger:'#ef4444', info:'#38bdf8', secondary:'#64748b'},
+    emerald: {primary:'#059669', success:'#16a34a', warning:'#f59e0b', danger:'#dc2626', info:'#14b8a6', secondary:'#6b7280'},
+    crimson: {primary:'#e11d48', success:'#22c55e', warning:'#f59e0b', danger:'#b91c1c', info:'#3b82f6', secondary:'#4b5563'}
   };
-  const sel=document.getElementById('themePreset'), reset=document.getElementById('themeReset');
+
+  function ensureStyleEl(){
+    let el = document.getElementById('rb-theme-vars');
+    if (!el) { el = document.createElement('style'); el.id='rb-theme-vars'; document.head.appendChild(el); }
+    return el;
+  }
+
+  function cssFor(p){
+    if (!p) return ''; /* default Bootstrap */
+    return `
+:root{
+  --bs-primary:${p.primary}; --bs-success:${p.success}; --bs-warning:${p.warning};
+  --bs-danger:${p.danger}; --bs-info:${p.info}; --bs-secondary:${p.secondary};
+}
+/* Buttons */
+.btn-primary{
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
+}
+.btn-outline-primary{
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+}
+/* Links & badges */
+a, .link-primary { color: var(--bs-primary) !important; }
+.badge.text-bg-primary { background-color: var(--bs-primary) !important; }
+`;
+  }
 
   function applyPreset(name){
-    // Clear previous
-    ['--bs-primary','--bs-success','--bs-warning','--bs-danger','--bs-info','--bs-secondary'].forEach(v=>root.style.removeProperty(v));
-    const p=presets[name]||{};
-    Object.entries(p).forEach(([k,v])=>root.style.setProperty(k,v));
+    const styleEl = ensureStyleEl();
+    const p = presets[name] || null;
+    styleEl.textContent = cssFor(p);
+    if (name && name !== 'default') document.documentElement.setAttribute('data-theme', name);
+    else document.documentElement.removeAttribute('data-theme');
   }
-  // Load saved
-  const saved=localStorage.getItem(key)||'default'; applyPreset(saved); if(sel) sel.value=saved;
 
-  sel&&sel.addEventListener('change',()=>{
-    const v=sel.value||'default'; applyPreset(v); localStorage.setItem(key,v);
+  // Load saved
+  const saved = localStorage.getItem(key) || 'default';
+  applyPreset(saved);
+  if (sel) sel.value = saved;
+
+  // Events
+  sel && sel.addEventListener('change', ()=>{
+    const v = sel.value || 'default';
+    applyPreset(v);
+    localStorage.setItem(key, v);
   });
-  reset&&reset.addEventListener('click',()=>{
-    sel.value='default'; applyPreset('default'); localStorage.setItem(key,'default');
+
+  reset && reset.addEventListener('click', ()=>{
+    sel.value = 'default';
+    applyPreset('default');
+    localStorage.setItem(key, 'default');
   });
 })();
 </script>
+
 </body>
 </html>
 <?php
