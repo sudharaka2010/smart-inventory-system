@@ -1,223 +1,260 @@
 /* ==========================================================================
-   RB Stores Dashboard — Bootstrap 5.3 enhancement
+   RB Stores Dashboard — Bootstrap 5.3 enhancement layer
    File: /assets/css/dashboard.css
-   Goals:
-   - High quality UI/UX, fully responsive
-   - Skinable: "light" (default) and "brand" (login gradient match)
-   - Works with Bootstrap variables so components recolor correctly
+   Purpose: High-quality, responsive UI polish with brandable variables.
+   How to use:
+   1) Link this after Bootstrap CSS.
+   2) Set your brand colors in :root to match your login page.
    ========================================================================== */
 
-/* ---------- Base variables (light default) ---------- */
+/* ---------- 1) Design Tokens (edit these to match your login theme) ---------- */
 :root {
-  /* Text & surfaces */
-  --rb-body-bg: #ffffff;
-  --rb-body-color: #1f2937; /* slate-800 */
+  /* Brand palette (match these with your login.css) */
+  --rb-primary: #0d6efd;     /* main brand */
+  --rb-accent:  #22c55e;     /* success accent */
+  --rb-warn:    #f59e0b;
+  --rb-danger:  #ef4444;
+  --rb-info:    #38bdf8;
+  --rb-muted:   #64748b;
 
-  /* Brand (light default uses Bootstrap defaults) */
-  --rb-primary: var(--bs-primary);
-  --rb-success: var(--bs-success);
-  --rb-warning: var(--bs-warning);
-  --rb-danger:  var(--bs-danger);
-  --rb-info:    var(--bs-info);
-  --rb-secondary: var(--bs-secondary);
+  /* Surfaces & text */
+  --rb-bg: #ffffff;
+  --rb-surface: #ffffff;
+  --rb-soft: #f5f7fb;
+  --rb-soft-2: #f0f3f9;
+  --rb-text: #111827;
+  --rb-text-muted: #6b7280;
 
-  /* Layout + effects */
-  --rb-card-radius: 1rem;
-  --rb-card-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
-  --rb-soft-hover:  #0000000d;
+  /* Effects */
+  --rb-radius: 16px;
+  --rb-radius-sm: 10px;
+  --rb-shadow-sm: 0 2px 6px rgba(0,0,0,.06);
+  --rb-shadow-md: 0 8px 24px rgba(0,0,0,.08);
+  --rb-ring: 0 0 0 3px color-mix(in srgb, var(--rb-primary) 18%, #fff 82%);
 
-  /* Hero accents (light) */
-  --rb-hero-a: #0d6efd12;
-  --rb-hero-b: #6610f212;
+  /* Hero gradient (tweak to mirror your login header) */
+  --rb-hero-start: color-mix(in srgb, var(--rb-primary) 12%, #fff 88%);
+  --rb-hero-end:   color-mix(in srgb, var(--rb-accent) 12%, #fff 88%);
 
-  /* Table head */
-  --rb-th-bg: #f8f9fa;
-  --rb-th-color: #495057;
-
-  /* Badge text for contrast */
-  --rb-badge-text: #fff;
+  /* Map to Bootstrap theme vars so components pick the brand automatically */
+  --bs-primary:   var(--rb-primary);
+  --bs-success:   var(--rb-accent);
+  --bs-warning:   var(--rb-warn);
+  --bs-danger:    var(--rb-danger);
+  --bs-info:      var(--rb-info);
+  --bs-secondary: var(--rb-muted);
+  --bs-body-bg:   var(--rb-bg);
+  --bs-body-color:var(--rb-text);
 }
 
-/* ---------- LIGHT SKIN (default) ---------- */
+/* Optional: preset themes you can toggle by putting data-theme on <html> */
+:root[data-theme="ocean"]   { --rb-primary:#0ea5e9; --rb-accent:#10b981; }
+:root[data-theme="emerald"] { --rb-primary:#059669; --rb-accent:#16a34a; }
+:root[data-theme="crimson"] { --rb-primary:#e11d48; --rb-accent:#22c55e; }
+
+/* ---------- 2) Base & typography ---------- */
 html, body {
-  background: var(--rb-body-bg);
-  color: var(--rb-body-color);
+  background: var(--rb-bg);
+  color: var(--rb-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-
-/* ---------- BRAND SKIN (match your login gradient) ----------
-   Set on <body>: data-skin="brand"
-   Adjust brand colors once here and they will flow through Bootstrap.
----------------------------------------------------------------- */
-body[data-skin="brand"] {
-  /* Brand colors that match your login gradient */
-  --brand-1: #2d3a8c; /* deep indigo */
-  --brand-2: #4f46e5; /* indigo 600 */
-  --brand-3: #3b82f6; /* blue 500 */
-
-  /* Map Bootstrap roles to our brand */
-  --bs-primary: var(--brand-2);
-  --bs-success: #22c55e;
-  --bs-warning: #f59e0b;
-  --bs-danger:  #ef4444;
-  --bs-info:    #38bdf8;
-  --bs-secondary:#4b5563;
-
-  /* Use same for our custom layer */
-  --rb-primary: var(--bs-primary);
-  --rb-success: var(--bs-success);
-  --rb-warning: var(--bs-warning);
-  --rb-danger:  var(--bs-danger);
-  --rb-info:    var(--bs-info);
-  --rb-secondary: var(--bs-secondary);
-
-  /* Page background gradient like login */
-  --rb-body-bg: radial-gradient(1200px 800px at 20% 20%, #5b76ff1a 0%, transparent 60%),
-                radial-gradient(1200px 800px at 80% 80%, #3b82f61a 0%, transparent 60%),
-                linear-gradient(180deg, #1e2a5a 0%, #2a2e6a 50%, #2f50bf 100%);
-
-  /* Text stays readable on cards; body copy slightly lighter */
-  --rb-body-color: #e5e7eb; /* slate-200 for body */
-  --rb-hero-a: color-mix(in srgb, var(--brand-3) 15%, transparent);
-  --rb-hero-b: color-mix(in srgb, var(--brand-2) 15%, transparent);
+body {
+  font-feature-settings: "cv02","cv03","cv04","cv11";
 }
+h1,h2,h3,h4 { letter-spacing: .2px; }
 
-/* Apply body background */
-html, body { background: var(--rb-body-bg); }
+/* Smooth hover motion */
+* { transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
 
-/* Keep container readable on giant screens */
-@media (min-width: 1600px) {
-  .container-fluid > .row > main { max-width: 1480px; }
-}
+/* ---------- 3) Layout helpers ---------- */
+.container-fluid { padding-left: 1rem; padding-right: 1rem; }
+@media (min-width: 1200px){ .container-fluid { padding-left: 1.25rem; padding-right: 1.25rem; } }
 
-/* ---------- NAVBAR / HEADER ---------- */
-.navbar {
-  border: 0;
-  backdrop-filter: blur(6px);
-}
-body[data-skin="brand"] .navbar {
-  background: linear-gradient(180deg, rgba(17,24,39,.55), rgba(17,24,39,.25)) !important;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
-body:not([data-skin="brand"]) .navbar {
-  background: rgba(255,255,255,.85) !important;
-  border-bottom: 1px solid rgba(2,6,23,.06);
-}
-
-/* ---------- HERO ---------- */
+/* Hero bar */
 .hero {
-  background: linear-gradient(135deg, var(--rb-hero-a), var(--rb-hero-b));
-  border-radius: var(--rb-card-radius);
+  background: linear-gradient(135deg, var(--rb-hero-start), var(--rb-hero-end));
+  border-radius: var(--rb-radius);
   padding: 1rem 1.25rem;
+  box-shadow: var(--rb-shadow-sm);
 }
-.hero .small { opacity: .9; }
+.hero .small { color: var(--rb-text-muted); }
 
-/* ---------- CARDS ---------- */
+/* ---------- 4) Cards ---------- */
 .card {
-  border: 0;
-  border-radius: var(--rb-card-radius);
-  box-shadow: var(--rb-card-shadow);
-  background-clip: padding-box;
+  border: 0 !important;
+  border-radius: var(--rb-radius);
+  box-shadow: var(--rb-shadow-sm);
+  background: var(--rb-surface);
 }
-.card-header { background: transparent; }
-.card-header .h6, .card-header h6, .card-header .h5, .card-header h5 { margin: 0; }
-
-/* Optional “glass” card like the login panel */
-.card-glass {
-  background: rgba(17, 24, 39, .75) !important; /* near-slate-900 with alpha */
-  color: #e5e7eb;
-  box-shadow: 0 20px 40px rgba(0,0,0,.35);
-  border: 1px solid rgba(255,255,255,.08);
-  backdrop-filter: blur(10px);
+.card:hover { transform: translateY(-1px); box-shadow: var(--rb-shadow-md); }
+.card-header {
+  background: transparent;
+  border-bottom: 1px solid #edf1f7;
+  padding: .9rem 1rem;
 }
-.card-glass .text-secondary { color: #cbd5e1 !important; }
+.card-body { padding: 1rem; }
+.card-footer { background: transparent; border-top: 1px solid #edf1f7; }
 
-/* KPI */
-.kpi .card .icon { font-size: 1.5rem; line-height: 1; }
+/* KPI cards */
+.kpi .icon { font-size: 1.4rem; line-height: 1; }
+.kpi .card .fs-4 { font-weight: 700; }
 
-/* ---------- BUTTONS (ensure Bootstrap uses live brand) ---------- */
-.btn-primary{
-  --bs-btn-bg: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
-  --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
-  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
-  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
+/* ---------- 5) Buttons ---------- */
+.btn {
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
 }
-.btn-outline-primary{
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-bg: var(--bs-primary);
-  --bs-btn-hover-border-color: var(--bs-primary);
-  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 85%, #000 15%);
-}
-.btn-action { box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.btn:focus-visible { outline: none; box-shadow: var(--rb-ring); }
+.btn-action { box-shadow: var(--rb-shadow-sm); }
+.btn-action:hover { transform: translateY(-1px); }
 
-/* ---------- TABLES ---------- */
-.table-soft tbody tr:hover { background-color: var(--rb-soft-hover); }
-.table thead th {
-  background: var(--rb-th-bg);
-  color: var(--rb-th-color);
-  vertical-align: middle;
+/* Primary & outline primary tuned */
+.btn-primary {
+  --bs-btn-bg: var(--rb-primary);
+  --bs-btn-border-color: var(--rb-primary);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--rb-primary) 92%, #000 8%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--rb-primary) 92%, #000 8%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--rb-primary) 84%, #000 16%);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--rb-primary) 84%, #000 16%);
 }
-.table td, .table th { padding-top: .6rem; padding-bottom: .6rem; }
-.table .badge { color: var(--rb-badge-text); }
-.table code, .table .text-wrap, .table .wrap { white-space: normal; word-break: break-word; }
-/* Stripe alignment with brand */
-.badge.text-bg-primary { background-color: var(--bs-primary) !important; }
-.link-primary, a { color: var(--bs-primary); }
+.btn-outline-primary {
+  --bs-btn-color: var(--rb-primary);
+  --bs-btn-border-color: var(--rb-primary);
+  --bs-btn-hover-bg: var(--rb-primary);
+  --bs-btn-hover-border-color: var(--rb-primary);
+  --bs-btn-active-bg: color-mix(in srgb, var(--rb-primary) 90%, #000 10%);
+}
 
-/* ---------- FORMS ---------- */
+/* Ghost/Light outline for “View all” links */
+.btn-outline-light {
+  --bs-btn-color: var(--rb-muted);
+  --bs-btn-border-color: #e9eef6;
+  --bs-btn-hover-bg: #f2f5fb;
+  --bs-btn-hover-border-color: #dde5f1;
+}
+
+/* ---------- 6) Forms & inputs ---------- */
 .form-control, .form-select {
-  border-radius: .75rem;
-  border: 1px solid rgba(2,6,23,.12);
+  border-radius: 12px;
+  border-color: #e5eaf3;
+  background-color: #fbfcfe;
 }
-body[data-skin="brand"] .form-control, 
-body[data-skin="brand"] .form-select {
-  background-color: rgba(255,255,255,.04);
-  color: #e5e7eb;
-  border-color: rgba(255,255,255,.12);
+.form-control:focus, .form-select:focus {
+  border-color: color-mix(in srgb, var(--rb-primary) 40%, #e5eaf3 60%);
+  box-shadow: var(--rb-ring);
 }
-body[data-skin="brand"] .form-control::placeholder { color: #94a3b8; }
-
-/* ---------- ALERTS ---------- */
-.alert {
-  border: 0;
-  box-shadow: 0 1px 2px rgba(16,24,40,.06);
-  border-radius: .75rem;
-}
-body[data-skin="brand"] .alert-warning { color:#111827; }
-
-/* ---------- UTILITIES ---------- */
 .minw-150 { min-width: 150px; }
 .minw-220 { min-width: 220px; }
-@media (max-width: 420px) { .minw-150, .minw-220 { min-width: 100%; } }
 
-/* ---------- RESPONSIVE POLISH ---------- */
-@media (max-width: 575.98px) {
-  .table { font-size: .9375rem; }
-  .hero { padding: .85rem 1rem; }
-  .kpi .fs-4 { font-size: 1.275rem; }
+/* Subtle input placeholders */
+::placeholder { color: #9aa3b2 !important; }
+
+/* ---------- 7) Tables ---------- */
+.table-soft thead th {
+  background: #f7f9fc !important;
+  color: #4b5563;
+  font-weight: 600;
+  border-bottom: 1px solid #e9eef6 !important;
 }
-@media (max-width: 480px) {
-  .card-header .d-flex.flex-wrap.gap-2 > * { flex: 1 1 100%; }
-}
+.table-soft tbody tr:hover { background-color: #f7fafc; }
+.table-soft.table-striped > tbody > tr:nth-of-type(odd) > * { background: #fcfdff; }
 
-/* ---------- ROW ACCENTS (optional) ---------- */
-.tr-accent-primary  { box-shadow: inset 3px 0 0 0 var(--rb-primary); }
-.tr-accent-success  { box-shadow: inset 3px 0 0 0 var(--rb-success); }
-.tr-accent-warning  { box-shadow: inset 3px 0 0 0 var(--rb-warning); }
-.tr-accent-danger   { box-shadow: inset 3px 0 0 0 var(--rb-danger); }
-.tr-accent-info     { box-shadow: inset 3px 0 0 0 var(--rb-info); }
-
-/* ---------- ACCESSIBILITY ---------- */
-a:focus-visible, button:focus-visible, .form-select:focus-visible, .form-control:focus-visible {
-  outline: 2px solid var(--rb-primary);
-  outline-offset: 2px;
+.table > :not(caption) > * > * {
+  padding-top: .65rem;
+  padding-bottom: .65rem;
+  vertical-align: middle;
 }
 
-/* ---------- PRINT ---------- */
-@media print {
-  .btn, .alert, .hero, .card-footer { display: none !important; }
-  .card, .table { box-shadow: none !important; }
-  .table td, .table th { padding-top: .4rem; padding-bottom: .4rem; }
+/* Status badges (soft, readable) */
+.badge { border-radius: 999px; padding: .45rem .6rem; font-weight: 600; }
+.badge.text-bg-success  { background: color-mix(in srgb, var(--rb-accent) 18%, #eafff2 82%) !important; color: #0f8a3a; }
+.badge.text-bg-warning  { background: color-mix(in srgb, var(--rb-warn) 18%, #fff7e6 82%) !important; color: #9a6b07; }
+.badge.text-bg-danger   { background: color-mix(in srgb, var(--rb-danger) 18%, #ffecec 82%) !important; color: #9b1c1c; }
+.badge.text-bg-secondary{ background: #eef2f7 !important; color: #455468; }
+
+/* Make table headers sticky inside .table-responsive */
+.table-responsive {
+  --rb-table-maxh: 48vh; /* adjustable per card height */
+  max-height: var(--rb-table-maxh);
+}
+.table-responsive thead th {
+  position: sticky; top: 0; z-index: 2;
+}
+
+/* ---------- 8) Alerts ---------- */
+.alert {
+  border: 0;
+  border-radius: 14px;
+  box-shadow: var(--rb-shadow-sm);
+}
+.alert-warning { background: color-mix(in srgb, var(--rb-warn) 12%, #fff7e6 88%); }
+.alert-danger  { background: color-mix(in srgb, var(--rb-danger) 12%, #ffecec 88%); }
+
+/* ---------- 9) Links ---------- */
+a, .link-primary { color: var(--rb-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- 10) Header & nav (safe defaults) ---------- */
+.navbar, .topbar {
+  background: var(--rb-surface);
+  border-bottom: 1px solid #eef2f7;
+  box-shadow: var(--rb-shadow-sm);
+}
+.navbar .nav-link, .topbar .nav-link { color: var(--rb-text); }
+.navbar .nav-link.active { color: var(--rb-primary); }
+
+/* ---------- 11) Sidebar (generic styles even if markup varies) ---------- */
+.rb-sidebar, .sidebar, [data-rb-sidebar] {
+  background: #ffffff;
+  border-right: 1px solid #eef2f7;
+}
+.rb-sidebar .nav-link, .sidebar .nav-link {
+  border-radius: 10px;
+  color: #4b5563;
+}
+.rb-sidebar .nav-link:hover, .sidebar .nav-link:hover { background: #f3f6fb; color: #111827; }
+.rb-sidebar .nav-link.active, .sidebar .nav-link.active { background: color-mix(in srgb, var(--rb-primary) 10%, #eaf1ff 90%); color: var(--rb-primary); font-weight: 600; }
+
+/* ---------- 12) Utility chips & codes ---------- */
+code {
+  background: #f3f6fb;
+  border-radius: 6px;
+  padding: .1rem .35rem;
+  color: #334155;
+}
+
+/* ---------- 13) Responsive tweaks ---------- */
+@media (max-width: 1199.98px){
+  .kpi .card .fs-4 { font-size: 1.25rem; }
+}
+@media (max-width: 767.98px){
+  .hero { padding: .875rem 1rem; border-radius: 14px; }
+  .card { border-radius: 14px; }
+  .table-responsive { --rb-table-maxh: 44vh; }
+  .minw-220 { min-width: 100%; }
+}
+
+/* ---------- 14) Dark mode (optional) ---------- */
+@media (prefers-color-scheme: dark){
+  :root {
+    --rb-bg: #0b1020;
+    --rb-surface: #0f1526;
+    --rb-soft: #111a2e;
+    --rb-soft-2: #0e1424;
+    --rb-text: #e5e7eb;
+    --rb-text-muted: #9aa3b2;
+  }
+  .card, .navbar, .topbar { box-shadow: none; }
+  .card-header, .card-footer { border-color: #1b243a; }
+  .table-soft thead th { background: #131b31 !important; color: #cbd5e1; border-bottom-color: #1b243a !important; }
+  .table-soft tbody tr:hover { background: #121a2f; }
+  .btn-outline-light { --bs-btn-border-color: #2a3553; --bs-btn-hover-bg: #1b2642; }
+  code { background: #152040; color: #dbeafe; }
+}
+
+/* ---------- 15) Print (clean invoices from dashboard) ---------- */
+@media print{
+  .navbar, .topbar, .rb-sidebar, .sidebar, .btn, .alert { display: none !important; }
+  .card, .table, .table-responsive { box-shadow: none !important; border: 0 !important; }
 }
