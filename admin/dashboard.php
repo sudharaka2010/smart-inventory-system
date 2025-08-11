@@ -56,11 +56,10 @@ session_set_cookie_params([
     'samesite' => 'Lax'
 ]);
 session_start([
-    'use_strict_mode'  => true,
-    'use_only_cookies' => true,
-    'cookie_secure'    => $cookieSecure,
-    'cookie_httponly'  => true,
-    'cookie_samesite'  => 'Lax'
+    'use_strict_mode' => true,
+    'cookie_secure'   => $cookieSecure,
+    'cookie_httponly' => true,
+    'cookie_samesite' => 'Lax'
 ]);
 
 // Periodic session ID rotation
@@ -77,13 +76,18 @@ if (function_exists('header_remove')) {
     @header_remove('Content-Security-Policy');
 }
 
-/* Tightened CSP (no jQuery host since not used) */
+/* Tight, compatible CSP:
+   - Allows Bootstrap/FA/Icons/Google Fonts via cdnjs + jsDelivr + fonts domains
+   - Nonce for ALL inline <script> and <style> blocks here
+   - style-src-attr 'self' allows style *attributes* without unsafe-inline
+*/
 $CSP = implode(' ', [
     "default-src 'self';",
     "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'nonce-{$cspNonce}';",
-    "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;",
-    "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;",
-    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;",
+    "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'nonce-{$cspNonce}';",
+    "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'nonce-{$cspNonce}';",
+    "style-src-attr 'self';",
+    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:;",
     "img-src 'self' https: data: blob:;",
     "connect-src 'self';",
     "frame-ancestors 'none';",
@@ -96,10 +100,10 @@ $CSP = implode(' ', [
 header("Content-Security-Policy: $CSP");
 
 header("X-Content-Type-Options: nosniff");
-header("X-Frame-Options: DENY");          // aligns with frame-ancestors 'none'
-header("X-XSS-Protection: 0");            // rely on CSP
+header("X-Frame-Options: DENY"); // aligns with frame-ancestors 'none'
+header("X-XSS-Protection: 0");   // rely on CSP
 header("Referrer-Policy: strict-origin-when-cross-origin");
-header("Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()");
+header("Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()");
 
 // HSTS only when actually on HTTPS
 $hstsHttps = (
@@ -111,7 +115,7 @@ if ($hstsHttps) {
     header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 }
 
-// ---------- Auth helpers (no redirect loop) ----------
+// ---------- Auth helpers ----------
 function redirect_to_login(): never {
     header("Location: /auth/login.php?denied=1");
     exit();
@@ -141,7 +145,7 @@ function n2($v){ return number_format((float)$v, 2, '.', ','); }
 function d($s){ return $s ? date('Y-m-d', strtotime((string)$s)) : '—'; }
 
 function getSafeValue(mysqli $conn, string $query, string $field) {
-    // NOTE: Use only with static queries. NEVER pass user input here.
+    // NOTE: For static queries only. NEVER pass user input here.
     $res = $conn->query($query);
     if ($res) {
         $row = $res->fetch_assoc();
@@ -197,16 +201,17 @@ try {
     $kpi['customers']        = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `customer`", 'c');
     $kpi['orders']           = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order`", 'c');
     $kpi['stock_qty']        = (int)getSafeValue($conn, "SELECT COALESCE(SUM(`Quantity`),0) AS s FROM `inventoryitem`", 's');
-    // unified threshold ≤5
     $kpi['low_stock_cnt']    = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `inventoryitem` WHERE `Quantity` <= 5", 'c');
     $kpi['returns']          = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `returnitem`", 'c');
     $kpi['pending_orders']   = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `order` WHERE `Status`='Pending'", 'c');
-    $kpi['deliveries_today'] = (int)getSafeValue($conn, "SELECT COUNT(*) AS c FROM `transport` WHERE `DeliveryDate` = CURDATE()", 'c');
+    // Safe for DATE or DATETIME column:
+    $kpi['deliveries_today'] = (int)getSafeValue($conn,
+        "SELECT COUNT(*) AS c FROM `transport` WHERE DATE(`DeliveryDate`) = CURDATE()", 'c');
 } catch (Throwable $e) {
     error_log("Dashboard KPI error: ".$e->getMessage());
 }
 
-// ---------- Revenue ----------
+// ---------- Revenue (adaptive) ----------
 $hasTotalAmount = columnExists($conn, 'order', 'TotalAmount');
 $hasAmountPaid  = columnExists($conn, 'order', 'AmountPaid');
 $hasSubTotal    = columnExists($conn, 'order', 'SubTotal');
@@ -246,8 +251,23 @@ $rev = [
 ];
 
 // ---------- Tables (server-limited) ----------
+
+// Prepare adaptive Total expression for Recent Orders list:
+$hasODSubtotal  = tableExists($conn, 'orderdetails') && columnExists($conn, 'orderdetails', 'Subtotal');
+$hasODUnitPrice = tableExists($conn, 'orderdetails') && columnExists($conn, 'orderdetails', 'UnitPrice');
+$hasODQty       = tableExists($conn, 'orderdetails') && columnExists($conn, 'orderdetails', 'Quantity');
+
+$totalExpr = '0.00';
+if ($hasTotalAmount) {
+  $totalExpr = 'o.`TotalAmount`';
+} elseif ($hasODSubtotal) {
+  $totalExpr = '(SELECT ROUND(COALESCE(SUM(od.`Subtotal`),0),2) FROM `orderdetails` od WHERE od.`OrderID` = o.`OrderID`)';
+} elseif ($hasODUnitPrice && $hasODQty) {
+  $totalExpr = '(SELECT ROUND(COALESCE(SUM(od.`UnitPrice` * od.`Quantity`),0),2) FROM `orderdetails` od WHERE od.`OrderID` = o.`OrderID`)';
+}
+
 $recentOrders = fetchAll($conn, "
-  SELECT o.`OrderID`, o.`InvoiceID`, o.`OrderDate`, o.`TotalAmount`, o.`Status`,
+  SELECT o.`OrderID`, o.`InvoiceID`, o.`OrderDate`, {$totalExpr} AS TotalAmount, o.`Status`,
          c.`NAME` AS CustomerName
   FROM `order` o
   LEFT JOIN `customer` c ON c.`CustomerID` = o.`CustomerID`
@@ -268,7 +288,7 @@ if (tableExists($conn, 'orderdetails')) {
     ");
 }
 
-// Low-stock list (unified threshold ≤5) — show a bit more
+// Low-stock list (threshold ≤5)
 $lowStock = fetchAll($conn, "
   SELECT `ItemID`, `InvoiceID`, `NAME`, `Quantity`
   FROM `inventoryitem`
@@ -290,11 +310,32 @@ $footerFile  = __DIR__ . '/footer.php';
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <!-- Font Awesome 6 (add SRI if you have the exact hash for your version) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+
+  <!-- Bootstrap Icons (jsDelivr) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous">
+
+  <!-- Font Awesome 6 (cdnjs) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" crossorigin="anonymous" />
+
   <!-- Custom -->
   <link rel="stylesheet" href="/assets/css/dashboard.css" />
+
+  <!-- Tiny utility styles to replace inline attributes -->
+  <style nonce="<?= $cspNonce ?>">
+    .minw-130{min-width:130px}.minw-220{min-width:220px}
+    .hero-gradient{background:linear-gradient(135deg,#0d6efd1a,#6610f21a);border-radius:1rem;padding:1.25rem;margin-bottom:1rem}
+    .hero-inner{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+    .kpi-icon{font-size:1.75rem}
+    .kpi-accent{position:absolute;inset:auto 0 0 0;height:4px;background:linear-gradient(90deg,#0d6efd,#20c997,#ffc107,#dc3545);opacity:.15;border-radius:0 0 .5rem .5rem}
+    .table--soft tbody tr:hover{background-color:#00000006}
+    .table--stack td .text-secondary{font-size:.85rem}
+    .btn-action{box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .main-content{min-height:100vh}
+  </style>
 </head>
 <body class="bg-body-tertiary">
 
@@ -403,14 +444,14 @@ $footerFile  = __DIR__ . '/footer.php';
               <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                 <h4 class="h6 m-0">Recent Orders</h4>
                 <div class="d-flex gap-2 flex-wrap">
-                  <select id="orderStatusFilter" class="form-select form-select-sm" style="min-width:130px" data-bs-toggle="tooltip" title="Filter by status">
+                  <select id="orderStatusFilter" class="form-select form-select-sm minw-130" data-bs-toggle="tooltip" title="Filter by status">
                     <option value="">All statuses</option>
                     <option>Paid</option>
                     <option>Pending</option>
                     <option>Cancelled</option>
                     <option>Refunded</option>
                   </select>
-                  <input id="orderSearch" class="form-control form-control-sm" placeholder="Search invoice / customer" style="min-width:220px" />
+                  <input id="orderSearch" class="form-control form-control-sm minw-220" placeholder="Search invoice / customer" />
                   <a class="btn btn-sm btn-outline-light" href="/billing/view_billing.php">View all</a>
                 </div>
               </div>
@@ -420,12 +461,12 @@ $footerFile  = __DIR__ . '/footer.php';
                 <table class="table table-hover align-middle table--soft table--stack recent-orders">
                   <thead class="table-light">
                     <tr>
-                      <th>Order #</th>
-                      <th>Invoice</th>
-                      <th>Customer</th>
-                      <th>Date</th>
-                      <th class="text-end">Total</th>
-                      <th>Status</th>
+                      <th scope="col">Order #</th>
+                      <th scope="col">Invoice</th>
+                      <th scope="col">Customer</th>
+                      <th scope="col">Date</th>
+                      <th scope="col" class="text-end">Total</th>
+                      <th scope="col">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -469,14 +510,14 @@ $footerFile  = __DIR__ . '/footer.php';
               <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                 <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
                 <div class="d-flex gap-2">
-                  <input id="itemSearch" class="form-control form-control-sm" placeholder="Search item…" style="min-width:220px" />
+                  <input id="itemSearch" class="form-control form-control-sm minw-220" placeholder="Search item…" />
                 </div>
               </div>
             </div>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-sm align-middle table--soft table--stack top-items">
-                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
+                  <thead class="table-light"><tr><th scope="col">Item</th><th scope="col" class="text-end">Qty Sold</th></tr></thead>
                   <tbody>
                   <?php if (!$topItems): ?>
                     <tr><td colspan="2" class="text-secondary">No sales yet.</td></tr>
@@ -502,7 +543,7 @@ $footerFile  = __DIR__ . '/footer.php';
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-sm align-middle table--soft table--stack low-stock">
-                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
+                  <thead class="table-light"><tr><th scope="col">Item</th><th scope="col" class="text-end">Qty</th><th scope="col">Invoice</th></tr></thead>
                   <tbody>
                   <?php if (!$lowStock): ?>
                     <tr><td colspan="3" class="text-secondary">All good.</td></tr>
@@ -534,7 +575,7 @@ $footerFile  = __DIR__ . '/footer.php';
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
-<!-- UX Scripts: tooltips + client-side filters (inline, protected by CSP nonce) -->
+<!-- UX Scripts: tooltips + client-side filters (nonce-protected) -->
 <script nonce="<?= $cspNonce ?>">
   // Enable Bootstrap tooltips
   document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{
