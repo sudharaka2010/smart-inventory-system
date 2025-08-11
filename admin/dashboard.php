@@ -81,45 +81,7 @@ if (function_exists('header_remove')) {
    - Nonce for ALL inline <script> and <style> blocks here
    - style-src-attr 'self' allows style *attributes* without unsafe-inline
 */
-/* --- Content Security Policy (CSP) --- */
-$cspNonce = $cspNonce ?? base64_encode(random_bytes(16)); // ensure it's set once
 
-$CSP = implode(' ', [
-  "default-src 'self';",
-
-
-  "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-{$cspNonce}';",
-  "script-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;",
-
-  // External CSS (Bootstrap, FA, Google Fonts). Inline <style> needs the nonce.
-  "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'nonce-{$cspNonce}';",
-  "style-src-elem 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'nonce-{$cspNonce}';",
-  "style-src-attr 'self';",  // allow style="..." attributes without unsafe-inline
-
-  // Fonts (Bootstrap Icons via jsDelivr, FA via cdnjs, Google Fonts, plus data: for embeds)
-  "font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com data:;",
-
-  // Usual media + connections
-  "img-src 'self' https: data: blob:;",
-  "connect-src 'self';",
-
-  // Lockdown
-  "frame-ancestors 'none';",
-  "base-uri 'self';",
-  "form-action 'self';",
-  "object-src 'none';",
-  "worker-src 'self' blob:;",
-
-  "upgrade-insecure-requests;"
-]);
-header('Content-Security-Policy: ' . $CSP);
-
-/* --- Additional Security Headers --- */
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');              // redundant with frame-ancestors but fine
-header('X-XSS-Protection: 0');                // rely on CSP
-header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()');
 
 
 
