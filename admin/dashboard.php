@@ -557,7 +557,7 @@ $footerFile  = __DIR__ . '/footer.php';
         crossorigin="anonymous"></script>
 
 <!-- UX Scripts: tooltips + client-side filters (nonce-protected) -->
-<script nonce="<?= $cspNonce ?>">
+<script>
   // Enable Bootstrap tooltips
   document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{
     new bootstrap.Tooltip(el);
