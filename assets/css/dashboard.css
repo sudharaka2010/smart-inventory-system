@@ -1,19 +1,19 @@
 /* ==========================================================================
-   RB Stores Dashboard — Bootstrap 5.3 add‑on styles
+   RB Stores Dashboard — Bootstrap 5.3 enhancement
    File: /assets/css/dashboard.css
-   Notes:
-   - White background by default (keeps Bootstrap defaults)
-   - Minimal, business‑clean, fully responsive
-   - Easy theming via CSS variables (see :root + [data-theme] presets)
+   Goals:
+   - High quality UI/UX, fully responsive
+   - Skinable: "light" (default) and "brand" (login gradient match)
+   - Works with Bootstrap variables so components recolor correctly
    ========================================================================== */
 
-/* ---------- CSS Variables (you can override via JS or [data-theme]) ---------- */
+/* ---------- Base variables (light default) ---------- */
 :root {
-  /* Base surface + text (keep Bootstrap defaults) */
+  /* Text & surfaces */
   --rb-body-bg: #ffffff;
-  --rb-body-color: #212529;
+  --rb-body-color: #1f2937; /* slate-800 */
 
-  /* Accents map to Bootstrap semantic roles — tweak to recolor cards/badges/tables */
+  /* Brand (light default uses Bootstrap defaults) */
   --rb-primary: var(--bs-primary);
   --rb-success: var(--bs-success);
   --rb-warning: var(--bs-warning);
@@ -21,224 +21,201 @@
   --rb-info:    var(--bs-info);
   --rb-secondary: var(--bs-secondary);
 
-  /* Components */
+  /* Layout + effects */
   --rb-card-radius: 1rem;
-  --rb-card-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
-  --rb-soft-hover:  #0000000d; /* subtle table row hover */
-  --rb-hero-grad-a: #0d6efd12; /* primary @ 7% */
-  --rb-hero-grad-b: #6610f212; /* purple @ 7% */
+  --rb-card-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  --rb-soft-hover:  #0000000d;
 
-  /* Tables */
-  --rb-th-bg: #f8f9fa;       /* matches .table-light */
+  /* Hero accents (light) */
+  --rb-hero-a: #0d6efd12;
+  --rb-hero-b: #6610f212;
+
+  /* Table head */
+  --rb-th-bg: #f8f9fa;
   --rb-th-color: #495057;
 
-  /* Badges (readability) */
+  /* Badge text for contrast */
   --rb-badge-text: #fff;
 }
 
-/* ---------- Global base ---------- */
+/* ---------- LIGHT SKIN (default) ---------- */
 html, body {
   background: var(--rb-body-bg);
   color: var(--rb-body-color);
 }
 
-/* Provide a gentle max width on huge screens while keeping fluid container */
-@media (min-width: 1600px) {
-  .container-fluid > .row > main {
-    max-width: 1480px;
-  }
+/* ---------- BRAND SKIN (match your login gradient) ----------
+   Set on <body>: data-skin="brand"
+   Adjust brand colors once here and they will flow through Bootstrap.
+---------------------------------------------------------------- */
+body[data-skin="brand"] {
+  /* Brand colors that match your login gradient */
+  --brand-1: #2d3a8c; /* deep indigo */
+  --brand-2: #4f46e5; /* indigo 600 */
+  --brand-3: #3b82f6; /* blue 500 */
+
+  /* Map Bootstrap roles to our brand */
+  --bs-primary: var(--brand-2);
+  --bs-success: #22c55e;
+  --bs-warning: #f59e0b;
+  --bs-danger:  #ef4444;
+  --bs-info:    #38bdf8;
+  --bs-secondary:#4b5563;
+
+  /* Use same for our custom layer */
+  --rb-primary: var(--bs-primary);
+  --rb-success: var(--bs-success);
+  --rb-warning: var(--bs-warning);
+  --rb-danger:  var(--bs-danger);
+  --rb-info:    var(--bs-info);
+  --rb-secondary: var(--bs-secondary);
+
+  /* Page background gradient like login */
+  --rb-body-bg: radial-gradient(1200px 800px at 20% 20%, #5b76ff1a 0%, transparent 60%),
+                radial-gradient(1200px 800px at 80% 80%, #3b82f61a 0%, transparent 60%),
+                linear-gradient(180deg, #1e2a5a 0%, #2a2e6a 50%, #2f50bf 100%);
+
+  /* Text stays readable on cards; body copy slightly lighter */
+  --rb-body-color: #e5e7eb; /* slate-200 for body */
+  --rb-hero-a: color-mix(in srgb, var(--brand-3) 15%, transparent);
+  --rb-hero-b: color-mix(in srgb, var(--brand-2) 15%, transparent);
 }
 
-/* ---------- Hero block ---------- */
+/* Apply body background */
+html, body { background: var(--rb-body-bg); }
+
+/* Keep container readable on giant screens */
+@media (min-width: 1600px) {
+  .container-fluid > .row > main { max-width: 1480px; }
+}
+
+/* ---------- NAVBAR / HEADER ---------- */
+.navbar {
+  border: 0;
+  backdrop-filter: blur(6px);
+}
+body[data-skin="brand"] .navbar {
+  background: linear-gradient(180deg, rgba(17,24,39,.55), rgba(17,24,39,.25)) !important;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+body:not([data-skin="brand"]) .navbar {
+  background: rgba(255,255,255,.85) !important;
+  border-bottom: 1px solid rgba(2,6,23,.06);
+}
+
+/* ---------- HERO ---------- */
 .hero {
-  background: linear-gradient(135deg, var(--rb-hero-grad-a), var(--rb-hero-grad-b));
+  background: linear-gradient(135deg, var(--rb-hero-a), var(--rb-hero-b));
   border-radius: var(--rb-card-radius);
   padding: 1rem 1.25rem;
 }
-.hero .small { opacity: .85; }
+.hero .small { opacity: .9; }
 
-/* ---------- KPI Cards ---------- */
-.kpi .card {
+/* ---------- CARDS ---------- */
+.card {
   border: 0;
   border-radius: var(--rb-card-radius);
   box-shadow: var(--rb-card-shadow);
+  background-clip: padding-box;
 }
-.kpi .card .icon {
-  font-size: 1.5rem;
-  line-height: 1;
-}
+.card-header { background: transparent; }
+.card-header .h6, .card-header h6, .card-header .h5, .card-header h5 { margin: 0; }
 
-/* ---------- Buttons ---------- */
-.btn-action {
-  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+/* Optional “glass” card like the login panel */
+.card-glass {
+  background: rgba(17, 24, 39, .75) !important; /* near-slate-900 with alpha */
+  color: #e5e7eb;
+  box-shadow: 0 20px 40px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(10px);
 }
+.card-glass .text-secondary { color: #cbd5e1 !important; }
 
-/* ---------- Tables ---------- */
-.table-soft tbody tr:hover {
-  background-color: var(--rb-soft-hover);
+/* KPI */
+.kpi .card .icon { font-size: 1.5rem; line-height: 1; }
+
+/* ---------- BUTTONS (ensure Bootstrap uses live brand) ---------- */
+.btn-primary{
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
 }
+.btn-outline-primary{
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 85%, #000 15%);
+}
+.btn-action { box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 
-/* Unify header look across tables even without .table-light */
+/* ---------- TABLES ---------- */
+.table-soft tbody tr:hover { background-color: var(--rb-soft-hover); }
 .table thead th {
   background: var(--rb-th-bg);
   color: var(--rb-th-color);
   vertical-align: middle;
 }
+.table td, .table th { padding-top: .6rem; padding-bottom: .6rem; }
+.table .badge { color: var(--rb-badge-text); }
+.table code, .table .text-wrap, .table .wrap { white-space: normal; word-break: break-word; }
+/* Stripe alignment with brand */
+.badge.text-bg-primary { background-color: var(--bs-primary) !important; }
+.link-primary, a { color: var(--bs-primary); }
 
-/* Tighten table density a bit for business UI */
-.table td, .table th {
-  padding-top: .6rem;
-  padding-bottom: .6rem;
+/* ---------- FORMS ---------- */
+.form-control, .form-select {
+  border-radius: .75rem;
+  border: 1px solid rgba(2,6,23,.12);
 }
-
-/* Badges inside tables: ensure good contrast */
-.table .badge {
-  color: var(--rb-badge-text);
+body[data-skin="brand"] .form-control, 
+body[data-skin="brand"] .form-select {
+  background-color: rgba(255,255,255,.04);
+  color: #e5e7eb;
+  border-color: rgba(255,255,255,.12);
 }
+body[data-skin="brand"] .form-control::placeholder { color: #94a3b8; }
 
-/* Make long codes/emails wrap nicely in narrow viewports */
-.table code, .table .text-wrap, .table .wrap {
-  white-space: normal;
-  word-break: break-word;
-}
-
-/* ---------- Utilities (tiny helpers) ---------- */
-.minw-150 { min-width: 150px; }
-.minw-220 { min-width: 220px; }
-
-/* Reduce spacing on very small screens for filters/search rows */
-@media (max-width: 420px) {
-  .minw-150, .minw-220 { min-width: 100%; }
-}
-
-/* ---------- Cards (generic) ---------- */
-.card.shadow-sm.border-0,
-.card.shadow-sm {
-  border-radius: var(--rb-card-radius);
-  box-shadow: var(--rb-card-shadow);
-}
-
-/* Card headers: compact & clean */
-.card-header {
-  background: transparent;
-}
-.card-header .h6,
-.card-header h6,
-.card-header .h5,
-.card-header h5 {
-  margin: 0;
-}
-
-/* ---------- Alerts: compact ---------- */
+/* ---------- ALERTS ---------- */
 .alert {
   border: 0;
   box-shadow: 0 1px 2px rgba(16,24,40,.06);
   border-radius: .75rem;
 }
+body[data-skin="brand"] .alert-warning { color:#111827; }
 
-/* ---------- Responsive tweaks ---------- */
-/* Make tables more readable on small screens by reducing font-size slightly */
+/* ---------- UTILITIES ---------- */
+.minw-150 { min-width: 150px; }
+.minw-220 { min-width: 220px; }
+@media (max-width: 420px) { .minw-150, .minw-220 { min-width: 100%; } }
+
+/* ---------- RESPONSIVE POLISH ---------- */
 @media (max-width: 575.98px) {
-  .table {
-    font-size: .9375rem; /* 15px approx */
-  }
-  .hero {
-    padding: .85rem 1rem;
-  }
-  .kpi .fs-4 {
-    font-size: 1.275rem; /* slightly smaller large number */
-  }
+  .table { font-size: .9375rem; }
+  .hero { padding: .85rem 1rem; }
+  .kpi .fs-4 { font-size: 1.275rem; }
 }
-
-/* On very small screens, stack filters nicely */
 @media (max-width: 480px) {
-  .card-header .d-flex.flex-wrap.gap-2 > * {
-    flex: 1 1 100%;
-  }
+  .card-header .d-flex.flex-wrap.gap-2 > * { flex: 1 1 100%; }
 }
 
-/* ---------- Theme Presets via [data-theme] (optional, no JS required) ----------
-   Add data-theme="ocean|emerald|crimson" on <html> or <body> to recolor
-   Bootstrap roles (cards/badges/tables) in one go. You can also toggle these
-   via JS if you prefer. These tie into Bootstrap CSS variables automatically. */
-
-[data-theme="ocean"] {
-  --rb-primary: #0ea5e9;
-  --rb-success: #10b981;
-  --rb-warning: #eab308;
-  --rb-danger:  #ef4444;
-  --rb-info:    #38bdf8;
-  --rb-secondary:#64748b;
-  /* Also feed Bootstrap's vars so components recolor */
-  --bs-primary: var(--rb-primary);
-  --bs-success: var(--rb-success);
-  --bs-warning: var(--rb-warning);
-  --bs-danger:  var(--rb-danger);
-  --bs-info:    var(--rb-info);
-  --bs-secondary: var(--rb-secondary);
-}
-
-[data-theme="emerald"] {
-  --rb-primary: #059669;
-  --rb-success: #16a34a;
-  --rb-warning: #f59e0b;
-  --rb-danger:  #dc2626;
-  --rb-info:    #14b8a6;
-  --rb-secondary:#6b7280;
-  --bs-primary: var(--rb-primary);
-  --bs-success: var(--rb-success);
-  --bs-warning: var(--rb-warning);
-  --bs-danger:  var(--rb-danger);
-  --bs-info:    var(--rb-info);
-  --bs-secondary: var(--rb-secondary);
-}
-
-[data-theme="crimson"] {
-  --rb-primary: #e11d48;
-  --rb-success: #22c55e;
-  --rb-warning: #f59e0b;
-  --rb-danger:  #b91c1c;
-  --rb-info:    #3b82f6;
-  --rb-secondary:#4b5563;
-  --bs-primary: var(--rb-primary);
-  --bs-success: var(--rb-success);
-  --bs-warning: var(--rb-warning);
-  --bs-danger:  var(--rb-danger);
-  --bs-info:    var(--rb-info);
-  --bs-secondary: var(--rb-secondary);
-}
-
-/* ---------- Optional: table/card accent helpers (apply on any container) ---------- */
-.theme-border-primary   { border-color: var(--rb-primary) !important; }
-.theme-border-success   { border-color: var(--rb-success) !important; }
-.theme-border-warning   { border-color: var(--rb-warning) !important; }
-.theme-border-danger    { border-color: var(--rb-danger)  !important; }
-.theme-border-info      { border-color: var(--rb-info)    !important; }
-
-.theme-text-primary     { color: var(--rb-primary)   !important; }
-.theme-text-success     { color: var(--rb-success)   !important; }
-.theme-text-warning     { color: var(--rb-warning)   !important; }
-.theme-text-danger      { color: var(--rb-danger)    !important; }
-.theme-text-info        { color: var(--rb-info)      !important; }
-.theme-text-secondary   { color: var(--rb-secondary) !important; }
-
-/* Table row accents (use with .table > tbody > tr) */
+/* ---------- ROW ACCENTS (optional) ---------- */
 .tr-accent-primary  { box-shadow: inset 3px 0 0 0 var(--rb-primary); }
 .tr-accent-success  { box-shadow: inset 3px 0 0 0 var(--rb-success); }
 .tr-accent-warning  { box-shadow: inset 3px 0 0 0 var(--rb-warning); }
 .tr-accent-danger   { box-shadow: inset 3px 0 0 0 var(--rb-danger); }
 .tr-accent-info     { box-shadow: inset 3px 0 0 0 var(--rb-info); }
 
-/* ---------- Accessibility niceties ---------- */
-a:focus-visible,
-button:focus-visible,
-.form-select:focus-visible,
-.form-control:focus-visible {
+/* ---------- ACCESSIBILITY ---------- */
+a:focus-visible, button:focus-visible, .form-select:focus-visible, .form-control:focus-visible {
   outline: 2px solid var(--rb-primary);
   outline-offset: 2px;
 }
 
-/* ---------- Print (keeps tables clean) ---------- */
+/* ---------- PRINT ---------- */
 @media print {
   .btn, .alert, .hero, .card-footer { display: none !important; }
   .card, .table { box-shadow: none !important; }
