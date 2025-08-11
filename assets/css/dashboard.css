@@ -1,144 +1,246 @@
-/* ===========================
-   RB Stores — Admin Dashboard
+/* ==========================================================================
+   RB Stores Dashboard — Bootstrap 5.3 add‑on styles
    File: /assets/css/dashboard.css
-   Works with Bootstrap 5.3+
-   =========================== */
+   Notes:
+   - White background by default (keeps Bootstrap defaults)
+   - Minimal, business‑clean, fully responsive
+   - Easy theming via CSS variables (see :root + [data-theme] presets)
+   ========================================================================== */
 
-/* --- Small utilities that replace inline styles --- */
-.minw-130 { min-width: 130px; }
+/* ---------- CSS Variables (you can override via JS or [data-theme]) ---------- */
+:root {
+  /* Base surface + text (keep Bootstrap defaults) */
+  --rb-body-bg: #ffffff;
+  --rb-body-color: #212529;
+
+  /* Accents map to Bootstrap semantic roles — tweak to recolor cards/badges/tables */
+  --rb-primary: var(--bs-primary);
+  --rb-success: var(--bs-success);
+  --rb-warning: var(--bs-warning);
+  --rb-danger:  var(--bs-danger);
+  --rb-info:    var(--bs-info);
+  --rb-secondary: var(--bs-secondary);
+
+  /* Components */
+  --rb-card-radius: 1rem;
+  --rb-card-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+  --rb-soft-hover:  #0000000d; /* subtle table row hover */
+  --rb-hero-grad-a: #0d6efd12; /* primary @ 7% */
+  --rb-hero-grad-b: #6610f212; /* purple @ 7% */
+
+  /* Tables */
+  --rb-th-bg: #f8f9fa;       /* matches .table-light */
+  --rb-th-color: #495057;
+
+  /* Badges (readability) */
+  --rb-badge-text: #fff;
+}
+
+/* ---------- Global base ---------- */
+html, body {
+  background: var(--rb-body-bg);
+  color: var(--rb-body-color);
+}
+
+/* Provide a gentle max width on huge screens while keeping fluid container */
+@media (min-width: 1600px) {
+  .container-fluid > .row > main {
+    max-width: 1480px;
+  }
+}
+
+/* ---------- Hero block ---------- */
+.hero {
+  background: linear-gradient(135deg, var(--rb-hero-grad-a), var(--rb-hero-grad-b));
+  border-radius: var(--rb-card-radius);
+  padding: 1rem 1.25rem;
+}
+.hero .small { opacity: .85; }
+
+/* ---------- KPI Cards ---------- */
+.kpi .card {
+  border: 0;
+  border-radius: var(--rb-card-radius);
+  box-shadow: var(--rb-card-shadow);
+}
+.kpi .card .icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* ---------- Buttons ---------- */
+.btn-action {
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+/* ---------- Tables ---------- */
+.table-soft tbody tr:hover {
+  background-color: var(--rb-soft-hover);
+}
+
+/* Unify header look across tables even without .table-light */
+.table thead th {
+  background: var(--rb-th-bg);
+  color: var(--rb-th-color);
+  vertical-align: middle;
+}
+
+/* Tighten table density a bit for business UI */
+.table td, .table th {
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+}
+
+/* Badges inside tables: ensure good contrast */
+.table .badge {
+  color: var(--rb-badge-text);
+}
+
+/* Make long codes/emails wrap nicely in narrow viewports */
+.table code, .table .text-wrap, .table .wrap {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ---------- Utilities (tiny helpers) ---------- */
+.minw-150 { min-width: 150px; }
 .minw-220 { min-width: 220px; }
 
-/* --- Layout --- */
-body.bg-body-tertiary {
-  background-color: var(--bs-body-bg);
+/* Reduce spacing on very small screens for filters/search rows */
+@media (max-width: 420px) {
+  .minw-150, .minw-220 { min-width: 100%; }
 }
 
-.main-content {
-  min-height: 100vh;
+/* ---------- Cards (generic) ---------- */
+.card.shadow-sm.border-0,
+.card.shadow-sm {
+  border-radius: var(--rb-card-radius);
+  box-shadow: var(--rb-card-shadow);
 }
 
-/* --- Hero --- */
-.hero-gradient{
-  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 10%, transparent), color-mix(in srgb, var(--bs-purple) 10%, transparent));
-  border-radius: 1rem;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-.hero-inner{
-  display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;
-}
-.hero-inner h1{
-  font-weight: 700;
-  letter-spacing: .2px;
-}
-
-/* --- Quick Action buttons --- */
-.btn-action{
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
-  border-radius: .7rem;
-}
-
-/* --- KPI Cards --- */
-.kpi-icon{ font-size: 1.75rem; line-height: 1; }
-.kpi-accent{
-  position:absolute; inset:auto 0 0 0; height:4px;
-  background: linear-gradient(90deg, var(--bs-primary), var(--bs-teal), var(--bs-warning), var(--bs-danger));
-  opacity:.15; border-radius: 0 0 .5rem .5rem;
-}
-.card.shadow-sm.border-0{
-  border-radius: 1rem;
-}
-
-/* --- Tables (soft hover + stackable on small screens) --- */
-.table--soft tbody tr:hover{
-  background-color: rgba(0,0,0,.03);
-}
-
-.table--stack td .text-secondary{
-  font-size: .85rem;
-}
-
-/* Stack tables nicely on narrow screens */
-@media (max-width: 575.98px){
-  .table--stack thead{
-    display:none;
-  }
-  .table--stack tbody tr{
-    display:block;
-    border: 1px solid var(--bs-border-color);
-    border-radius: .75rem;
-    padding: .5rem .75rem;
-    margin-bottom: .5rem;
-    background: var(--bs-body-bg);
-  }
-  .table--stack tbody tr td{
-    display:flex; justify-content: space-between; gap:1rem;
-    padding: .35rem 0;
-    border-bottom: 0 !important;
-  }
-  .table--stack.recent-orders tbody tr td:nth-child(1)::before{content:"Order #"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.recent-orders tbody tr td:nth-child(2)::before{content:"Invoice"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.recent-orders tbody tr td:nth-child(3)::before{content:"Customer"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.recent-orders tbody tr td:nth-child(4)::before{content:"Date"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.recent-orders tbody tr td:nth-child(5)::before{content:"Total"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.recent-orders tbody tr td:nth-child(6)::before{content:"Status"; font-weight:600; color:var(--bs-secondary);}
-
-  .table--stack.top-items tbody tr td:nth-child(1)::before{content:"Item"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.top-items tbody tr td:nth-child(2)::before{content:"Qty Sold"; font-weight:600; color:var(--bs-secondary); text-align:left;}
-
-  .table--stack.low-stock tbody tr td:nth-child(1)::before{content:"Item"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.low-stock tbody tr td:nth-child(2)::before{content:"Qty"; font-weight:600; color:var(--bs-secondary);}
-  .table--stack.low-stock tbody tr td:nth-child(3)::before{content:"Invoice"; font-weight:600; color:var(--bs-secondary);}
-}
-
-/* --- Cards & headers --- */
-.card-header{
+/* Card headers: compact & clean */
+.card-header {
   background: transparent;
 }
-.card-header .btn{
-  border-radius: .6rem;
+.card-header .h6,
+.card-header h6,
+.card-header .h5,
+.card-header h5 {
+  margin: 0;
 }
 
-/* --- Alerts --- */
-.alert{
-  border-radius: .9rem;
+/* ---------- Alerts: compact ---------- */
+.alert {
+  border: 0;
+  box-shadow: 0 1px 2px rgba(16,24,40,.06);
+  border-radius: .75rem;
 }
 
-/* --- Links inside cards (remove underline) --- */
-a.text-decoration-none .card:hover{
-  transform: translateY(-1px);
-  transition: transform .15s ease, box-shadow .15s ease;
-  box-shadow: 0 .15rem .8rem rgba(0,0,0,.08);
+/* ---------- Responsive tweaks ---------- */
+/* Make tables more readable on small screens by reducing font-size slightly */
+@media (max-width: 575.98px) {
+  .table {
+    font-size: .9375rem; /* 15px approx */
+  }
+  .hero {
+    padding: .85rem 1rem;
+  }
+  .kpi .fs-4 {
+    font-size: 1.275rem; /* slightly smaller large number */
+  }
 }
 
-/* --- Tables: numeric alignment helpers --- */
-.text-end { text-align: end; }
-
-/* --- Badges --- */
-.badge{
-  border-radius: .5rem;
-  font-weight: 600;
+/* On very small screens, stack filters nicely */
+@media (max-width: 480px) {
+  .card-header .d-flex.flex-wrap.gap-2 > * {
+    flex: 1 1 100%;
+  }
 }
 
-/* --- Tooltips (Bootstrap) --- */
-.tooltip .tooltip-inner{
-  border-radius: .5rem;
+/* ---------- Theme Presets via [data-theme] (optional, no JS required) ----------
+   Add data-theme="ocean|emerald|crimson" on <html> or <body> to recolor
+   Bootstrap roles (cards/badges/tables) in one go. You can also toggle these
+   via JS if you prefer. These tie into Bootstrap CSS variables automatically. */
+
+[data-theme="ocean"] {
+  --rb-primary: #0ea5e9;
+  --rb-success: #10b981;
+  --rb-warning: #eab308;
+  --rb-danger:  #ef4444;
+  --rb-info:    #38bdf8;
+  --rb-secondary:#64748b;
+  /* Also feed Bootstrap's vars so components recolor */
+  --bs-primary: var(--rb-primary);
+  --bs-success: var(--rb-success);
+  --bs-warning: var(--rb-warning);
+  --bs-danger:  var(--rb-danger);
+  --bs-info:    var(--rb-info);
+  --bs-secondary: var(--rb-secondary);
 }
 
-/* --- Sidebar compatibility (if your sidebar.php uses .sidebar) --- */
-@media (min-width: 992px){
-  .sidebar { min-height: 100vh; }
+[data-theme="emerald"] {
+  --rb-primary: #059669;
+  --rb-success: #16a34a;
+  --rb-warning: #f59e0b;
+  --rb-danger:  #dc2626;
+  --rb-info:    #14b8a6;
+  --rb-secondary:#6b7280;
+  --bs-primary: var(--rb-primary);
+  --bs-success: var(--rb-success);
+  --bs-warning: var(--rb-warning);
+  --bs-danger:  var(--rb-danger);
+  --bs-info:    var(--rb-info);
+  --bs-secondary: var(--rb-secondary);
 }
 
-/* --- Focus & accessibility --- */
-:focus-visible{
-  outline: 2px solid color-mix(in srgb, var(--bs-primary) 70%, white);
+[data-theme="crimson"] {
+  --rb-primary: #e11d48;
+  --rb-success: #22c55e;
+  --rb-warning: #f59e0b;
+  --rb-danger:  #b91c1c;
+  --rb-info:    #3b82f6;
+  --rb-secondary:#4b5563;
+  --bs-primary: var(--rb-primary);
+  --bs-success: var(--rb-success);
+  --bs-warning: var(--rb-warning);
+  --bs-danger:  var(--rb-danger);
+  --bs-info:    var(--rb-info);
+  --bs-secondary: var(--rb-secondary);
+}
+
+/* ---------- Optional: table/card accent helpers (apply on any container) ---------- */
+.theme-border-primary   { border-color: var(--rb-primary) !important; }
+.theme-border-success   { border-color: var(--rb-success) !important; }
+.theme-border-warning   { border-color: var(--rb-warning) !important; }
+.theme-border-danger    { border-color: var(--rb-danger)  !important; }
+.theme-border-info      { border-color: var(--rb-info)    !important; }
+
+.theme-text-primary     { color: var(--rb-primary)   !important; }
+.theme-text-success     { color: var(--rb-success)   !important; }
+.theme-text-warning     { color: var(--rb-warning)   !important; }
+.theme-text-danger      { color: var(--rb-danger)    !important; }
+.theme-text-info        { color: var(--rb-info)      !important; }
+.theme-text-secondary   { color: var(--rb-secondary) !important; }
+
+/* Table row accents (use with .table > tbody > tr) */
+.tr-accent-primary  { box-shadow: inset 3px 0 0 0 var(--rb-primary); }
+.tr-accent-success  { box-shadow: inset 3px 0 0 0 var(--rb-success); }
+.tr-accent-warning  { box-shadow: inset 3px 0 0 0 var(--rb-warning); }
+.tr-accent-danger   { box-shadow: inset 3px 0 0 0 var(--rb-danger); }
+.tr-accent-info     { box-shadow: inset 3px 0 0 0 var(--rb-info); }
+
+/* ---------- Accessibility niceties ---------- */
+a:focus-visible,
+button:focus-visible,
+.form-select:focus-visible,
+.form-control:focus-visible {
+  outline: 2px solid var(--rb-primary);
   outline-offset: 2px;
 }
 
-/* --- Print (simple) --- */
-@media print{
-  .sidebar, .btn, .alert, .hero-gradient{ display:none !important; }
-  .main-content{ padding:0 !important; }
-  .card{ box-shadow:none !important; border:1px solid #ccc; }
+/* ---------- Print (keeps tables clean) ---------- */
+@media print {
+  .btn, .alert, .hero, .card-footer { display: none !important; }
+  .card, .table { box-shadow: none !important; }
+  .table td, .table th { padding-top: .4rem; padding-bottom: .4rem; }
 }
