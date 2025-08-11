@@ -1,260 +1,151 @@
-/* ==========================================================================
-   RB Stores Dashboard — Bootstrap 5.3 enhancement layer
-   File: /assets/css/dashboard.css
-   Purpose: High-quality, responsive UI polish with brandable variables.
-   How to use:
-   1) Link this after Bootstrap CSS.
-   2) Set your brand colors in :root to match your login page.
-   ========================================================================== */
+/* RB Stores — Dashboard theme to match login page */
 
-/* ---------- 1) Design Tokens (edit these to match your login theme) ---------- */
-:root {
-  /* Brand palette (match these with your login.css) */
-  --rb-primary: #0d6efd;     /* main brand */
-  --rb-accent:  #22c55e;     /* success accent */
-  --rb-warn:    #f59e0b;
-  --rb-danger:  #ef4444;
-  --rb-info:    #38bdf8;
-  --rb-muted:   #64748b;
+:root{
+  /* Brand (kept Bootstrap-friendly) */
+  --rb-primary-500:#6375ff;  /* button mid */
+  --rb-primary-600:#5a63ff;  /* hover mid+ */
+  --rb-primary-700:#4a56ff;  /* active */
+  --rb-accent-1:#6d28d9;     /* left grad */
+  --rb-accent-2:#3b82f6;     /* right grad */
+  --rb-card:#0f172a;         /* slate-900 */
+  --rb-card-soft:#111827;
+  --rb-text:#e5e7eb;
+  --rb-text-dim:#94a3b8;
+  --rb-border:#1f2937;
+  --rb-table-stripe: rgba(255,255,255,.02);
+  --rb-shadow: 0 12px 30px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.03) inset;
 
-  /* Surfaces & text */
-  --rb-bg: #ffffff;
-  --rb-surface: #ffffff;
-  --rb-soft: #f5f7fb;
-  --rb-soft-2: #f0f3f9;
-  --rb-text: #111827;
-  --rb-text-muted: #6b7280;
-
-  /* Effects */
-  --rb-radius: 16px;
-  --rb-radius-sm: 10px;
-  --rb-shadow-sm: 0 2px 6px rgba(0,0,0,.06);
-  --rb-shadow-md: 0 8px 24px rgba(0,0,0,.08);
-  --rb-ring: 0 0 0 3px color-mix(in srgb, var(--rb-primary) 18%, #fff 82%);
-
-  /* Hero gradient (tweak to mirror your login header) */
-  --rb-hero-start: color-mix(in srgb, var(--rb-primary) 12%, #fff 88%);
-  --rb-hero-end:   color-mix(in srgb, var(--rb-accent) 12%, #fff 88%);
-
-  /* Map to Bootstrap theme vars so components pick the brand automatically */
-  --bs-primary:   var(--rb-primary);
-  --bs-success:   var(--rb-accent);
-  --bs-warning:   var(--rb-warn);
-  --bs-danger:    var(--rb-danger);
-  --bs-info:      var(--rb-info);
-  --bs-secondary: var(--rb-muted);
-  --bs-body-bg:   var(--rb-bg);
-  --bs-body-color:var(--rb-text);
+  /* Map to Bootstrap vars (so components pick it up) */
+  --bs-body-color: var(--rb-text);
+  --bs-secondary-color: var(--rb-text-dim);
+  --bs-primary: #5b6bff;      /* close to btn mid */
+  --bs-success:#22c55e;
+  --bs-warning:#f59e0b;
+  --bs-danger:#ef4444;
+  --bs-info:#38bdf8;
 }
 
-/* Optional: preset themes you can toggle by putting data-theme on <html> */
-:root[data-theme="ocean"]   { --rb-primary:#0ea5e9; --rb-accent:#10b981; }
-:root[data-theme="emerald"] { --rb-primary:#059669; --rb-accent:#16a34a; }
-:root[data-theme="crimson"] { --rb-primary:#e11d48; --rb-accent:#22c55e; }
-
-/* ---------- 2) Base & typography ---------- */
-html, body {
-  background: var(--rb-bg);
+/* Page background = gradient like login */
+html, body { height: 100%; }
+body.bg-body, body {
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
   color: var(--rb-text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background:
+    radial-gradient(1200px 600px at 60% -10%, rgba(255,255,255,.06) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(160deg, #1e3a8a 0%, #3847db 35%, #3b82f6 70%, #6d28d9 100%);
+  background-attachment: fixed;
 }
-body {
-  font-feature-settings: "cv02","cv03","cv04","cv11";
+
+/* Header & sidebar */
+.navbar, header, .offcanvas, .sidebar, .hero {
+  background: transparent !important;
+  color: var(--rb-text);
 }
-h1,h2,h3,h4 { letter-spacing: .2px; }
-
-/* Smooth hover motion */
-* { transition: background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
-
-/* ---------- 3) Layout helpers ---------- */
-.container-fluid { padding-left: 1rem; padding-right: 1rem; }
-@media (min-width: 1200px){ .container-fluid { padding-left: 1.25rem; padding-right: 1.25rem; } }
-
-/* Hero bar */
-.hero {
-  background: linear-gradient(135deg, var(--rb-hero-start), var(--rb-hero-end));
-  border-radius: var(--rb-radius);
-  padding: 1rem 1.25rem;
-  box-shadow: var(--rb-shadow-sm);
+.sidebar .nav-link,
+.list-group-item {
+  color: var(--rb-text-dim);
 }
-.hero .small { color: var(--rb-text-muted); }
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  color: var(--rb-text);
+  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+  border-left: 3px solid var(--bs-primary);
+}
 
-/* ---------- 4) Cards ---------- */
+/* Cards = dark glass panels */
 .card {
-  border: 0 !important;
-  border-radius: var(--rb-radius);
-  box-shadow: var(--rb-shadow-sm);
-  background: var(--rb-surface);
+  background: linear-gradient(180deg, var(--rb-card) 0%, var(--rb-card-soft) 100%);
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  box-shadow: var(--rb-shadow);
 }
-.card:hover { transform: translateY(-1px); box-shadow: var(--rb-shadow-md); }
-.card-header {
+.card-header, .card-footer {
   background: transparent;
-  border-bottom: 1px solid #edf1f7;
-  padding: .9rem 1rem;
+  border-color: var(--rb-border);
+  color: var(--rb-text-dim);
 }
-.card-body { padding: 1rem; }
-.card-footer { background: transparent; border-top: 1px solid #edf1f7; }
 
-/* KPI cards */
-.kpi .icon { font-size: 1.4rem; line-height: 1; }
-.kpi .card .fs-4 { font-weight: 700; }
+/* KPI icon tint */
+.kpi .icon { color: var(--bs-primary); }
 
-/* ---------- 5) Buttons ---------- */
+/* Inputs (dark) */
+.form-control, .form-select {
+  background-color: #0b1220;
+  border: 1px solid var(--rb-border);
+  color: var(--rb-text);
+}
+.form-control::placeholder { color: #6b7280; }
+.form-control:focus, .form-select:focus {
+  background-color: #0b1220;
+  border-color: color-mix(in srgb, var(--bs-primary) 70%, #fff 30%);
+  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--bs-primary) 25%, #000 75%);
+  color: var(--rb-text);
+}
+
+/* Tables */
+.table { color: var(--rb-text); }
+.table thead { color: var(--rb-text); background: rgba(255,255,255,.04); }
+.table-striped > tbody > tr:nth-of-type(odd) > * { background: var(--rb-table-stripe); }
+.table-soft tbody tr:hover { background: rgba(255,255,255,.06) !important; }
+.table > :not(caption) > * > * { border-bottom-color: var(--rb-border); }
+
+/* Badges */
+.badge.text-bg-primary { background: var(--bs-primary); }
+.badge.text-bg-success { background: #16a34a; }
+.badge.text-bg-warning { background: #f59e0b; color:#0f172a; }
+.badge.text-bg-danger  { background: #dc2626; }
+.badge.text-bg-secondary{ background: #64748b; }
+
+/* Alerts */
+.alert {
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid var(--rb-border);
+  color: var(--rb-text);
+}
+
+/* Buttons = soft gradient like login */
 .btn {
   border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
 }
-.btn:focus-visible { outline: none; box-shadow: var(--rb-ring); }
-.btn-action { box-shadow: var(--rb-shadow-sm); }
-.btn-action:hover { transform: translateY(-1px); }
-
-/* Primary & outline primary tuned */
-.btn-primary {
-  --bs-btn-bg: var(--rb-primary);
-  --bs-btn-border-color: var(--rb-primary);
-  --bs-btn-hover-bg: color-mix(in srgb, var(--rb-primary) 92%, #000 8%);
-  --bs-btn-hover-border-color: color-mix(in srgb, var(--rb-primary) 92%, #000 8%);
-  --bs-btn-active-bg: color-mix(in srgb, var(--rb-primary) 84%, #000 16%);
-  --bs-btn-active-border-color: color-mix(in srgb, var(--rb-primary) 84%, #000 16%);
-}
-.btn-outline-primary {
-  --bs-btn-color: var(--rb-primary);
-  --bs-btn-border-color: var(--rb-primary);
-  --bs-btn-hover-bg: var(--rb-primary);
-  --bs-btn-hover-border-color: var(--rb-primary);
-  --bs-btn-active-bg: color-mix(in srgb, var(--rb-primary) 90%, #000 10%);
-}
-
-/* Ghost/Light outline for “View all” links */
-.btn-outline-light {
-  --bs-btn-color: var(--rb-muted);
-  --bs-btn-border-color: #e9eef6;
-  --bs-btn-hover-bg: #f2f5fb;
-  --bs-btn-hover-border-color: #dde5f1;
-}
-
-/* ---------- 6) Forms & inputs ---------- */
-.form-control, .form-select {
-  border-radius: 12px;
-  border-color: #e5eaf3;
-  background-color: #fbfcfe;
-}
-.form-control:focus, .form-select:focus {
-  border-color: color-mix(in srgb, var(--rb-primary) 40%, #e5eaf3 60%);
-  box-shadow: var(--rb-ring);
-}
-.minw-150 { min-width: 150px; }
-.minw-220 { min-width: 220px; }
-
-/* Subtle input placeholders */
-::placeholder { color: #9aa3b2 !important; }
-
-/* ---------- 7) Tables ---------- */
-.table-soft thead th {
-  background: #f7f9fc !important;
-  color: #4b5563;
-  font-weight: 600;
-  border-bottom: 1px solid #e9eef6 !important;
-}
-.table-soft tbody tr:hover { background-color: #f7fafc; }
-.table-soft.table-striped > tbody > tr:nth-of-type(odd) > * { background: #fcfdff; }
-
-.table > :not(caption) > * > * {
-  padding-top: .65rem;
-  padding-bottom: .65rem;
-  vertical-align: middle;
-}
-
-/* Status badges (soft, readable) */
-.badge { border-radius: 999px; padding: .45rem .6rem; font-weight: 600; }
-.badge.text-bg-success  { background: color-mix(in srgb, var(--rb-accent) 18%, #eafff2 82%) !important; color: #0f8a3a; }
-.badge.text-bg-warning  { background: color-mix(in srgb, var(--rb-warn) 18%, #fff7e6 82%) !important; color: #9a6b07; }
-.badge.text-bg-danger   { background: color-mix(in srgb, var(--rb-danger) 18%, #ffecec 82%) !important; color: #9b1c1c; }
-.badge.text-bg-secondary{ background: #eef2f7 !important; color: #455468; }
-
-/* Make table headers sticky inside .table-responsive */
-.table-responsive {
-  --rb-table-maxh: 48vh; /* adjustable per card height */
-  max-height: var(--rb-table-maxh);
-}
-.table-responsive thead th {
-  position: sticky; top: 0; z-index: 2;
-}
-
-/* ---------- 8) Alerts ---------- */
-.alert {
+.btn-primary{
   border: 0;
-  border-radius: 14px;
-  box-shadow: var(--rb-shadow-sm);
+  color: #fff;
+  background-image: linear-gradient(90deg, var(--rb-accent-1), var(--rb-accent-2));
+  box-shadow: 0 8px 20px rgba(59,130,246,.35);
 }
-.alert-warning { background: color-mix(in srgb, var(--rb-warn) 12%, #fff7e6 88%); }
-.alert-danger  { background: color-mix(in srgb, var(--rb-danger) 12%, #ffecec 88%); }
-
-/* ---------- 9) Links ---------- */
-a, .link-primary { color: var(--rb-primary); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-/* ---------- 10) Header & nav (safe defaults) ---------- */
-.navbar, .topbar {
-  background: var(--rb-surface);
-  border-bottom: 1px solid #eef2f7;
-  box-shadow: var(--rb-shadow-sm);
+.btn-primary:hover{
+  transform: translateY(-1px);
+  background-image: linear-gradient(90deg, #7c3aed, #3b82f6);
 }
-.navbar .nav-link, .topbar .nav-link { color: var(--rb-text); }
-.navbar .nav-link.active { color: var(--rb-primary); }
-
-/* ---------- 11) Sidebar (generic styles even if markup varies) ---------- */
-.rb-sidebar, .sidebar, [data-rb-sidebar] {
-  background: #ffffff;
-  border-right: 1px solid #eef2f7;
-}
-.rb-sidebar .nav-link, .sidebar .nav-link {
-  border-radius: 10px;
-  color: #4b5563;
-}
-.rb-sidebar .nav-link:hover, .sidebar .nav-link:hover { background: #f3f6fb; color: #111827; }
-.rb-sidebar .nav-link.active, .sidebar .nav-link.active { background: color-mix(in srgb, var(--rb-primary) 10%, #eaf1ff 90%); color: var(--rb-primary); font-weight: 600; }
-
-/* ---------- 12) Utility chips & codes ---------- */
-code {
-  background: #f3f6fb;
-  border-radius: 6px;
-  padding: .1rem .35rem;
-  color: #334155;
+.btn-primary:active{
+  transform: translateY(0);
+  background-image: linear-gradient(90deg, #6d28d9, #325fdc);
 }
 
-/* ---------- 13) Responsive tweaks ---------- */
-@media (max-width: 1199.98px){
-  .kpi .card .fs-4 { font-size: 1.25rem; }
+.btn-outline-primary{
+  color: #c7d2fe;
+  border-color: #818cf8;
 }
-@media (max-width: 767.98px){
-  .hero { padding: .875rem 1rem; border-radius: 14px; }
-  .card { border-radius: 14px; }
-  .table-responsive { --rb-table-maxh: 44vh; }
-  .minw-220 { min-width: 100%; }
-}
-
-/* ---------- 14) Dark mode (optional) ---------- */
-@media (prefers-color-scheme: dark){
-  :root {
-    --rb-bg: #0b1020;
-    --rb-surface: #0f1526;
-    --rb-soft: #111a2e;
-    --rb-soft-2: #0e1424;
-    --rb-text: #e5e7eb;
-    --rb-text-muted: #9aa3b2;
-  }
-  .card, .navbar, .topbar { box-shadow: none; }
-  .card-header, .card-footer { border-color: #1b243a; }
-  .table-soft thead th { background: #131b31 !important; color: #cbd5e1; border-bottom-color: #1b243a !important; }
-  .table-soft tbody tr:hover { background: #121a2f; }
-  .btn-outline-light { --bs-btn-border-color: #2a3553; --bs-btn-hover-bg: #1b2642; }
-  code { background: #152040; color: #dbeafe; }
+.btn-outline-primary:hover{
+  color:#fff;
+  background-image: linear-gradient(90deg, #6366f1, #3b82f6);
+  border-color: transparent;
 }
 
-/* ---------- 15) Print (clean invoices from dashboard) ---------- */
-@media print{
-  .navbar, .topbar, .rb-sidebar, .sidebar, .btn, .alert { display: none !important; }
-  .card, .table, .table-responsive { box-shadow: none !important; border: 0 !important; }
+/* Links */
+a, .link-primary { color:#c7d2fe; }
+a:hover { color:#ffffff; }
+
+/* “Hero” bar */
+.hero{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
+  border: 1px solid var(--rb-border);
+  color: var(--rb-text);
 }
+
+/* Tiny utilities */
+.shadow-soft { box-shadow: var(--rb-shadow); }
+.text-dim { color: var(--rb-text-dim) !important; }
+
+/* Footer */
+footer { color: var(--rb-text-dim); }
