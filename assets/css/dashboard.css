@@ -1,13 +1,17 @@
-/* RB Stores — Dashboard theme to match login page */
+/* RB Stores — Dashboard theme (scoped to <main> only)
+   ✅ Does NOT style header.php, sidebar.php, or footer.php
+   How: every rule is prefixed with "main" so header/sidebar/footer are untouched.
+*/
 
-:root{
-  /* Brand (kept Bootstrap-friendly) */
-  --rb-primary-500:#6375ff;  /* button mid */
-  --rb-primary-600:#5a63ff;  /* hover mid+ */
-  --rb-primary-700:#4a56ff;  /* active */
-  --rb-accent-1:#6d28d9;     /* left grad */
-  --rb-accent-2:#3b82f6;     /* right grad */
-  --rb-card:#0f172a;         /* slate-900 */
+/* ---------- Scope & theme tokens ---------- */
+main {
+  /* Theme tokens (local to main) */
+  --rb-primary-500:#6375ff;
+  --rb-primary-600:#5a63ff;
+  --rb-primary-700:#4a56ff;
+  --rb-accent-1:#6d28d9;
+  --rb-accent-2:#3b82f6;
+  --rb-card:#0f172a;
   --rb-card-soft:#111827;
   --rb-text:#e5e7eb;
   --rb-text-dim:#84bdeb;
@@ -15,137 +19,133 @@
   --rb-table-stripe: rgba(255,255,255,.02);
   --rb-shadow: 0 12px 30px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.03) inset;
 
-  /* Map to Bootstrap vars (so components pick it up) */
-  --bs-body-color: var(--rb-text);
-  --bs-secondary-color: var(--rb-text-dim);
-  --bs-primary: #5b6bff;      /* close to btn mid */
-  --bs-success:#22c55e;
-  --bs-warning:#f59e0b;
-  --bs-danger:#ef4444;
-  --bs-info:#38bdf8;
+  color: var(--rb-text);
+  position: relative;
+  z-index: 0; /* ensures background sits behind content */
 }
 
-/* Page background = gradient like login */
-html, body { height: 100%; }
-body.bg-body, body {
-  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-  color: var(--rb-text);
+/* Background gradient only behind <main> content */
+main::before{
+  content:"";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background:
     radial-gradient(1200px 600px at 60% -10%, rgba(255,255,255,.06) 0%, rgba(255,255,255,0) 60%),
     linear-gradient(160deg, #1e3a8a 0%, #3847db 35%, #3b82f6 70%, #6d28d9 100%);
   background-attachment: fixed;
+  pointer-events: none;
+  display: block;
+  border-radius: 0; /* keep squared; adjust if main is boxed */
 }
 
-/* Header & sidebar */
-.navbar, header, .offcanvas, .sidebar, .hero {
-  background: transparent !important;
-  color: var(--rb-text);
-}
-.sidebar .nav-link,
-.list-group-item {
-  color: var(--rb-text-dim);
-}
-.sidebar .nav-link:hover,
-.sidebar .nav-link.active {
-  color: var(--rb-text);
-  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,0));
-  border-left: 3px solid var(--bs-primary);
-}
-
-/* Cards = dark glass panels */
-.card {
+/* ---------- Cards ---------- */
+main .card {
   background: linear-gradient(180deg, var(--rb-card) 0%, var(--rb-card-soft) 100%);
   border: 1px solid var(--rb-border);
   border-radius: 16px;
   box-shadow: var(--rb-shadow);
+  color: var(--rb-text);
 }
-.card-header, .card-footer {
+main .card-header,
+main .card-footer{
   background: transparent;
   border-color: var(--rb-border);
   color: var(--rb-text-dim);
 }
 
-/* KPI icon tint */
-.kpi .icon { color: var(--bs-primary); }
+/* ---------- KPI icon tint ---------- */
+main .kpi .icon { color: var(--rb-primary-600); }
 
-/* Inputs (dark) */
-.form-control, .form-select {
+/* ---------- Forms (dark) ---------- */
+main .form-control,
+main .form-select {
   background-color: #0b1220;
   border: 1px solid var(--rb-border);
   color: var(--rb-text);
 }
-.form-control::placeholder { color: #6b7280; }
-.form-control:focus, .form-select:focus {
+main .form-control::placeholder { color: #6b7280; }
+main .form-control:focus,
+main .form-select:focus {
   background-color: #0b1220;
-  border-color: color-mix(in srgb, var(--bs-primary) 70%, #fff 30%);
-  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--bs-primary) 25%, #000 75%);
+  border-color: #6a76ff; /* derived from primary */
+  box-shadow: 0 0 0 .2rem rgba(90,99,255,.25);
   color: var(--rb-text);
 }
 
-/* Tables */
-.table { color: var(--rb-text); }
-.table thead { color: var(--rb-text); background: rgba(255,255,255,.04); }
-.table-striped > tbody > tr:nth-of-type(odd) > * { background: var(--rb-table-stripe); }
-.table-soft tbody tr:hover { background: rgba(255,255,255,.06) !important; }
-.table > :not(caption) > * > * { border-bottom-color: var(--rb-border); }
+/* ---------- Tables ---------- */
+main .table { color: var(--rb-text); }
+main .table thead {
+  color: var(--rb-text);
+  background: rgba(255,255,255,.04);
+}
+main .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: var(--rb-table-stripe);
+}
+main .table-soft tbody tr:hover {
+  background: rgba(255,255,255,.06) !important;
+}
+main .table > :not(caption) > * > * {
+  border-bottom-color: var(--rb-border);
+}
 
-/* Badges */
-.badge.text-bg-primary { background: var(--bs-primary); }
-.badge.text-bg-success { background: #16a34a; }
-.badge.text-bg-warning { background: #f59e0b; color:#0f172a; }
-.badge.text-bg-danger  { background: #dc2626; }
-.badge.text-bg-secondary{ background: #64748b; }
+/* ---------- Badges ---------- */
+main .badge.text-bg-primary { background: #5b6bff; }
+main .badge.text-bg-success { background: #16a34a; }
+main .badge.text-bg-warning { background: #f59e0b; color:#0f172a; }
+main .badge.text-bg-danger  { background: #dc2626; }
+main .badge.text-bg-secondary{ background: #64748b; }
 
-/* Alerts */
-.alert {
+/* ---------- Alerts ---------- */
+main .alert{
   background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
   border: 1px solid var(--rb-border);
   color: var(--rb-text);
 }
 
-/* Buttons = soft gradient like login */
-.btn {
-  border-radius: 12px;
-}
-.btn-primary{
+/* ---------- Buttons ---------- */
+main .btn{ border-radius: 12px; }
+main .btn-primary{
   border: 0;
   color: #fff;
   background-image: linear-gradient(90deg, var(--rb-accent-1), var(--rb-accent-2));
   box-shadow: 0 8px 20px rgba(59,130,246,.35);
 }
-.btn-primary:hover{
+main .btn-primary:hover{
   transform: translateY(-1px);
   background-image: linear-gradient(90deg, #7c3aed, #3b82f6);
 }
-.btn-primary:active{
+main .btn-primary:active{
   transform: translateY(0);
   background-image: linear-gradient(90deg, #6d28d9, #325fdc);
 }
-
-.btn-outline-primary{
+main .btn-outline-primary{
   color: #c7d2fe;
   border-color: #818cf8;
 }
-.btn-outline-primary:hover{
+main .btn-outline-primary:hover{
   color:#fff;
   background-image: linear-gradient(90deg, #6366f1, #3b82f6);
   border-color: transparent;
 }
 
-/* Links */
-a, .link-primary { color:#c7d2fe; }
-a:hover { color:#ffffff; }
+/* ---------- Links (only inside main) ---------- */
+main a,
+main .link-primary { color:#c7d2fe; }
+main a:hover { color:#ffffff; }
 
-/* “Hero” bar */
-.hero{
+/* ---------- “Hero” bars inside main ---------- */
+main .hero{
   background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
   border: 1px solid var(--rb-border);
   color: var(--rb-text);
 }
 
-/* Tiny utilities */
-.shadow-soft { box-shadow: var(--rb-shadow); }
-.text-dim { color: var(--rb-text-dim) !important; }
+/* ---------- Tiny utilities (scoped) ---------- */
+main .shadow-soft { box-shadow: var(--rb-shadow); }
+main .text-dim { color: var(--rb-text-dim) !important; }
 
-/* Footer */
-footer { color: var(--rb-text-dim); }
+/* ---------- Explicit NON-targets ----------
+   No rules for header, .navbar, .sidebar, .offcanvas, footer
+   so includes remain visually unchanged.
+*/
