@@ -1,133 +1,203 @@
-/* ========= RB STORES — SIDEBAR (Bootstrap 5) =========
-   - Fully scoped: only inside [data-rb-scope="sidebar"]
-   - Offcanvas is dark in all modes
-   - Sticky + visible on ≥1200px (desktop)
-   - Safe for header/footer/main
-====================================================== */
+/* RB Stores — Sidebar (strictly scoped)
+   Scope guard: ONLY target inside [data-rb-scope="sidebar"] and #rbSidebar
+   No globals, no element resets, no impact on header.php / footer.php / main content
+*/
 
-[data-rb-scope="sidebar"]{
-  --sb-bg: #0f172a;          /* slate-900 */
-  --sb-fg: #e5e7eb;          /* gray-200 */
-  --sb-fg-dim:#cbd5e1;       /* slate-300 */
-  --sb-border:#1f2937;       /* gray-800 */
-  --sb-accent:#22c55e;       /* emerald-500 */
-  --sb-hover: rgba(255,255,255,.06);
-  --sb-active: rgba(34,197,94,.18);
-  --sb-focus:#93c5fd;
-  --sb-width: 280px;
-  --sb-topbar: 56px;
-  color: var(--sb-fg);
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+/* ---------- Theme tokens (scoped) ---------- */
+[data-rb-scope="sidebar"] {
+  --rb-sb-w: 280px;
+  --rb-sb-bg: #0f172a;         /* slate-900 */
+  --rb-sb-bg-soft: #0b1222;    /* slightly darker */
+  --rb-sb-text: #e5e7eb;       /* text */
+  --rb-sb-text-dim: #9fb9e8;   /* subtle text */
+  --rb-sb-border: rgba(148, 208, 236, .35);
+  --rb-sb-accent: #6375ff;     /* brand mid */
+  --rb-sb-accent-2: #3b82f6;   /* blue */
+  --rb-sb-hover: rgba(255,255,255,.05);
+  --rb-sb-active: rgba(99,117,255,.16);
+  --rb-sb-shadow: 0 12px 30px rgba(0,0,0,.35);
+  --rb-sb-radius: 14px;
+  --rb-sb-focus: 0 0 0 3px rgba(99,117,255,.35);
 }
 
-/* Optional mobile top bar (toggler row) */
-[data-rb-scope="sidebar"] .rb-sb-topbar{
-  display:flex; align-items:center; gap:.5rem;
-  height: var(--sb-topbar);
-  padding: 0 .75rem;
-  background: var(--sb-bg);
-  border-bottom: 1px solid var(--sb-border);
-  position: sticky; top: 0; z-index: 1046;
-  color: var(--sb-fg);
-}
-[data-rb-scope="sidebar"] .rb-sb-topbar a{ color:inherit; text-decoration:none; }
-
-/* Core panel (works for offcanvas + static) */
-[data-rb-scope="sidebar"] .rb-sb{
-  background: var(--sb-bg);
-  color: var(--sb-fg);
-  border-right: 1px solid var(--sb-border);
+/* ---------- Mobile top bar (only within scope) ---------- */
+[data-rb-scope="sidebar"] .rb-sb-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1040; /* above content */
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 12px;
+  background: var(--rb-sb-bg);
+  color: var(--rb-sb-text);
+  border-bottom: 1px solid var(--rb-sb-border);
 }
 
-/* Wire Bootstrap Offcanvas variables so it never paints white */
-[data-rb-scope="sidebar"] .offcanvas{
-  --bs-offcanvas-bg: var(--sb-bg);
-  --bs-offcanvas-color: var(--sb-fg);
-  --bs-offcanvas-border-color: var(--sb-border);
-  --bs-offcanvas-width: var(--sb-width);
-  background: var(--sb-bg) !important;
-  color: var(--sb-fg) !important;
+[data-rb-scope="sidebar"] .rb-sb-topbar-btn {
+  color: var(--rb-sb-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+[data-rb-scope="sidebar"] .rb-sb-topbar-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--rb-sb-focus);
 }
 
-/* Desktop: turn offcanvas into a sticky, visible sidebar */
-@media (min-width:1200px){
-  [data-rb-scope="sidebar"] .offcanvas.offcanvas-start{
+/* ---------- Offcanvas / Sidebar shell ---------- */
+#rbSidebar.offcanvas {
+  width: var(--rb-sb-w);
+  background: var(--rb-sb-bg);
+  color: var(--rb-sb-text);
+  border-right: 1px solid var(--rb-sb-border);
+  box-shadow: var(--rb-sb-shadow);
+}
+
+/* Subtle custom shadow class used in your markup */
+#rbSidebar.offcanvas.offcanvas-shadow {
+  box-shadow: var(--rb-sb-shadow);
+}
+
+/* Desktop: convert Offcanvas into a fixed/sticky sidebar */
+@media (min-width: 1200px) {
+  /* Keep the sidebar always visible on xl+ */
+  #rbSidebar.offcanvas {
     position: sticky;
     top: 0;
+    left: 0;
     transform: none !important;
     visibility: visible !important;
-    transition: none !important;
-    box-shadow: none !important;
-    height: 100vh;
-    width: var(--sb-width);                 /* fallback if BS var not applied */
-    border-right: 1px solid var(--sb-border);
+    background-clip: padding-box;
+    height: 100dvh;
+    border-right: 1px solid var(--rb-sb-border);
+  }
+
+  /* Ensure Bootstrap’s offcanvas backdrop never shows on desktop */
+  .offcanvas-backdrop.show {
+    display: none !important;
   }
 }
 
-/* Brand row */
-[data-rb-scope="sidebar"] .rb-sb-brand{
-  display:flex; align-items:center; gap:.5rem;
-  padding: .9rem 1rem;
-  border-bottom: 1px solid var(--sb-border);
+/* ---------- Brand block ---------- */
+[data-rb-scope="sidebar"] .rb-sb-brand {
+  color: var(--rb-sb-text);
+  border-bottom: 1px solid var(--rb-sb-border);
 }
-[data-rb-scope="sidebar"] .rb-sb-brand-text{ font-weight:600; color:#fff; }
-
-/* Accordion (scoped) */
-[data-rb-scope="sidebar"] .rb-sb-acc-item{ border-bottom:1px solid var(--sb-border); }
-[data-rb-scope="sidebar"] .rb-sb-acc-btn{
-  background: transparent; color: var(--sb-fg);
-  font-weight:500; padding:.9rem 1rem; box-shadow:none !important;
-}
-[data-rb-scope="sidebar"] .accordion-button:not(.collapsed){
-  background: var(--sb-hover); color:#fff;
-  box-shadow: inset 0 -1px 0 0 var(--sb-border);
-}
-/* Hide default chevron to keep left icons aligned */
-[data-rb-scope="sidebar"] .accordion-button::after{ display:none; }
-
-/* Menu list + links */
-[data-rb-scope="sidebar"] .rb-sb-menu{ list-style:none; margin:0; padding:0; }
-[data-rb-scope="sidebar"] .rb-sb-menu li{
-  border-bottom: 1px dashed rgba(255,255,255,.06);
-}
-[data-rb-scope="sidebar"] .rb-sb-link{
-  display:flex; align-items:center; gap:.5rem;
-  padding:.65rem 1rem;
-  color: var(--sb-fg-dim);
-  text-decoration:none;
-  border-left:3px solid transparent;
-  transition: background .15s ease, color .15s ease, padding .15s ease, border-color .15s ease;
-}
-[data-rb-scope="sidebar"] .rb-sb-link:hover{
-  background: var(--sb-hover); color:#fff;
-}
-[data-rb-scope="sidebar"] .rb-sb-link.active{
-  color:#fff; background: var(--sb-active); border-left-color: var(--sb-accent);
-  padding-left: calc(1rem - 3px + .25rem);
+[data-rb-scope="sidebar"] .rb-sb-brand-text {
+  font-weight: 600;
+  letter-spacing: .2px;
 }
 
-/* Footer row inside sidebar */
-[data-rb-scope="sidebar"] .rb-sb-footer{
-  border-top:1px solid var(--sb-border);
-  padding:.75rem 1rem; color: var(--sb-fg-dim);
+/* ---------- Accordion styles (scoped) ---------- */
+[data-rb-scope="sidebar"] .rb-sb-acc-item {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
 }
 
-/* Scrollbar only inside the panel */
-[data-rb-scope="sidebar"] .offcanvas-body{ overflow-y:auto; }
-[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar{ width:10px; }
-[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,.2); border-radius:6px;
+[data-rb-scope="sidebar"] .rb-sb-acc-btn {
+  background: transparent;
+  color: var(--rb-sb-text);
+  gap: .5rem;
+  padding: .85rem 1rem;
+  font-weight: 600;
+  border-radius: 0;
+  box-shadow: none;
+}
+[data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed) {
+  background: var(--rb-sb-active);
+  color: var(--rb-sb-text);
+}
+[data-rb-scope="sidebar"] .rb-sb-acc-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--rb-sb-focus);
 }
 
-/* Keyboard focus */
+/* Accordion body container */
+[data-rb-scope="sidebar"] .accordion-body {
+  background: var(--rb-sb-bg-soft);
+  border-top: 1px solid rgba(255,255,255,.04);
+}
+
+/* ---------- Menu list & links ---------- */
+[data-rb-scope="sidebar"] .rb-sb-menu {
+  margin: 0;
+  padding: .4rem 0;
+}
+
+[data-rb-scope="sidebar"] .rb-sb-link {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .7rem 1rem;
+  color: var(--rb-sb-text);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+  line-height: 1.25;
+  border-radius: 0;
+}
+[data-rb-scope="sidebar"] .rb-sb-link:hover {
+  background: var(--rb-sb-hover);
+  color: var(--rb-sb-text);
+}
+[data-rb-scope="sidebar"] .rb-sb-link.active,
+[data-rb-scope="sidebar"] .rb-sb-link[aria-current="page"] {
+  background: var(--rb-sb-active);
+  border-left-color: var(--rb-sb-accent);
+  color: var(--rb-sb-text);
+  font-weight: 600;
+}
+
+/* Icon alignment inside links */
+[data-rb-scope="sidebar"] .rb-sb-link i {
+  font-size: 1rem;
+  width: 1.25rem;
+  text-align: center;
+}
+
+/* ---------- Footer area (logout) ---------- */
+[data-rb-scope="sidebar"] .rb-sb-footer {
+  border-top: 1px solid var(--rb-sb-border);
+  background: linear-gradient(0deg, rgba(255,255,255,.02), transparent);
+}
+[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link {
+  padding: .65rem .85rem;
+  border-radius: var(--rb-sb-radius);
+}
+[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link:hover {
+  background: var(--rb-sb-hover);
+}
+
+/* ---------- Scrollbars (only inside the sidebar) ---------- */
+#rbSidebar .offcanvas-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rb-sb-accent-2) rgba(255,255,255,.06);
+}
+#rbSidebar .offcanvas-body::-webkit-scrollbar {
+  width: 8px;
+}
+#rbSidebar .offcanvas-body::-webkit-scrollbar-thumb {
+  background: var(--rb-sb-accent-2);
+  border-radius: 8px;
+}
+#rbSidebar .offcanvas-body::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.06);
+  border-radius: 8px;
+}
+
+/* ---------- Focus & a11y helpers ---------- */
 [data-rb-scope="sidebar"] a:focus-visible,
-[data-rb-scope="sidebar"] button:focus-visible{
-  outline:2px solid var(--sb-focus); outline-offset:2px; border-radius:6px;
+[data-rb-scope="sidebar"] button:focus-visible {
+  outline: none;
+  box-shadow: var(--rb-sb-focus);
+  border-radius: 10px;
 }
 
-/* Force dark even if OS is light mode (prevents accidental white) */
-@media (prefers-color-scheme: light){
-  [data-rb-scope="sidebar"]{
-    --sb-bg:#0f172a; --sb-fg:#e5e7eb; --sb-fg-dim:#cbd5e1; --sb-border:#1f2937;
-  }
-}
+/* ---------- Utility: optional compact mode (opt-in) ---------- */
+[data-rb-scope="sidebar"] .rb-sb-link.rb-compact { padding: .5rem .9rem; }
+[data-rb-scope="sidebar"] .rb-sb-acc-btn.rb-compact { padding: .6rem .9rem; }
+
+/* ---------- Safe width guard (in case CSS is loaded elsewhere) ---------- */
+#rbSidebar { max-width: 100vw; }
