@@ -1,23 +1,26 @@
-/* ===== RB Sidebar (scoped; Bootstrap 5 friendly) ===== */
+/* ========= RB STORES — SIDEBAR (Bootstrap 5) =========
+   - Fully scoped: only inside [data-rb-scope="sidebar"]
+   - Offcanvas is dark in all modes
+   - Sticky + visible on ≥1200px (desktop)
+   - Safe for header/footer/main
+====================================================== */
 
-[data-rb-scope="sidebar"] {
-  /* Design tokens */
-  --sb-bg: #0f172a;         /* slate-900 */
-  --sb-border: #1f2937;     /* gray-800 */
-  --sb-text: #e5e7eb;       /* gray-200 */
-  --sb-text-dim: #cbd5e1;   /* slate-300 */
-  --sb-accent: #22c55e;     /* emerald-500 */
+[data-rb-scope="sidebar"]{
+  --sb-bg: #0f172a;          /* slate-900 */
+  --sb-fg: #e5e7eb;          /* gray-200 */
+  --sb-fg-dim:#cbd5e1;       /* slate-300 */
+  --sb-border:#1f2937;       /* gray-800 */
+  --sb-accent:#22c55e;       /* emerald-500 */
   --sb-hover: rgba(255,255,255,.06);
   --sb-active: rgba(34,197,94,.18);
-  --sb-focus: #93c5fd;
+  --sb-focus:#93c5fd;
   --sb-width: 280px;
   --sb-topbar: 56px;
-
-  color: var(--sb-text);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--sb-fg);
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 
-/* Top bar (mobile) */
+/* Optional mobile top bar (toggler row) */
 [data-rb-scope="sidebar"] .rb-sb-topbar{
   display:flex; align-items:center; gap:.5rem;
   height: var(--sb-topbar);
@@ -25,103 +28,106 @@
   background: var(--sb-bg);
   border-bottom: 1px solid var(--sb-border);
   position: sticky; top: 0; z-index: 1046;
-  color: var(--sb-text);
+  color: var(--sb-fg);
 }
-[data-rb-scope="sidebar"] .rb-sb-topbar-btn{
-  color: inherit; text-decoration: none;
-}
+[data-rb-scope="sidebar"] .rb-sb-topbar a{ color:inherit; text-decoration:none; }
 
-/* Sidebar container — also wire Bootstrap Offcanvas variables */
+/* Core panel (works for offcanvas + static) */
 [data-rb-scope="sidebar"] .rb-sb{
   background: var(--sb-bg);
-  color: var(--sb-text);
+  color: var(--sb-fg);
   border-right: 1px solid var(--sb-border);
 }
-[data-rb-scope="sidebar"] .rb-sb.offcanvas{
-  /* Make sure Bootstrap paints it dark */
+
+/* Wire Bootstrap Offcanvas variables so it never paints white */
+[data-rb-scope="sidebar"] .offcanvas{
   --bs-offcanvas-bg: var(--sb-bg);
-  --bs-offcanvas-color: var(--sb-text);
+  --bs-offcanvas-color: var(--sb-fg);
   --bs-offcanvas-border-color: var(--sb-border);
   --bs-offcanvas-width: var(--sb-width);
-  background: var(--sb-bg);
-  color: var(--sb-text);
+  background: var(--sb-bg) !important;
+  color: var(--sb-fg) !important;
 }
 
-/* Desktop: turn offcanvas into a sticky fixed-width sidebar */
-@media (min-width: 1200px){
-  [data-rb-scope="sidebar"] .rb-sb.offcanvas{
+/* Desktop: turn offcanvas into a sticky, visible sidebar */
+@media (min-width:1200px){
+  [data-rb-scope="sidebar"] .offcanvas.offcanvas-start{
     position: sticky;
     top: 0;
     transform: none !important;
     visibility: visible !important;
-    transition: none;
-    box-shadow: none;
+    transition: none !important;
+    box-shadow: none !important;
     height: 100vh;
-    width: var(--sb-width);           /* fallback if BS var not applied */
+    width: var(--sb-width);                 /* fallback if BS var not applied */
     border-right: 1px solid var(--sb-border);
   }
 }
 
-/* Brand */
-[data-rb-scope="sidebar"] .rb-sb-brand{ border-bottom: 1px solid var(--sb-border); }
-[data-rb-scope="sidebar"] .rb-sb-brand-text{ font-weight: 600; color: #fff; }
+/* Brand row */
+[data-rb-scope="sidebar"] .rb-sb-brand{
+  display:flex; align-items:center; gap:.5rem;
+  padding: .9rem 1rem;
+  border-bottom: 1px solid var(--sb-border);
+}
+[data-rb-scope="sidebar"] .rb-sb-brand-text{ font-weight:600; color:#fff; }
 
 /* Accordion (scoped) */
-[data-rb-scope="sidebar"] .rb-sb-acc-item{ border-bottom: 1px solid var(--sb-border); }
+[data-rb-scope="sidebar"] .rb-sb-acc-item{ border-bottom:1px solid var(--sb-border); }
 [data-rb-scope="sidebar"] .rb-sb-acc-btn{
-  background: transparent; color: var(--sb-text);
-  font-weight: 500; padding: .9rem 1rem;
+  background: transparent; color: var(--sb-fg);
+  font-weight:500; padding:.9rem 1rem; box-shadow:none !important;
 }
 [data-rb-scope="sidebar"] .accordion-button:not(.collapsed){
-  background: var(--sb-hover); color: #fff;
+  background: var(--sb-hover); color:#fff;
   box-shadow: inset 0 -1px 0 0 var(--sb-border);
 }
+/* Hide default chevron to keep left icons aligned */
 [data-rb-scope="sidebar"] .accordion-button::after{ display:none; }
 
-/* Menu */
+/* Menu list + links */
+[data-rb-scope="sidebar"] .rb-sb-menu{ list-style:none; margin:0; padding:0; }
 [data-rb-scope="sidebar"] .rb-sb-menu li{
-  border-bottom: 1px dashed rgba(255,255,255,0.06);
+  border-bottom: 1px dashed rgba(255,255,255,.06);
 }
 [data-rb-scope="sidebar"] .rb-sb-link{
   display:flex; align-items:center; gap:.5rem;
   padding:.65rem 1rem;
-  color: var(--sb-text-dim);
+  color: var(--sb-fg-dim);
   text-decoration:none;
-  border-left: 3px solid transparent;
+  border-left:3px solid transparent;
   transition: background .15s ease, color .15s ease, padding .15s ease, border-color .15s ease;
 }
-[data-rb-scope="sidebar"] .rb-sb-link:hover{ background: var(--sb-hover); color:#fff; }
+[data-rb-scope="sidebar"] .rb-sb-link:hover{
+  background: var(--sb-hover); color:#fff;
+}
 [data-rb-scope="sidebar"] .rb-sb-link.active{
   color:#fff; background: var(--sb-active); border-left-color: var(--sb-accent);
   padding-left: calc(1rem - 3px + .25rem);
 }
 
-/* Footer */
-[data-rb-scope="sidebar"] .rb-sb-footer{ border-top: 1px solid var(--sb-border); }
-
-/* Scrollbar only inside the sidebar */
-[data-rb-scope="sidebar"] .offcanvas-body{ overflow-y:auto; background: transparent; }
-[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar{ width: 10px; }
-[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,.2); border-radius: 6px;
+/* Footer row inside sidebar */
+[data-rb-scope="sidebar"] .rb-sb-footer{
+  border-top:1px solid var(--sb-border);
+  padding:.75rem 1rem; color: var(--sb-fg-dim);
 }
 
-/* Focus (keyboard) */
+/* Scrollbar only inside the panel */
+[data-rb-scope="sidebar"] .offcanvas-body{ overflow-y:auto; }
+[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar{ width:10px; }
+[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.2); border-radius:6px;
+}
+
+/* Keyboard focus */
 [data-rb-scope="sidebar"] a:focus-visible,
 [data-rb-scope="sidebar"] button:focus-visible{
-  outline: 2px solid var(--sb-focus);
-  outline-offset: 2px; border-radius: 6px;
+  outline:2px solid var(--sb-focus); outline-offset:2px; border-radius:6px;
 }
 
-/* OPTIONAL: If you *want* auto light mode, re-enable this block.
+/* Force dark even if OS is light mode (prevents accidental white) */
 @media (prefers-color-scheme: light){
   [data-rb-scope="sidebar"]{
-    --sb-bg: #ffffff;
-    --sb-border: #e5e7eb;
-    --sb-text: #111827;
-    --sb-text-dim: #374151;
-    --sb-hover: rgba(15,23,42,.05);
-    --sb-active: rgba(16,185,129,.12);
+    --sb-bg:#0f172a; --sb-fg:#e5e7eb; --sb-fg-dim:#cbd5e1; --sb-border:#1f2937;
   }
 }
-*/
