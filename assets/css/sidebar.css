@@ -1,11 +1,5 @@
-/* ===========================================================
-   RB Stores — Sidebar (STRICT SCOPE)
-   - No globals, no :root, no tag-level selectors.
-   - Only targets #rbSidebar and elements under [data-rb-scope="sidebar"].
-   - Safe for header.php, footer.php, and main content.
-   =========================================================== */
+/* RB Stores — Sidebar (STRICTLY SCOPED) */
 
-/* ---------- Scoped design tokens ---------- */
 [data-rb-scope="sidebar"]{
   --rb-sb-w: 280px;
   --rb-sb-bg:#0f172a;
@@ -15,133 +9,103 @@
   --rb-sb-border:rgba(148,208,236,.35);
   --rb-sb-accent:#6375ff;
   --rb-sb-accent-2:#3b82f6;
-  --rb-sb-hover:rgba(255,255,255,.06);
+  --rb-sb-hover:rgba(255,255,255,.05);
   --rb-sb-active:rgba(99,117,255,.16);
-  --rb-sb-focus:0 0 0 3px rgba(99,117,255,.35);
   --rb-sb-shadow:0 12px 30px rgba(0,0,0,.35);
   --rb-sb-radius:14px;
+  --rb-sb-focus:0 0 0 3px rgba(99,117,255,.35);
 }
 
-/* ---------- Mobile top bar (only inside scope) ---------- */
+/* Mobile top bar (scoped) */
 [data-rb-scope="sidebar"] .rb-sb-topbar{
   position:sticky; top:0; z-index:1040;
-  display:flex; align-items:center; gap:.5rem;
-  height:56px; padding:0 12px;
-  background:var(--rb-sb-bg); color:var(--rb-sb-text);
+  display:flex; align-items:center; height:56px; gap:.5rem;
+  padding:0 12px; background:var(--rb-sb-bg); color:var(--rb-sb-text);
   border-bottom:1px solid var(--rb-sb-border);
 }
 [data-rb-scope="sidebar"] .rb-sb-topbar-btn{
-  color:var(--rb-sb-text);
-  background:transparent; border:1px solid transparent;
-  border-radius:10px;
+  color:var(--rb-sb-text); background:transparent; border:1px solid transparent; border-radius:10px;
 }
-[data-rb-scope="sidebar"] .rb-sb-topbar-btn:focus-visible{
-  outline:none; box-shadow:var(--rb-sb-focus);
-}
+[data-rb-scope="sidebar"] .rb-sb-topbar-btn:focus-visible{ outline:none; box-shadow:var(--rb-sb-focus); }
 
-/* ---------- Offcanvas shell / sidebar panel ---------- */
+/* Offcanvas shell */
 #rbSidebar.offcanvas{
   width:var(--rb-sb-w);
+  max-width:92vw;                 /* small phones safe width */
   background:var(--rb-sb-bg); color:var(--rb-sb-text);
   border-right:1px solid var(--rb-sb-border);
   box-shadow:var(--rb-sb-shadow);
 }
 
-/* (Desktop) keep it visible as a sticky rail — still scoped to #rbSidebar */
+/* Desktop rail (xl+) */
 @media (min-width:1200px){
   #rbSidebar.offcanvas{
     position:sticky; top:0; left:0;
     transform:none !important;
     visibility:visible !important;
-    height:100dvh;
+    height:100svh;                /* mobile UI chrome aware */
+    height:100dvh;                /* modern fallback */
     background-clip:padding-box;
+    max-width:var(--rb-sb-w);
   }
-  /* DO NOT use a global .offcanvas-backdrop override.
-     Backdrop is already disabled via data-bs-backdrop="false" in your PHP. */
+  /* DO NOT globally hide backdrops; it's disabled via data-bs-backdrop="false" in PHP */
 }
 
-/* ---------- Brand row ---------- */
-[data-rb-scope="sidebar"] .rb-sb-brand{
-  color:var(--rb-sb-text);
-  border-bottom:1px solid var(--rb-sb-border);
-}
-[data-rb-scope="sidebar"] .rb-sb-brand-text{
-  font-weight:600; letter-spacing:.2px;
-}
+/* Brand */
+[data-rb-scope="sidebar"] .rb-sb-brand{ color:var(--rb-sb-text); border-bottom:1px solid var(--rb-sb-border); }
+[data-rb-scope="sidebar"] .rb-sb-brand-text{ font-weight:600; letter-spacing:.2px; }
 
-/* ---------- Accordion (scoped Bootstrap overrides) ---------- */
-[data-rb-scope="sidebar"] .rb-sb-acc-item{
-  background:transparent; border:0;
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
+/* Accordion */
+[data-rb-scope="sidebar"] .rb-sb-acc-item{ background:transparent; border:0; border-bottom:1px solid rgba(255,255,255,.05); }
 [data-rb-scope="sidebar"] .rb-sb-acc-btn{
   background:transparent; color:var(--rb-sb-text);
-  gap:.5rem; padding:.85rem 1rem; font-weight:600;
-  border-radius:0; box-shadow:none;
+  gap:.5rem; padding:.85rem 1rem; font-weight:600; border-radius:0; box-shadow:none;
 }
-[data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed){
-  background:var(--rb-sb-active);
-}
-[data-rb-scope="sidebar"] .rb-sb-acc-btn:focus-visible{
-  outline:none; box-shadow:var(--rb-sb-focus);
-}
-[data-rb-scope="sidebar"] .accordion-body{
-  background:var(--rb-sb-bg-soft);
-  border-top:1px solid rgba(255,255,255,.05);
-}
+[data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed){ background:var(--rb-sb-active); }
+[data-rb-scope="sidebar"] .rb-sb-acc-btn:focus-visible{ outline:none; box-shadow:var(--rb-sb-focus); }
+[data-rb-scope="sidebar"] .accordion-body{ background:var(--rb-sb-bg-soft); border-top:1px solid rgba(255,255,255,.05); }
 
-/* ---------- Menu list & links ---------- */
-[data-rb-scope="sidebar"] .rb-sb-menu{
-  margin:0; padding:.35rem 0;
-}
+/* Menu & links */
+[data-rb-scope="sidebar"] .rb-sb-menu{ margin:0; padding:.35rem 0; }
 [data-rb-scope="sidebar"] .rb-sb-link{
-  display:flex; align-items:center; gap:.5rem;
-  padding:.7rem 1rem;
-  color:var(--rb-sb-text); text-decoration:none;
-  border-left:3px solid transparent;
+  display:flex; align-items:center; gap:.5rem; padding:.7rem 1rem;
+  color:var(--rb-sb-text); text-decoration:none; line-height:1.25;
+  border-left:3px solid transparent; border-radius:0;
   transition:background .2s ease, border-color .2s ease, color .2s ease;
-  line-height:1.25; border-radius:0;
 }
-[data-rb-scope="sidebar"] .rb-sb-link:hover{
-  background:var(--rb-sb-hover);
-}
+[data-rb-scope="sidebar"] .rb-sb-link:hover{ background:var(--rb-sb-hover); }
 [data-rb-scope="sidebar"] .rb-sb-link.active,
 [data-rb-scope="sidebar"] .rb-sb-link[aria-current="page"]{
-  background:var(--rb-sb-active);
-  border-left-color:var(--rb-sb-accent);
-  font-weight:600;
+  background:var(--rb-sb-active); border-left-color:var(--rb-sb-accent); font-weight:600;
 }
-[data-rb-scope="sidebar"] .rb-sb-link i{
-  font-size:1rem; width:1.25rem; text-align:center;
-}
+[data-rb-scope="sidebar"] .rb-sb-link i{ font-size:1rem; width:1.25rem; text-align:center; }
 
-/* ---------- Footer area (logout) ---------- */
+/* Footer area */
 [data-rb-scope="sidebar"] .rb-sb-footer{
   border-top:1px solid var(--rb-sb-border);
   background:linear-gradient(0deg, rgba(255,255,255,.02), transparent);
 }
-[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link{
-  padding:.65rem .85rem; border-radius:var(--rb-sb-radius);
-}
-[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link:hover{
-  background:var(--rb-sb-hover);
-}
+[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link{ padding:.65rem .85rem; border-radius:var(--rb-sb-radius); }
+[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link:hover{ background:var(--rb-sb-hover); }
 
-/* ---------- Scrollbar cosmetics (only inside the panel) ---------- */
+/* Scrollbars (scoped) */
 #rbSidebar .offcanvas-body{ scrollbar-width:thin; scrollbar-color:var(--rb-sb-accent-2) rgba(255,255,255,.06); }
 #rbSidebar .offcanvas-body::-webkit-scrollbar{ width:8px; }
 #rbSidebar .offcanvas-body::-webkit-scrollbar-thumb{ background:var(--rb-sb-accent-2); border-radius:8px; }
 #rbSidebar .offcanvas-body::-webkit-scrollbar-track{ background:rgba(255,255,255,.06); border-radius:8px; }
 
-/* ---------- Focus helpers (scoped) ---------- */
+/* Focus helpers */
 [data-rb-scope="sidebar"] a:focus-visible,
-[data-rb-scope="sidebar"] button:focus-visible{
-  outline:none; box-shadow:var(--rb-sb-focus); border-radius:10px;
-}
+[data-rb-scope="sidebar"] button:focus-visible{ outline:none; box-shadow:var(--rb-sb-focus); border-radius:10px; }
 
-/* ---------- Optional compact classes (opt‑in) ---------- */
+/* Optional compact */
 [data-rb-scope="sidebar"] .rb-sb-link.rb-compact{ padding:.5rem .9rem; }
 [data-rb-scope="sidebar"] .rb-sb-acc-btn.rb-compact{ padding:.6rem .9rem; }
 
-/* ---------- Safety guards ---------- */
-#rbSidebar{ max-width:100vw; }            /* never overflow viewport width */
+/* Safety */
+#rbSidebar{ max-width:100vw; }
+
+/* Extra responsiveness: slightly narrower on tablets if you want */
+@media (min-width:576px) and (max-width:1199.98px){
+  #rbSidebar.offcanvas{ max-width:360px; }
+}
