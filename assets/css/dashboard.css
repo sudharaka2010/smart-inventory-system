@@ -1,133 +1,151 @@
-/* ========= RB STORES — SIDEBAR (Bootstrap 5) =========
-   - Fully scoped: only inside [data-rb-scope="sidebar"]
-   - Offcanvas is dark in all modes
-   - Sticky + visible on ≥1200px (desktop)
-   - Safe for header/footer/main
-====================================================== */
+/* RB Stores — Dashboard theme (scoped to <main> only)
+   ✅ Does NOT style header.php, sidebar.php, or footer.php
+   How: every rule is prefixed with "main" so header/sidebar/footer are untouched.
+*/
 
-[data-rb-scope="sidebar"]{
-  --sb-bg: #0f172a;          /* slate-900 */
-  --sb-fg: #e5e7eb;          /* gray-200 */
-  --sb-fg-dim:#cbd5e1;       /* slate-300 */
-  --sb-border:#1f2937;       /* gray-800 */
-  --sb-accent:#22c55e;       /* emerald-500 */
-  --sb-hover: rgba(255,255,255,.06);
-  --sb-active: rgba(34,197,94,.18);
-  --sb-focus:#93c5fd;
-  --sb-width: 280px;
-  --sb-topbar: 56px;
-  color: var(--sb-fg);
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
-}
+/* ---------- Scope & theme tokens ---------- */
+main {
+  /* Theme tokens (local to main) */
+  --rb-primary-500:#6375ff;
+  --rb-primary-600:#5a63ff;
+  --rb-primary-700:#4a56ff;
+  --rb-accent-1:#6d28d9;
+  --rb-accent-2:#3b82f6;
+  --rb-card:#0f172a;
+  --rb-card-soft:#111827;
+  --rb-text:#e5e7eb;
+  --rb-text-dim:#84bdeb;
+  --rb-border:#94d0ec;
+  --rb-table-stripe: rgba(255,255,255,.02);
+  --rb-shadow: 0 12px 30px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.03) inset;
 
-/* Optional mobile top bar (toggler row) */
-[data-rb-scope="sidebar"] .rb-sb-topbar{
-  display:flex; align-items:center; gap:.5rem;
-  height: var(--sb-topbar);
-  padding: 0 .75rem;
-  background: var(--sb-bg);
-  border-bottom: 1px solid var(--sb-border);
-  position: sticky; top: 0; z-index: 1046;
-  color: var(--sb-fg);
-}
-[data-rb-scope="sidebar"] .rb-sb-topbar a{ color:inherit; text-decoration:none; }
-
-/* Core panel (works for offcanvas + static) */
-[data-rb-scope="sidebar"] .rb-sb{
-  background: var(--sb-bg);
-  color: var(--sb-fg);
-  border-right: 1px solid var(--sb-border);
+  color: var(--rb-text);
+  position: relative;
+  z-index: 0; /* ensures background sits behind content */
 }
 
-/* Wire Bootstrap Offcanvas variables so it never paints white */
-[data-rb-scope="sidebar"] .offcanvas{
-  --bs-offcanvas-bg: var(--sb-bg);
-  --bs-offcanvas-color: var(--sb-fg);
-  --bs-offcanvas-border-color: var(--sb-border);
-  --bs-offcanvas-width: var(--sb-width);
-  background: var(--sb-bg) !important;
-  color: var(--sb-fg) !important;
+/* Background gradient only behind <main> content */
+main::before{
+  content:"";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(1200px 600px at 60% -10%, rgba(255,255,255,.06) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(160deg, #1e3a8a 0%, #3847db 35%, #3b82f6 70%, #6d28d9 100%);
+  background-attachment: fixed;
+  pointer-events: none;
+  display: block;
+  border-radius: 0; /* keep squared; adjust if main is boxed */
 }
 
-/* Desktop: turn offcanvas into a sticky, visible sidebar */
-@media (min-width:1200px){
-  [data-rb-scope="sidebar"] .offcanvas.offcanvas-start{
-    position: sticky;
-    top: 0;
-    transform: none !important;
-    visibility: visible !important;
-    transition: none !important;
-    box-shadow: none !important;
-    height: 100vh;
-    width: var(--sb-width);                 /* fallback if BS var not applied */
-    border-right: 1px solid var(--sb-border);
-  }
+/* ---------- Cards ---------- */
+main .card {
+  background: linear-gradient(180deg, var(--rb-card) 0%, var(--rb-card-soft) 100%);
+  border: 1px solid var(--rb-border);
+  border-radius: 16px;
+  box-shadow: var(--rb-shadow);
+  color: var(--rb-text);
+}
+main .card-header,
+main .card-footer{
+  background: transparent;
+  border-color: var(--rb-border);
+  color: var(--rb-text-dim);
 }
 
-/* Brand row */
-[data-rb-scope="sidebar"] .rb-sb-brand{
-  display:flex; align-items:center; gap:.5rem;
-  padding: .9rem 1rem;
-  border-bottom: 1px solid var(--sb-border);
-}
-[data-rb-scope="sidebar"] .rb-sb-brand-text{ font-weight:600; color:#fff; }
+/* ---------- KPI icon tint ---------- */
+main .kpi .icon { color: var(--rb-primary-600); }
 
-/* Accordion (scoped) */
-[data-rb-scope="sidebar"] .rb-sb-acc-item{ border-bottom:1px solid var(--sb-border); }
-[data-rb-scope="sidebar"] .rb-sb-acc-btn{
-  background: transparent; color: var(--sb-fg);
-  font-weight:500; padding:.9rem 1rem; box-shadow:none !important;
+/* ---------- Forms (dark) ---------- */
+main .form-control,
+main .form-select {
+  background-color: #0b1220;
+  border: 1px solid var(--rb-border);
+  color: var(--rb-text);
 }
-[data-rb-scope="sidebar"] .accordion-button:not(.collapsed){
-  background: var(--sb-hover); color:#fff;
-  box-shadow: inset 0 -1px 0 0 var(--sb-border);
-}
-/* Hide default chevron to keep left icons aligned */
-[data-rb-scope="sidebar"] .accordion-button::after{ display:none; }
-
-/* Menu list + links */
-[data-rb-scope="sidebar"] .rb-sb-menu{ list-style:none; margin:0; padding:0; }
-[data-rb-scope="sidebar"] .rb-sb-menu li{
-  border-bottom: 1px dashed rgba(255,255,255,.06);
-}
-[data-rb-scope="sidebar"] .rb-sb-link{
-  display:flex; align-items:center; gap:.5rem;
-  padding:.65rem 1rem;
-  color: var(--sb-fg-dim);
-  text-decoration:none;
-  border-left:3px solid transparent;
-  transition: background .15s ease, color .15s ease, padding .15s ease, border-color .15s ease;
-}
-[data-rb-scope="sidebar"] .rb-sb-link:hover{
-  background: var(--sb-hover); color:#fff;
-}
-[data-rb-scope="sidebar"] .rb-sb-link.active{
-  color:#fff; background: var(--sb-active); border-left-color: var(--sb-accent);
-  padding-left: calc(1rem - 3px + .25rem);
+main .form-control::placeholder { color: #6b7280; }
+main .form-control:focus,
+main .form-select:focus {
+  background-color: #0b1220;
+  border-color: #6a76ff; /* derived from primary */
+  box-shadow: 0 0 0 .2rem rgba(90,99,255,.25);
+  color: var(--rb-text);
 }
 
-/* Footer row inside sidebar */
-[data-rb-scope="sidebar"] .rb-sb-footer{
-  border-top:1px solid var(--sb-border);
-  padding:.75rem 1rem; color: var(--sb-fg-dim);
+/* ---------- Tables ---------- */
+main .table { color: var(--rb-text); }
+main .table thead {
+  color: var(--rb-text);
+  background: rgba(255,255,255,.04);
+}
+main .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background: var(--rb-table-stripe);
+}
+main .table-soft tbody tr:hover {
+  background: rgba(255,255,255,.06) !important;
+}
+main .table > :not(caption) > * > * {
+  border-bottom-color: var(--rb-border);
 }
 
-/* Scrollbar only inside the panel */
-[data-rb-scope="sidebar"] .offcanvas-body{ overflow-y:auto; }
-[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar{ width:10px; }
-[data-rb-scope="sidebar"] .offcanvas-body::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,.2); border-radius:6px;
+/* ---------- Badges ---------- */
+main .badge.text-bg-primary { background: #5b6bff; }
+main .badge.text-bg-success { background: #16a34a; }
+main .badge.text-bg-warning { background: #f59e0b; color:#0f172a; }
+main .badge.text-bg-danger  { background: #dc2626; }
+main .badge.text-bg-secondary{ background: #64748b; }
+
+/* ---------- Alerts ---------- */
+main .alert{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid var(--rb-border);
+  color: var(--rb-text);
 }
 
-/* Keyboard focus */
-[data-rb-scope="sidebar"] a:focus-visible,
-[data-rb-scope="sidebar"] button:focus-visible{
-  outline:2px solid var(--sb-focus); outline-offset:2px; border-radius:6px;
+/* ---------- Buttons ---------- */
+main .btn{ border-radius: 12px; }
+main .btn-primary{
+  border: 0;
+  color: #fff;
+  background-image: linear-gradient(90deg, var(--rb-accent-1), var(--rb-accent-2));
+  box-shadow: 0 8px 20px rgba(59,130,246,.35);
+}
+main .btn-primary:hover{
+  transform: translateY(-1px);
+  background-image: linear-gradient(90deg, #7c3aed, #3b82f6);
+}
+main .btn-primary:active{
+  transform: translateY(0);
+  background-image: linear-gradient(90deg, #6d28d9, #325fdc);
+}
+main .btn-outline-primary{
+  color: #c7d2fe;
+  border-color: #818cf8;
+}
+main .btn-outline-primary:hover{
+  color:#fff;
+  background-image: linear-gradient(90deg, #6366f1, #3b82f6);
+  border-color: transparent;
 }
 
-/* Force dark even if OS is light mode (prevents accidental white) */
-@media (prefers-color-scheme: light){
-  [data-rb-scope="sidebar"]{
-    --sb-bg:#0f172a; --sb-fg:#e5e7eb; --sb-fg-dim:#cbd5e1; --sb-border:#1f2937;
-  }
+/* ---------- Links (only inside main) ---------- */
+main a,
+main .link-primary { color:#c7d2fe; }
+main a:hover { color:#ffffff; }
+
+/* ---------- “Hero” bars inside main ---------- */
+main .hero{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
+  border: 1px solid var(--rb-border);
+  color: var(--rb-text);
 }
+
+/* ---------- Tiny utilities (scoped) ---------- */
+main .shadow-soft { box-shadow: var(--rb-shadow); }
+main .text-dim { color: var(--rb-text-dim) !important; }
+
+/* ---------- Explicit NON-targets ----------
+   No rules for header, .navbar, .sidebar, .offcanvas, footer
+   so includes remain visually unchanged.
+*/
