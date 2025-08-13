@@ -1,32 +1,35 @@
 <?php
-// ================ RB Stores — Isolated Sidebar (Bootstrap 5 + Bootstrap Icons) ================
+// ================= RB Stores — Isolated Sidebar (Bootstrap 5 + Bootstrap Icons) =================
 // Safe current page detection (ignores query strings)
 $urlPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
 $current = basename($urlPath) ?: 'index.php';
 
-// Helpers (same signatures you use)
+// Helpers
 function isActive($files){ global $current; $files=(array)$files; return in_array($current,$files,true) ? 'active' : ''; }
 function isOpen($files){ global $current; $files=(array)$files; return in_array($current,$files,true) ? 'show' : ''; }
 
-// Base path (so links work from any subfolder). Set this before include if you need it.
+// Base path for links (set $APP_BASE before include if your pages are in subfolders)
+// Example: $APP_BASE = '/admin';
 $APP_BASE = $APP_BASE ?? '';
 
 // Tiny URL helper for hrefs
 $href = function(string $path) use ($APP_BASE){
-  return rtrim($APP_BASE, '/') . '/' . ltrim($path, '/');
+  $base = rtrim($APP_BASE, '/');
+  $path = ltrim($path, '/');
+  return ($base === '') ? "/{$path}" : "{$base}/{$path}";
 };
 
-// Control asset loading from pages
+// Control asset loading from pages (set to false if header.php already loads Bootstrap)
 $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
 ?>
 
 <?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
-  <!-- Bootstrap & Icons (only if not already loaded by header.php) -->
+  <!-- Bootstrap & Icons (load only if header.php doesn't) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <?php endif; ?>
 
-<!-- Sidebar Styles (scoped; won’t affect header/footer) -->
+<!-- Sidebar Styles (scoped; won’t affect header/footer/main) -->
 <link rel="stylesheet" href="/assets/css/sidebar.css" />
 
 <!-- Mobile Top Bar (scoped) -->
@@ -38,7 +41,7 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
   <div class="ms-2 fw-semibold">RB Stores</div>
 </header>
 
-<!-- Sidebar (Offcanvas on mobile, sticky on desktop) -->
+<!-- Sidebar (Offcanvas on mobile, sticky rail on desktop) -->
 <aside id="rbSidebar"
        class="offcanvas offcanvas-start rb-sb offcanvas-shadow"
        tabindex="-1"
@@ -46,13 +49,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
        data-bs-scroll="true" data-bs-backdrop="false"
        data-rb-scope="sidebar">
 
+  <!-- Offcanvas header (hidden on xl+ via CSS) -->
   <div class="offcanvas-header d-xl-none">
     <h5 class="offcanvas-title" id="rbSidebarLabel">Navigation</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
 
   <nav class="offcanvas-body p-0 d-flex flex-column" role="navigation" aria-label="Main">
-    <!-- Brand (desktop) -->
+    <!-- Brand (desktop only) -->
     <div class="rb-sb-brand d-none d-xl-flex align-items-center gap-2 px-3 py-3">
       <i class="bi bi-shop fs-5" aria-hidden="true"></i>
       <span class="rb-sb-brand-text">RB Stores</span>
@@ -77,14 +81,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('add_inventory.php'); ?>"
-                   href="<?= $href('add_inventory.php'); ?>"
+                   href="<?php echo $href('add_inventory.php'); ?>"
                    <?php echo $current==='add_inventory.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Inventory
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('inventory.php'); ?>"
-                   href="<?= $href('inventory.php'); ?>"
+                   href="<?php echo $href('inventory.php'); ?>"
                    <?php echo $current==='inventory.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Inventory
                 </a>
@@ -95,7 +99,7 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
       </div>
 
       <!-- Billing -->
-      <?php $billingFiles = ['billing.php','view_billing.php']; ?>
+      <?php $billingFiles = ['billing.php','view_billing.php','edit_billing.php','invoice.php']; ?>
       <div class="accordion-item rb-sb-acc-item">
         <h2 class="accordion-header" id="headingBilling">
           <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
@@ -111,16 +115,30 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('billing.php'); ?>"
-                   href="<?= $href('billing.php'); ?>"
+                   href="<?php echo $href('billing.php'); ?>"
                    <?php echo $current==='billing.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-file-earmark-plus me-2" aria-hidden="true"></i>Billing Invoice
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('view_billing.php'); ?>"
-                   href="<?= $href('view_billing.php'); ?>"
+                   href="<?php echo $href('view_billing.php'); ?>"
                    <?php echo $current==='view_billing.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-journal-text me-2" aria-hidden="true"></i>View Invoices
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('edit_billing.php'); ?>"
+                   href="<?php echo $href('edit_billing.php'); ?>"
+                   <?php echo $current==='edit_billing.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Edit Billing
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('invoice.php'); ?>"
+                   href="<?php echo $href('invoice.php'); ?>"
+                   <?php echo $current==='invoice.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-printer me-2" aria-hidden="true"></i>Invoice Preview
                 </a>
               </li>
             </ul>
@@ -145,14 +163,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('add_supplier.php'); ?>"
-                   href="<?= $href('add_supplier.php'); ?>"
+                   href="<?php echo $href('add_supplier.php'); ?>"
                    <?php echo $current==='add_supplier.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Supplier
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('supplier.php'); ?>"
-                   href="<?= $href('supplier.php'); ?>"
+                   href="<?php echo $href('supplier.php'); ?>"
                    <?php echo $current==='supplier.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Suppliers
                 </a>
@@ -179,14 +197,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('add_employee.php'); ?>"
-                   href="<?= $href('add_employee.php'); ?>"
+                   href="<?php echo $href('add_employee.php'); ?>"
                    <?php echo $current==='add_employee.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Employee
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('employee.php'); ?>"
-                   href="<?= $href('employee.php'); ?>"
+                   href="<?php echo $href('employee.php'); ?>"
                    <?php echo $current==='employee.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Employees
                 </a>
@@ -197,7 +215,7 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
       </div>
 
       <!-- Transport -->
-      <?php $transportFiles = ['add_transport.php','transport.php']; ?>
+      <?php $transportFiles = ['add_transport.php','transport.php','edit_transport.php']; ?>
       <div class="accordion-item rb-sb-acc-item">
         <h2 class="accordion-header" id="headingTransport">
           <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
@@ -213,16 +231,23 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('add_transport.php'); ?>"
-                   href="<?= $href('add_transport.php'); ?>"
+                   href="<?php echo $href('add_transport.php'); ?>"
                    <?php echo $current==='add_transport.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Transport
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('transport.php'); ?>"
-                   href="<?= $href('transport.php'); ?>"
+                   href="<?php echo $href('transport.php'); ?>"
                    <?php echo $current==='transport.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Transport
+                </a>
+              </li>
+              <li>
+                <a class="rb-sb-link <?php echo isActive('edit_transport.php'); ?>"
+                   href="<?php echo $href('edit_transport.php'); ?>"
+                   <?php echo $current==='edit_transport.php' ? 'aria-current="page"' : ''; ?>>
+                  <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Edit Transport
                 </a>
               </li>
             </ul>
@@ -247,14 +272,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('add_customer.php'); ?>"
-                   href="<?= $href('add_customer.php'); ?>"
+                   href="<?php echo $href('add_customer.php'); ?>"
                    <?php echo $current==='add_customer.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Customer
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('customer.php'); ?>"
-                   href="<?= $href('customer.php'); ?>"
+                   href="<?php echo $href('customer.php'); ?>"
                    <?php echo $current==='customer.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Customers
                 </a>
@@ -281,14 +306,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('add_return.php'); ?>"
-                   href="<?= $href('add_return.php'); ?>"
+                   href="<?php echo $href('add_return.php'); ?>"
                    <?php echo $current==='add_return.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Return
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('view_return.php'); ?>"
-                   href="<?= $href('view_return.php'); ?>"
+                   href="<?php echo $href('view_return.php'); ?>"
                    <?php echo $current==='view_return.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-list-ul me-2" aria-hidden="true"></i>View Returns
                 </a>
@@ -315,14 +340,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('add_feedback.php'); ?>"
-                   href="<?= $href('add_feedback.php'); ?>"
+                   href="<?php echo $href('add_feedback.php'); ?>"
                    <?php echo $current==='add_feedback.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Feedback
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('feedback.php'); ?>"
-                   href="<?= $href('feedback.php'); ?>"
+                   href="<?php echo $href('feedback.php'); ?>"
                    <?php echo $current==='feedback.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>View Feedback
                 </a>
@@ -349,14 +374,14 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?php echo isActive('sales_report.php'); ?>"
-                   href="<?= $href('sales_report.php'); ?>"
+                   href="<?php echo $href('sales_report.php'); ?>"
                    <?php echo $current==='sales_report.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Sales Report
                 </a>
               </li>
               <li>
                 <a class="rb-sb-link <?php echo isActive('inventory_report.php'); ?>"
-                   href="<?= $href('inventory_report.php'); ?>"
+                   href="<?php echo $href('inventory_report.php'); ?>"
                    <?php echo $current==='inventory_report.php' ? 'aria-current="page"' : ''; ?>>
                   <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Inventory Report
                 </a>
@@ -370,7 +395,7 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
 
     <!-- Footer / Logout -->
     <div class="mt-auto rb-sb-footer px-3 py-3">
-      <a href="<?= $href('logout.php'); ?>" class="rb-sb-link d-inline-flex align-items-center">
+      <a href="<?php echo $href('logout.php'); ?>" class="rb-sb-link d-inline-flex align-items-center">
         <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i> Logout
       </a>
     </div>
@@ -378,11 +403,11 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
 </aside>
 
 <?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
-  <!-- Bootstrap JS (only if not already loaded by header.php) -->
+  <!-- Bootstrap JS (load only if header.php doesn't) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php endif; ?>
 
-<!-- Keep aria-expanded in sync on first paint (scoped) -->
+<!-- Sync aria-expanded with initial "show" states (scoped) -->
 <script>
   (function(){
     var root = document.querySelector('#rbSidebar');
