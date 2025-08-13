@@ -8,8 +8,7 @@ $current = basename($urlPath) ?: 'index.php';
 function isActive($files){ global $current; $files=(array)$files; return in_array($current,$files,true) ? 'active' : ''; }
 function isOpen($files){ global $current; $files=(array)$files; return in_array($current,$files,true) ? 'show' : ''; }
 
-// Base path for links (set $APP_BASE before include if your pages are in subfolders)
-// Example: $APP_BASE = '/admin';
+// Base path (set before include if your pages are in subfolders, e.g. $APP_BASE='/admin')
 $APP_BASE = $APP_BASE ?? '';
 
 // Tiny URL helper for hrefs
@@ -19,12 +18,15 @@ $href = function(string $path) use ($APP_BASE){
   return ($base === '') ? "/{$path}" : "{$base}/{$path}";
 };
 
-// Control asset loading from pages (set to false if header.php already loads Bootstrap)
+// Control asset loading (set false if header.php already loads Bootstrap & Icons)
 $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
+
+// Desktop brand row (avoid duplicate logo under header). Default: false.
+$RB_SIDEBAR_SHOW_BRAND = $RB_SIDEBAR_SHOW_BRAND ?? false;
 ?>
 
 <?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
-  <!-- Bootstrap & Icons (load only if header.php doesn't) -->
+  <!-- Bootstrap & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <?php endif; ?>
@@ -32,16 +34,17 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
 <!-- Sidebar Styles (scoped; won’t affect header/footer/main) -->
 <link rel="stylesheet" href="/assets/css/sidebar.css" />
 
-<!-- Mobile Top Bar (scoped) -->
+<!-- Mobile Top Bar (toggle) -->
 <header class="rb-sb-topbar d-xl-none" role="banner" data-rb-scope="sidebar">
   <button class="btn rb-sb-topbar-btn fs-3" type="button"
-          data-bs-toggle="offcanvas" data-bs-target="#rbSidebar" aria-controls="rbSidebar" aria-label="Open sidebar">
+          data-bs-toggle="offcanvas" data-bs-target="#rbSidebar"
+          aria-controls="rbSidebar" aria-label="Open sidebar">
     <i class="bi bi-list" aria-hidden="true"></i>
   </button>
   <div class="ms-2 fw-semibold">RB Stores</div>
 </header>
 
-<!-- Sidebar (Offcanvas on mobile, sticky rail on desktop) -->
+<!-- Sidebar (Offcanvas on mobile, fixed rail on desktop) -->
 <aside id="rbSidebar"
        class="offcanvas offcanvas-start rb-sb offcanvas-shadow"
        tabindex="-1"
@@ -56,11 +59,13 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
   </div>
 
   <nav class="offcanvas-body p-0 d-flex flex-column" role="navigation" aria-label="Main">
-    <!-- Brand (desktop only) -->
-    <div class="rb-sb-brand d-none d-xl-flex align-items-center gap-2 px-3 py-3">
-      <i class="bi bi-shop fs-5" aria-hidden="true"></i>
-      <span class="rb-sb-brand-text">RB Stores</span>
-    </div>
+    <!-- Desktop brand (optional; hidden by default to avoid double logo under header) -->
+    <?php if ($RB_SIDEBAR_SHOW_BRAND): ?>
+      <div class="rb-sb-brand d-none d-xl-flex align-items-center gap-2 px-3 py-3">
+        <i class="bi bi-shop fs-5" aria-hidden="true"></i>
+        <span class="rb-sb-brand-text">RB Stores</span>
+      </div>
+    <?php endif; ?>
 
     <div class="accordion" id="rbAccordion">
 
@@ -403,7 +408,7 @@ $RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
 </aside>
 
 <?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
-  <!-- Bootstrap JS (load only if header.php doesn't) -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php endif; ?>
 
