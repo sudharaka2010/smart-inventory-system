@@ -1,13 +1,15 @@
 /* ===================== RB Stores — Sidebar (STRICTLY SCOPED) =====================
    Scope guard: ONLY target inside [data-rb-scope="sidebar"] and #rbSidebar
    - Safe for Bootstrap 5.3.x
-   - No global element selectors, no body/main/header/footer changes
-   - Offcanvas on mobile, sticky rail on desktop (xl+)
+   - Offcanvas on mobile, FIXED rail on desktop (xl+)
+   - Does NOT touch header.php / footer.php / main content
 ================================================================================== */
 
 /* ---------- Theme tokens (scoped) ---------- */
 [data-rb-scope="sidebar"]{
   --rb-sb-w: 280px;                 /* rail width on xl+ */
+  --rb-header-h: 0px;               /* set to your fixed header height if needed (e.g., 68px) */
+
   --rb-sb-bg:#0f172a;               /* slate-900 */
   --rb-sb-bg-soft:#0b1222;          /* deeper */
   --rb-sb-text:#e5e7eb;             /* gray-200 */
@@ -96,15 +98,9 @@
   background: transparent;
   border-radius: 0;
 }
-#rbSidebar .rb-sb-acc-btn.collapsed{
-  background: transparent;
-}
-#rbSidebar .rb-sb-acc-btn:hover{
-  background: var(--rb-sb-hover);
-}
-#rbSidebar .rb-sb-acc-btn:focus-visible{
-  outline: none; box-shadow: var(--rb-sb-focus);
-}
+#rbSidebar .rb-sb-acc-btn.collapsed{ background: transparent; }
+#rbSidebar .rb-sb-acc-btn:hover{ background: var(--rb-sb-hover); }
+#rbSidebar .rb-sb-acc-btn:focus-visible{ outline: none; box-shadow: var(--rb-sb-focus); }
 
 #rbSidebar .accordion-collapse{
   background: rgba(255,255,255,.01);
@@ -123,6 +119,7 @@
   color: var(--rb-sb-text);
   text-decoration: none;
   border-left: 2px solid transparent;
+  border-radius: 8px;
 }
 #rbSidebar .rb-sb-link .bi{ font-size: 1rem; opacity: .9; }
 
@@ -132,16 +129,14 @@
 }
 #rbSidebar .rb-sb-link:focus-visible{
   outline: none; box-shadow: inset var(--rb-sb-focus);
-  border-radius: 8px;
 }
-
 #rbSidebar .rb-sb-link.active{
   background: var(--rb-sb-active);
   border-left-color: var(--rb-sb-accent);
   color: #fff;
 }
 
-/* Divider line utility (if needed) */
+/* Divider utility (optional) */
 #rbSidebar .rb-sb-divider{
   height: 1px; margin: .25rem 0;
   background: var(--rb-sb-divider);
@@ -154,34 +149,44 @@
 }
 #rbSidebar .rb-sb-footer .rb-sb-link{
   border-left-color: transparent !important;
-  border-radius: 10px;
 }
 #rbSidebar .rb-sb-footer .rb-sb-link:hover{ background: var(--rb-sb-hover); }
 
 /* ---------- Desktop rail mode (xl and up) ---------- */
 @media (min-width: 1200px){
-  /* Turn the offcanvas into a static, sticky rail */
+  /* FIXED rail that never moves on page scroll */
   #rbSidebar.offcanvas{
-    position: sticky;
-    top: 0;
+    position: fixed;                 /* bullet‑proof vs. sticky */
+    top: var(--rb-header-h);         /* set header height via --rb-header-h if your header is fixed */
+    left: 0;
+    z-index: 1029;                   /* keep below a 1030 header if needed */
+
     transform: none !important;
     visibility: visible !important;
     transition: none !important;
-    box-shadow: var(--rb-sb-shadow);
+
     width: var(--rb-sb-w);
     max-width: var(--rb-sb-w);
-    min-height: 100dvh;
+    height: calc(100dvh - var(--rb-header-h));   /* full viewport minus header */
+    min-height: calc(100dvh - var(--rb-header-h));
+
+    box-shadow: var(--rb-sb-shadow);
     border-right: 1px solid var(--rb-sb-border);
     border-radius: 0;
+    background: var(--rb-sb-bg);
   }
+
   /* Hide the offcanvas close header on desktop */
   #rbSidebar .offcanvas-header{ display: none !important; }
-  /* Ensure body area inside is scrollable but header/footer stick */
+
+  /* Only the inside scrolls */
   #rbSidebar .offcanvas-body{
     height: 100%;
-    overflow: auto;
+    overflow: auto;                   /* independent scroll */
+    -webkit-overflow-scrolling: touch;
   }
-  /* Hide the mobile top bar on desktop (Bootstrap d-xl-none already used in HTML) */
+
+  /* Hide the mobile top bar on desktop */
   [data-rb-scope="sidebar"] .rb-sb-topbar{ display: none !important; }
 }
 
@@ -192,10 +197,20 @@
 
 /* ---------- High-contrast tweaks ---------- */
 @media (forced-colors: active){
-  [data-rb-scope="sidebar"]{
-    --rb-sb-border: CanvasText;
-  }
-  #rbSidebar .rb-sb-link.active{
-    outline: 2px solid Highlight; border-left-color: Highlight;
-  }
+  [data-rb-scope="sidebar"]{ --rb-sb-border: CanvasText; }
+  #rbSidebar .rb-sb-link.active{ outline: 2px solid Highlight; border-left-color: Highlight; }
+}
+
+/* ---------- Optional: thin scrollbars in the rail (supported browsers) ---------- */
+#rbSidebar .offcanvas-body{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,208,236,.5) transparent;
+}
+#rbSidebar .offcanvas-body::-webkit-scrollbar{ width: 10px; }
+#rbSidebar .offcanvas-body::-webkit-scrollbar-track{ background: transparent; }
+#rbSidebar .offcanvas-body::-webkit-scrollbar-thumb{
+  background: rgba(148,208,236,.28);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
