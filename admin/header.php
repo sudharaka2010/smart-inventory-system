@@ -37,7 +37,7 @@ $href = function(string $path) use ($APP_BASE){
 
 <!-- Header styles (provide consistent layout tokens for sidebar/main) -->
 <link rel="stylesheet" href="/assets/css/header.css"/>
-<link rel="stylesheet" href="/assets/css/layout.css"/>
+
 
 <!-- Fallback: publish CSS variables if header.css isn't loaded yet -->
 <style>
