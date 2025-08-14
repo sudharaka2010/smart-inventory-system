@@ -1,20 +1,19 @@
 /* ============================ RB Stores — Sidebar (SCOPED) ============================
-   Works with your sidebar.php:
-   • Offcanvas on mobile, fixed rail on desktop (≥1200px)
-   • No global selectors—safe beside Bootstrap and your other CSS
+   • Offcanvas on mobile, fixed rail on desktop (≥992px)
+   • No global selectors — safe beside Bootstrap and your other CSS
    • Dark by default; light mode via prefers-color-scheme
 ====================================================================================== */
 
 :where([data-rb-scope="sidebar"]) {
   /* Layout tokens (keep in sync with header/main) */
   --rb-header-h: 68px;     /* header height */
-  --rb-sb-w: 280px;        /* sidebar width desktop */
+  --rb-sb-w: 280px;        /* sidebar width on desktop/laptop */
 
   /* Palette (dark) */
   --rb-sb-bg: #0f172a;     /* rail bg */
   --rb-sb-bg-soft: #0b1222;
   --rb-sb-fg: #e5e7eb;     /* text */
-  --rb-sb-dim:#94a3b8;     /* dim text */
+  --rb-sb-dim: #94a3b8;    /* dim text */
   --rb-sb-border: rgba(255,255,255,.10);
 
   --rb-sb-link: #cbd5e1;
@@ -22,7 +21,7 @@
   --rb-sb-active-bg: rgba(255,255,255,.10);
   --rb-sb-active-fg: #ffffff;
 
-  /* Focus ring color (matches brand primary) */
+  /* Focus ring color (match your brand) */
   --rb-focus: rgba(99,117,255,.35);
 }
 
@@ -57,17 +56,21 @@
   display: flex; flex-direction: column; gap: .25rem; padding: 0;
 }
 
-/* --------------------- Desktop rail (≥1200px) --------------------- */
-@media (min-width: 1200px){
+/* --------------------- Desktop rail (≥992px) --------------------- */
+@media (min-width: 992px){
+  /* Turn offcanvas into a fixed left rail */
   :where([data-rb-scope="sidebar"] #rbSidebar){
     position: fixed;
     top: var(--rb-header-h);
     bottom: 0; left: 0;
     width: var(--rb-sb-w);
-    visibility: visible !important; transform: none !important;
-    transition: none !important; box-shadow: none;
+    visibility: visible !important;
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none;
     border-right: 1px solid var(--rb-sb-border);
   }
+  /* Hide the offcanvas header on desktop */
   :where([data-rb-scope="sidebar"] .offcanvas-header){ display: none !important; }
 }
 
@@ -144,7 +147,7 @@
     --rb-sb-bg: #f8fafc;
     --rb-sb-bg-soft: #f1f5f9;
     --rb-sb-fg: #0f172a;
-    --rb-sb-dim:#475569;
+    --rb-sb-dim: #475569;
     --rb-sb-border: rgba(2,6,23,.10);
     --rb-sb-link: #1f2937;
     --rb-sb-link-hover: #000000;
