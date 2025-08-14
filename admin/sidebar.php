@@ -3,13 +3,14 @@
 // RB Stores — Sidebar (Bootstrap 5 Offcanvas on mobile, Fixed rail on desktop)
 // ----------------------------------------------------------------------------
 // • Scoped: styles only apply inside [data-rb-scope="sidebar"] (see sidebar.css)
-// • Mobile: Offcanvas; Desktop (≥1200px): fixed left rail with CSS only
-// • Safe active detection: ignores query strings
-// • Config flags below control whether we load vendor CSS/JS here
+// • Mobile: Offcanvas; Desktop (≥1200px): fixed left rail via CSS
+// • Active detection: ignores query strings safely
+// • Load vendor/app CSS/JS from layout; flags below allow one-off loading
 // ============================================================================
 
 // ---------- ROUTING / ENV ----------
-$APP_BASE = $APP_BASE ?? ''; // e.g., '/admin' if your pages live under /admin
+// If your admin lives at /admin, set $APP_BASE = '/admin' BEFORE including this file.
+$APP_BASE = $APP_BASE ?? '';
 
 $href = function(string $path) use ($APP_BASE){
   $base = rtrim($APP_BASE, '/');
@@ -23,7 +24,7 @@ $current = basename($urlPath ?: ($_SERVER['SCRIPT_NAME'] ?? 'index.php'));
 
 // ---------- CONFIG (override BEFORE include) ----------
 $RB_SIDEBAR_LOAD_VENDOR = $RB_SIDEBAR_LOAD_VENDOR ?? false; // Bootstrap & Icons CSS/JS
-$RB_SIDEBAR_LOAD_CSS    = $RB_SIDEBAR_LOAD_CSS    ?? false; // Load /assets/css/sidebar.css here
+$RB_SIDEBAR_LOAD_CSS    = $RB_SIDEBAR_LOAD_CSS    ?? false; // Load /assets/css/app.css here
 $RB_SIDEBAR_SHOW_BRAND  = $RB_SIDEBAR_SHOW_BRAND  ?? false; // Desktop brand row on top of menu
 $RB_LOGOUT_PATH         = $RB_LOGOUT_PATH         ?? 'auth/logout.php';
 
@@ -44,8 +45,8 @@ function isOpen($files){
 <?php endif; ?>
 
 <?php if ($RB_SIDEBAR_LOAD_CSS): ?>
-  <!-- Scoped sidebar CSS (skip if you import it via app.css) -->
-  <link rel="stylesheet" href="<?= htmlspecialchars($href('/assets/css/app.css'), ENT_QUOTES) ?>?v=2025-08-15">
+  <!-- Load your bundled app.css from the correct base (no leading slash) -->
+  <link rel="stylesheet" href="<?= htmlspecialchars($href('assets/css/app.css'), ENT_QUOTES) ?>?v=2025-08-15">
 <?php endif; ?>
 
 <!-- Mobile Top Bar (hamburger) -->
