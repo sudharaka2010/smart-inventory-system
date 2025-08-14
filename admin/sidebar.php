@@ -42,6 +42,8 @@ function isOpen($files){
   <!-- Vendor CSS (Bootstrap & Icons) — disable if your layout already loads these -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/admin/assets/css/app.css?v=2025-08-15">
+
 <?php endif; ?>
 
 <?php if ($RB_SIDEBAR_LOAD_CSS): ?>
