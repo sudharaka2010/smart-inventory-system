@@ -1,12 +1,112 @@
-/* FOOTER */
-.footer {
-    background: #3b5683;
-    color: #f8fafc;
-    text-align: center;
-    padding: 6px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    
+/* ================= RB Stores — Footer =================
+   Works with footer.php, header.php, sidebar.php
+   Publishes --rb-footer-h to reserve vertical space in layout
+   Scope: .rb-footer and children only
+========================================================= */
+
+/* ---- Layout variables (fallbacks if JS can't set actual height) ---- */
+:root {
+  --rb-footer-h: 56px;                   /* default footer height */
+  --rb-header-h: clamp(56px, 9vh, 68px); /* match header.css */
+  --rb-sidebar-w: 280px;                  /* match sidebar.css */
 }
 
+/* ---- Footer shell ---- */
+.rb-footer {
+  background: #0f172a; /* slate-900 */
+  color: #e5e7eb;      /* gray-200 */
+  border-top: 1px solid rgba(148, 208, 236, .28);
+  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+/* ---- Footer inner container ---- */
+.rb-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .75rem 1rem;
+  min-height: var(--rb-footer-h);
+}
+
+/* ---- Left and right sections ---- */
+.rb-footer__left,
+.rb-footer__right {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+/* ---- Brand ---- */
+.rb-footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+.rb-footer__brand img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.rb-footer__brand strong {
+  font-weight: 600;
+}
+
+/* ---- Muted text ---- */
+.rb-footer__muted {
+  color: #9ca3af; /* gray-400 */
+  font-weight: 400;
+}
+
+/* ---- Links ---- */
+.rb-footer__link {
+  color: #9fb9e8; /* soft blue-gray */
+  text-decoration: none;
+  padding: .25rem .5rem;
+  border-radius: .375rem;
+  transition: background .18s ease, color .18s ease;
+}
+.rb-footer__link:hover {
+  background: rgba(255, 255, 255, .06);
+  color: #e5e7eb;
+}
+
+/* ---- Back to top button ---- */
+.rb-footer__top {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: transparent;
+  border: 1px solid rgba(148, 208, 236, .28);
+  color: #e5e7eb;
+  border-radius: .5rem;
+  padding: .35rem .6rem;
+  cursor: pointer;
+  font-size: .875rem;
+  line-height: 1.2;
+  transition: background .18s ease, color .18s ease;
+}
+.rb-footer__top:hover {
+  background: rgba(255, 255, 255, .06);
+}
+
+/* ---- Mobile adjustments ---- */
+@media (max-width: 575.98px) {
+  .rb-footer__inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .rb-footer__right {
+    justify-content: space-between;
+  }
+}
+
+/* ---- Desktop + sidebar alignment (optional) ---- */
+@media (min-width: 1200px) {
+  /* Push footer content to align with main when sidebar is fixed */
+  .rb-footer__inner {
+    padding-left: calc(1rem + var(--rb-sidebar-w));
+  }
+}
