@@ -1,11 +1,33 @@
 <?php
-// ======================= RB Stores — Sidebar (Bootstrap 5 + Icons) =======================
-// Purpose: Offcanvas on mobile, fixed rail on desktop (uses CSS vars from header/layout)
-// Safe active-page detection (ignores query strings)
+// ============================================================================
+// RB Stores — Sidebar (Bootstrap 5 Offcanvas on mobile, Fixed rail on desktop)
+// ----------------------------------------------------------------------------
+// • Scoped: styles only apply inside [data-rb-scope="sidebar"] (see sidebar.css)
+// • Mobile: Offcanvas; Desktop (≥1200px): fixed left rail with CSS only
+// • Safe active detection: ignores query strings
+// • Config flags below control whether we load vendor CSS/JS here
+// ============================================================================
+
+// ---------- ROUTING / ENV ----------
+$APP_BASE = $APP_BASE ?? ''; // e.g., '/admin' if your pages live under /admin
+
+$href = function(string $path) use ($APP_BASE){
+  $base = rtrim($APP_BASE, '/');
+  $path = ltrim($path, '/');
+  return ($base === '') ? "/{$path}" : "{$base}/{$path}";
+};
+
+// Current file for "active" highlights
 $urlPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
 $current = basename($urlPath ?: ($_SERVER['SCRIPT_NAME'] ?? 'index.php'));
 
-// ---------- Helpers ----------
+// ---------- CONFIG (override BEFORE include) ----------
+$RB_SIDEBAR_LOAD_VENDOR = $RB_SIDEBAR_LOAD_VENDOR ?? false; // Bootstrap & Icons CSS/JS
+$RB_SIDEBAR_LOAD_CSS    = $RB_SIDEBAR_LOAD_CSS    ?? false; // Load /assets/css/sidebar.css here
+$RB_SIDEBAR_SHOW_BRAND  = $RB_SIDEBAR_SHOW_BRAND  ?? false; // Desktop brand row on top of menu
+$RB_LOGOUT_PATH         = $RB_LOGOUT_PATH         ?? 'auth/logout.php';
+
+// ---------- HELPERS ----------
 function isActive($files){
   global $current; $files = (array)$files;
   return in_array($current, $files, true) ? 'active' : '';
@@ -14,34 +36,17 @@ function isOpen($files){
   global $current; $files = (array)$files;
   return in_array($current, $files, true) ? 'show' : '';
 }
-
-// Optional base path, e.g. set $APP_BASE='/admin' before include if your pages are in a subfolder
-$APP_BASE = $APP_BASE ?? '';
-$href = function(string $path) use ($APP_BASE){
-  $base = rtrim($APP_BASE, '/');
-  $path = ltrim($path, '/');
-  return ($base === '') ? "/{$path}" : "{$base}/{$path}";
-};
-
-// Control external assets (set false if your layout already loads Bootstrap & Icons)
-$RB_SIDEBAR_LOAD_ASSETS = $RB_SIDEBAR_LOAD_ASSETS ?? true;
-
-// Desktop brand row (avoid double logo under header). Default false.
-$RB_SIDEBAR_SHOW_BRAND = $RB_SIDEBAR_SHOW_BRAND ?? false;
-
-// Logout path (keep consistent with header). Change if your route differs.
-$RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
 ?>
-<?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
-  <!-- Bootstrap & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<?php if ($RB_SIDEBAR_LOAD_VENDOR): ?>
+  <!-- Vendor CSS (Bootstrap & Icons) — disable if your layout already loads these -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <?php endif; ?>
 
-<!-- Sidebar Styles (scoped; won’t affect header/footer/main).
-     Expects CSS variables from header.css/layout.css:
-     --rb-header-h, --rb-footer-h, --rb-sidebar-w -->
-<link rel="stylesheet" href="/assets/css/app.css" />
+<?php if ($RB_SIDEBAR_LOAD_CSS): ?>
+  <!-- Scoped sidebar CSS (skip if you import it via app.css) -->
+  <link rel="stylesheet" href="<?= htmlspecialchars($href('assets/css/sidebar.css'), ENT_QUOTES) ?>?v=2025-08-15">
+<?php endif; ?>
 
 <!-- Mobile Top Bar (hamburger) -->
 <header class="rb-sb-topbar d-xl-none" role="banner" data-rb-scope="sidebar">
@@ -53,7 +58,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
   <div class="ms-2 fw-semibold">Menu</div>
 </header>
 
-<!-- Sidebar (Offcanvas on mobile, fixed rail on desktop by CSS) -->
+<!-- Sidebar (Offcanvas on mobile, fixed rail on desktop) -->
 <aside id="rbSidebar"
        class="offcanvas offcanvas-start rb-sb offcanvas-shadow"
        tabindex="-1"
@@ -62,14 +67,13 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
        data-bs-backdrop="false"
        data-rb-scope="sidebar">
 
-  <!-- Offcanvas header (hidden on xl+ via CSS) -->
+  <!-- Offcanvas header (hidden on desktop via CSS) -->
   <div class="offcanvas-header d-xl-none">
     <h5 class="offcanvas-title" id="rbSidebarLabel">Navigation</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
 
   <nav class="offcanvas-body p-0 d-flex flex-column" role="navigation" aria-label="Main">
-    <!-- Optional desktop brand (default hidden to avoid double logo under header) -->
     <?php if ($RB_SIDEBAR_SHOW_BRAND): ?>
       <div class="rb-sb-brand d-none d-xl-flex align-items-center gap-2 px-3 py-3">
         <i class="bi bi-shop fs-5" aria-hidden="true"></i>
@@ -96,7 +100,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('add_inventory.php'); ?>"
-                   href="<?= $href('add_inventory.php'); ?>"
+                   href="<?= htmlspecialchars($href('add_inventory.php'), ENT_QUOTES); ?>"
                    <?= $current==='add_inventory.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Inventory
@@ -104,7 +108,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('inventory.php'); ?>"
-                   href="<?= $href('inventory.php'); ?>"
+                   href="<?= htmlspecialchars($href('inventory.php'), ENT_QUOTES); ?>"
                    <?= $current==='inventory.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Inventory
@@ -132,7 +136,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('billing.php'); ?>"
-                   href="<?= $href('billing.php'); ?>"
+                   href="<?= htmlspecialchars($href('billing.php'), ENT_QUOTES); ?>"
                    <?= $current==='billing.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-file-earmark-plus me-2" aria-hidden="true"></i>Billing Invoice
@@ -140,7 +144,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('view_billing.php'); ?>"
-                   href="<?= $href('view_billing.php'); ?>"
+                   href="<?= htmlspecialchars($href('view_billing.php'), ENT_QUOTES); ?>"
                    <?= $current==='view_billing.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-journal-text me-2" aria-hidden="true"></i>View Invoices
@@ -148,7 +152,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('edit_billing.php'); ?>"
-                   href="<?= $href('edit_billing.php'); ?>"
+                   href="<?= htmlspecialchars($href('edit_billing.php'), ENT_QUOTES); ?>"
                    <?= $current==='edit_billing.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Edit Billing
@@ -156,7 +160,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('invoice.php'); ?>"
-                   href="<?= $href('invoice.php'); ?>"
+                   href="<?= htmlspecialchars($href('invoice.php'), ENT_QUOTES); ?>"
                    <?= $current==='invoice.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-printer me-2" aria-hidden="true"></i>Invoice Preview
@@ -184,7 +188,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('add_supplier.php'); ?>"
-                   href="<?= $href('add_supplier.php'); ?>"
+                   href="<?= htmlspecialchars($href('add_supplier.php'), ENT_QUOTES); ?>"
                    <?= $current==='add_supplier.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Supplier
@@ -192,7 +196,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('supplier.php'); ?>"
-                   href="<?= $href('supplier.php'); ?>"
+                   href="<?= htmlspecialchars($href('supplier.php'), ENT_QUOTES); ?>"
                    <?= $current==='supplier.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Suppliers
@@ -220,7 +224,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('add_employee.php'); ?>"
-                   href="<?= $href('add_employee.php'); ?>"
+                   href="<?= htmlspecialchars($href('add_employee.php'), ENT_QUOTES); ?>"
                    <?= $current==='add_employee.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Employee
@@ -228,7 +232,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('employee.php'); ?>"
-                   href="<?= $href('employee.php'); ?>"
+                   href="<?= htmlspecialchars($href('employee.php'), ENT_QUOTES); ?>"
                    <?= $current==='employee.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Employees
@@ -256,7 +260,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('add_transport.php'); ?>"
-                   href="<?= $href('add_transport.php'); ?>"
+                   href="<?= htmlspecialchars($href('add_transport.php'), ENT_QUOTES); ?>"
                    <?= $current==='add_transport.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Transport
@@ -264,7 +268,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('transport.php'); ?>"
-                   href="<?= $href('transport.php'); ?>"
+                   href="<?= htmlspecialchars($href('transport.php'), ENT_QUOTES); ?>"
                    <?= $current==='transport.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Transport
@@ -272,7 +276,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('edit_transport.php'); ?>"
-                   href="<?= $href('edit_transport.php'); ?>"
+                   href="<?= htmlspecialchars($href('edit_transport.php'), ENT_QUOTES); ?>"
                    <?= $current==='edit_transport.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Edit Transport
@@ -300,7 +304,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('add_customer.php'); ?>"
-                   href="<?= $href('add_customer.php'); ?>"
+                   href="<?= htmlspecialchars($href('add_customer.php'), ENT_QUOTES); ?>"
                    <?= $current==='add_customer.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Customer
@@ -308,7 +312,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('customer.php'); ?>"
-                   href="<?= $href('customer.php'); ?>"
+                   href="<?= htmlspecialchars($href('customer.php'), ENT_QUOTES); ?>"
                    <?= $current==='customer.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-card-list me-2" aria-hidden="true"></i>View Customers
@@ -336,7 +340,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('add_return.php'); ?>"
-                   href="<?= $href('add_return.php'); ?>"
+                   href="<?= htmlspecialchars($href('add_return.php'), ENT_QUOTES); ?>"
                    <?= $current==='add_return.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Return
@@ -344,46 +348,10 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('view_return.php'); ?>"
-                   href="<?= $href('view_return.php'); ?>"
+                   href="<?= htmlspecialchars($href('view_return.php'), ENT_QUOTES); ?>"
                    <?= $current==='view_return.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-list-ul me-2" aria-hidden="true"></i>View Returns
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Feedback -->
-      <?php $feedbackFiles = ['add_feedback.php','feedback.php']; ?>
-      <div class="accordion-item rb-sb-acc-item">
-        <h2 class="accordion-header" id="headingFeedback">
-          <button class="accordion-button collapsed rb-sb-acc-btn" type="button"
-                  data-bs-toggle="collapse" data-bs-target="#menuFeedback"
-                  aria-expanded="<?= isOpen($feedbackFiles) ? 'true' : 'false'; ?>"
-                  aria-controls="menuFeedback">
-            <i class="bi bi-chat-dots me-2" aria-hidden="true"></i> Feedback
-          </button>
-        </h2>
-        <div id="menuFeedback" class="accordion-collapse collapse <?= isOpen($feedbackFiles); ?>"
-             data-bs-parent="#rbAccordion">
-          <div class="accordion-body p-0">
-            <ul class="rb-sb-menu list-unstyled">
-              <li>
-                <a class="rb-sb-link <?= isActive('add_feedback.php'); ?>"
-                   href="<?= $href('add_feedback.php'); ?>"
-                   <?= $current==='add_feedback.php' ? 'aria-current="page"' : ''; ?>
-                   data-bs-dismiss="offcanvas">
-                  <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Add Feedback
-                </a>
-              </li>
-              <li>
-                <a class="rb-sb-link <?= isActive('feedback.php'); ?>"
-                   href="<?= $href('feedback.php'); ?>"
-                   <?= $current==='feedback.php' ? 'aria-current="page"' : ''; ?>
-                   data-bs-dismiss="offcanvas">
-                  <i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>View Feedback
                 </a>
               </li>
             </ul>
@@ -408,7 +376,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
             <ul class="rb-sb-menu list-unstyled">
               <li>
                 <a class="rb-sb-link <?= isActive('sales_report.php'); ?>"
-                   href="<?= $href('sales_report.php'); ?>"
+                   href="<?= htmlspecialchars($href('sales_report.php'), ENT_QUOTES); ?>"
                    <?= $current==='sales_report.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Sales Report
@@ -416,7 +384,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
               </li>
               <li>
                 <a class="rb-sb-link <?= isActive('inventory_report.php'); ?>"
-                   href="<?= $href('inventory_report.php'); ?>"
+                   href="<?= htmlspecialchars($href('inventory_report.php'), ENT_QUOTES); ?>"
                    <?= $current==='inventory_report.php' ? 'aria-current="page"' : ''; ?>
                    data-bs-dismiss="offcanvas">
                   <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>Inventory Report
@@ -429,39 +397,41 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
 
     </div>
 
-    <!-- Footer / Logout (sticks above page footer on desktop via CSS) -->
+    <!-- Sidebar footer (sticks to bottom in the rail) -->
     <div class="mt-auto rb-sb-footer px-3 py-3">
-      <a href="<?= $href($RB_LOGOUT_PATH); ?>" class="rb-sb-link d-inline-flex align-items-center" data-bs-dismiss="offcanvas">
+      <a href="<?= htmlspecialchars($href($RB_LOGOUT_PATH), ENT_QUOTES); ?>"
+         class="rb-sb-link d-inline-flex align-items-center"
+         data-bs-dismiss="offcanvas">
         <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i> Logout
       </a>
     </div>
   </nav>
 </aside>
 
-<?php if ($RB_SIDEBAR_LOAD_ASSETS): ?>
-  <!-- Bootstrap JS Bundle -->
+<?php if ($RB_SIDEBAR_LOAD_VENDOR): ?>
+  <!-- Vendor JS (Bootstrap bundle) — disable if your layout already loads it -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php endif; ?>
 
-<!-- Sync aria-expanded with initial "show" states; close offcanvas on nav click (mobile) -->
+<!-- Small helper: sync aria-expanded with default "show" and close offcanvas on link click -->
 <script>
 (function(){
   var root = document.getElementById('rbSidebar');
   if(!root) return;
 
-  // Sync buttons' aria-expanded based on default open sections
+  // Sync buttons’ aria-expanded with default open sections
   root.querySelectorAll('.accordion-collapse').forEach(function(c){
     var btn = root.querySelector('[data-bs-target="#'+c.id+'"]');
     if (btn) btn.setAttribute('aria-expanded', c.classList.contains('show') ? 'true' : 'false');
   });
 
-  // Close offcanvas on link click (Bootstrap handles data-bs-dismiss, but this is a safety net)
+  // Close offcanvas after any link click on mobile
   root.addEventListener('click', function(e){
     var a = e.target.closest('a');
     if (!a) return;
-    if (window.innerWidth < 1200) {
-      var offcanvasEl = bootstrap.Offcanvas.getInstance(root) || new bootstrap.Offcanvas(root);
-      offcanvasEl.hide();
+    if (window.innerWidth < 1200 && window.bootstrap && window.bootstrap.Offcanvas){
+      var inst = window.bootstrap.Offcanvas.getInstance(root) || new window.bootstrap.Offcanvas(root);
+      inst.hide();
     }
   }, {capture:true});
 })();

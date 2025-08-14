@@ -1,182 +1,162 @@
-/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) =====================
-   Scope guard: ONLY target inside [data-rb-scope="sidebar"] and #rbSidebar
-   - Offcanvas on mobile, FIXED rail on desktop (xl+)
-   - Reads shared layout tokens from :root set by header/footer
-   - Does NOT touch header.php / footer.php / main content
-================================================================================== */
+/* ============================ RB Stores — Sidebar (SCOPED) ============================
+   Works with your sidebar.php:
+   • Offcanvas on mobile, fixed rail on desktop (≥1200px)
+   • No global selectors—safe beside Bootstrap and your other CSS
+   • Dark by default; light mode via prefers-color-scheme
+====================================================================================== */
 
-/* ---------- Theme & layout tokens (scoped) ---------- */
-[data-rb-scope="sidebar"]{
-  /* Layout (read from :root; provide safe fallbacks) */
-  --rb-header-h: var(--rb-header-h, 68px);
-  --rb-footer-h: var(--rb-footer-h, 56px);
-  --rb-sb-w: var(--rb-sidebar-w, 280px);
+:where([data-rb-scope="sidebar"]) {
+  /* Layout tokens (keep in sync with header/main) */
+  --rb-header-h: 68px;     /* header height */
+  --rb-sb-w: 280px;        /* sidebar width desktop */
 
-  /* Colors */
-  --rb-sb-bg:#0f172a;               /* slate-900 */
-  --rb-sb-bg-soft:#0b1222;          /* deeper */
-  --rb-sb-text:#e5e7eb;             /* gray-200 */
-  --rb-sb-text-dim:#9fb9e8;         /* soft blue-gray */
-  --rb-sb-border:rgba(148,208,236,.28);
-  --rb-sb-hover:rgba(255,255,255,.06);
-  --rb-sb-active:rgba(99,117,255,.16);
+  /* Palette (dark) */
+  --rb-sb-bg: #0f172a;     /* rail bg */
+  --rb-sb-bg-soft: #0b1222;
+  --rb-sb-fg: #e5e7eb;     /* text */
+  --rb-sb-dim:#94a3b8;     /* dim text */
+  --rb-sb-border: rgba(255,255,255,.10);
 
-  /* Shape / effects */
-  --rb-sb-radius:14px;
-  --rb-sb-shadow:0 12px 30px rgba(0,0,0,.35);
-  --rb-sb-focus:0 0 0 3px rgba(99,117,255,.35);
+  --rb-sb-link: #cbd5e1;
+  --rb-sb-link-hover: #ffffff;
+  --rb-sb-active-bg: rgba(255,255,255,.10);
+  --rb-sb-active-fg: #ffffff;
+
+  /* Focus ring color (matches brand primary) */
+  --rb-focus: rgba(99,117,255,.35);
 }
 
-/* Safety: prevent tiny horizontal scroll caused by offcanvas transforms */
-html, body { overflow-x: hidden; }
-
-/* ---------- Mobile top bar (hamburger row) ---------- */
-[data-rb-scope="sidebar"] .rb-sb-topbar{
-  position: sticky;
-  top: var(--rb-header-h);
-  z-index: 998;
-  display: flex; align-items: center;
-  padding: .35rem .75rem;
-  background: var(--rb-sb-bg);
-  color: var(--rb-sb-text);
+/* --------------------- Mobile top bar (hamburger) --------------------- */
+:where([data-rb-scope="sidebar"] .rb-sb-topbar){
+  position: sticky; top: 0; z-index: 1030;
+  display: flex; align-items: center; gap: .5rem;
+  min-height: 48px; padding: .375rem .5rem;
+  background: var(--rb-sb-bg); color: var(--rb-sb-fg);
   border-bottom: 1px solid var(--rb-sb-border);
 }
-[data-rb-scope="sidebar"] .rb-sb-topbar-btn{
-  color: var(--rb-sb-text);
-  border-radius: .75rem;
-  line-height: 1;
-}
-[data-rb-scope="sidebar"] .rb-sb-topbar-btn:focus{
-  outline: none; box-shadow: var(--rb-sb-focus);
+:where([data-rb-scope="sidebar"] .rb-sb-topbar-btn){
+  color: inherit; background: transparent;
+  border: 1px solid var(--rb-sb-border);
+  border-radius: .5rem; line-height: 1;
 }
 
-/* ---------- Offcanvas (mobile) + Fixed Rail (desktop) ---------- */
-#rbSidebar.offcanvas{
+/* --------------------- Offcanvas (mobile) --------------------- */
+:where([data-rb-scope="sidebar"] .rb-sb){
   background: var(--rb-sb-bg);
-  color: var(--rb-sb-text);
+  color: var(--rb-sb-fg);
+  width: min(92vw, var(--rb-sb-w));
   border-right: 1px solid var(--rb-sb-border);
 }
+:where([data-rb-scope="sidebar"] .offcanvas-shadow){
+  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+}
+:where([data-rb-scope="sidebar"] .offcanvas-header){
+  border-bottom: 1px solid var(--rb-sb-border);
+}
+:where([data-rb-scope="sidebar"] .offcanvas-body){
+  display: flex; flex-direction: column; gap: .25rem; padding: 0;
+}
 
-/* Desktop rail behavior (xl and up) */
+/* --------------------- Desktop rail (≥1200px) --------------------- */
 @media (min-width: 1200px){
-  #rbSidebar.offcanvas{
+  :where([data-rb-scope="sidebar"] #rbSidebar){
     position: fixed;
-    /* Make it a true left rail */
-    transform: none !important;
-    visibility: visible !important;
-    /* Pin between header and footer */
-    inset: var(--rb-header-h) auto var(--rb-footer-h) 0;
+    top: var(--rb-header-h);
+    bottom: 0; left: 0;
     width: var(--rb-sb-w);
+    visibility: visible !important; transform: none !important;
+    transition: none !important; box-shadow: none;
     border-right: 1px solid var(--rb-sb-border);
-    box-shadow: var(--rb-sb-shadow);
   }
-  /* Hide offcanvas header chrome on desktop */
-  #rbSidebar .offcanvas-header{ display:none !important; }
+  :where([data-rb-scope="sidebar"] .offcanvas-header){ display: none !important; }
 }
 
-/* Optional soft shadow for the offcanvas on mobile */
-.offcanvas-shadow{ box-shadow: var(--rb-sb-shadow); }
-
-/* ---------- Brand row (optional; controlled in PHP) ---------- */
-[data-rb-scope="sidebar"] .rb-sb-brand{
-  background: transparent;
-  color: var(--rb-sb-text);
-  border-bottom: 1px solid transparent;
-}
-[data-rb-scope="sidebar"] .rb-sb-brand-text{
-  font-weight: 600;
-  color: var(--rb-sb-text);
+/* --------------------- Brand (optional block) --------------------- */
+:where([data-rb-scope="sidebar"] .rb-sb-brand){
+  color: var(--rb-sb-fg);
+  border-bottom: 1px solid var(--rb-sb-border);
 }
 
-/* ---------- Accordion reset (Bootstrap-friendly) ---------- */
-[data-rb-scope="sidebar"] .rb-sb-acc-item{
-  background: transparent;
-  border: 0;
+/* --------------------- Accordion groups --------------------- */
+:where([data-rb-scope="sidebar"] .rb-sb-acc-item){
+  background: transparent; border: 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
 }
-[data-rb-scope="sidebar"] .rb-sb-acc-btn{
-  display: flex; align-items: center;
-  gap: .5rem;
-  background: transparent;
-  color: var(--rb-sb-text);
-  font-weight: 600;
-  border: 0;
-  box-shadow: none;
-  padding: .85rem 1rem;
+:where([data-rb-scope="sidebar"] .rb-sb-acc-btn){
+  background: transparent; color: var(--rb-sb-fg);
+  padding: .7rem .9rem; gap: .5rem; box-shadow: none;
 }
-[data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed){
-  color: var(--rb-sb-text);
+:where([data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed)){
   background: rgba(255,255,255,.03);
+  color: var(--rb-sb-fg);
+  box-shadow: inset 0 -1px 0 var(--rb-sb-border);
 }
-[data-rb-scope="sidebar"] .rb-sb-acc-btn:focus{
-  outline: none; box-shadow: var(--rb-sb-focus);
+:where([data-rb-scope="sidebar"] .accordion-button:focus){
+  box-shadow: 0 0 0 .2rem var(--rb-focus);
 }
-[data-rb-scope="sidebar"] .accordion-button::after{
-  filter: invert(88%) sepia(6%) saturate(500%) hue-rotate(180deg) brightness(96%) contrast(90%);
-}
-
-/* Accordion body */
-[data-rb-scope="sidebar"] .accordion-body{
-  background: transparent;
-  padding: .35rem .5rem .75rem .5rem;
+:where([data-rb-scope="sidebar"] .accordion-collapse){
+  border-top: 1px dashed rgba(255,255,255,.06);
 }
 
-/* ---------- Link list ---------- */
-[data-rb-scope="sidebar"] .rb-sb-menu{
-  margin: 0; padding: .25rem;
+/* --------------------- Menu + links --------------------- */
+:where([data-rb-scope="sidebar"] .rb-sb-menu){
+  margin: 0; padding: .375rem;
 }
-[data-rb-scope="sidebar"] .rb-sb-link{
+:where([data-rb-scope="sidebar"] .rb-sb-link){
   display: flex; align-items: center; gap: .5rem;
-  padding: .6rem .85rem;
-  margin: .125rem .15rem;
-  color: var(--rb-sb-text);
+  padding: .55rem .625rem;
+  border-radius: .6rem;
   text-decoration: none;
-  border-radius: 10px;
-  line-height: 1.2;
-  transition: background .18s ease, color .18s ease, transform .06s ease;
+  color: var(--rb-sb-link);
+  white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  transition: background .15s ease, color .15s ease, opacity .15s ease;
 }
-[data-rb-scope="sidebar"] .rb-sb-link:hover{
-  background: var(--rb-sb-hover);
+:where([data-rb-scope="sidebar"] .rb-sb-link:hover){
+  background: rgba(255,255,255,.06);
+  color: var(--rb-sb-link-hover);
 }
-[data-rb-scope="sidebar"] .rb-sb-link:focus{
-  outline: none; box-shadow: var(--rb-sb-focus);
+:where([data-rb-scope="sidebar"] .rb-sb-link.active),
+:where([data-rb-scope="sidebar"] .rb-sb-link[aria-current="page"]){
+  background: var(--rb-sb-active-bg);
+  color: var(--rb-sb-active-fg);
 }
-[data-rb-scope="sidebar"] .rb-sb-link.active{
-  background: var(--rb-sb-active);
+:where([data-rb-scope="sidebar"] .rb-sb-link:focus-visible){
+  outline: 2px solid var(--rb-focus);
+  outline-offset: 2px; border-radius: .5rem;
 }
-[data-rb-scope="sidebar"] .rb-sb-link i{
-  opacity: .95;
+:where([data-rb-scope="sidebar"] .rb-sb-link i){
+  font-size: 1.05rem; width: 1.25rem; text-align: center;
 }
 
-/* ---------- Sidebar footer area (logout) ---------- */
-[data-rb-scope="sidebar"] .rb-sb-footer{
+/* --------------------- Sidebar footer (logout) --------------------- */
+:where([data-rb-scope="sidebar"] .rb-sb-footer){
   border-top: 1px solid var(--rb-sb-border);
-  background: linear-gradient(180deg, transparent, rgba(255,255,255,.02));
 }
-@media (min-width: 1200px){
-  /* On desktop, ensure footer sits above page footer space */
-  [data-rb-scope="sidebar"] .rb-sb-footer{
-    padding-bottom: .75rem;
+
+/* --------------------- Typography safety (inside scope only) --------------------- */
+:where([data-rb-scope="sidebar"] *){
+  color: inherit; font: inherit; line-height: inherit;
+}
+
+/* --------------------- Light theme (auto) --------------------- */
+@media (prefers-color-scheme: light){
+  :where([data-rb-scope="sidebar"]){
+    --rb-sb-bg: #f8fafc;
+    --rb-sb-bg-soft: #f1f5f9;
+    --rb-sb-fg: #0f172a;
+    --rb-sb-dim:#475569;
+    --rb-sb-border: rgba(2,6,23,.10);
+    --rb-sb-link: #1f2937;
+    --rb-sb-link-hover: #000000;
+    --rb-sb-active-bg: rgba(2,6,23,.08);
+    --rb-sb-active-fg: #111827;
   }
 }
 
-/* ---------- Scrollbar styling (WebKit only; safe cosmetic) ---------- */
-#rbSidebar::-webkit-scrollbar{ width: 10px; }
-#rbSidebar::-webkit-scrollbar-track{ background: transparent; }
-#rbSidebar::-webkit-scrollbar-thumb{
-  background: rgba(148,208,236,.25);
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+/* --------------------- Reduced motion --------------------- */
+@media (prefers-reduced-motion: reduce){
+  :where([data-rb-scope="sidebar"] *){
+    transition: none !important;
+    animation: none !important;
+  }
 }
-
-/* ---------- Misc Bootstrap harmonization ---------- */
-#rbSidebar .list-unstyled{ margin: 0; }
-#rbSidebar .accordion{ --bs-accordion-bg: transparent; --bs-accordion-border-color: transparent; }
-
-/* ---------- Z-index sanity (header is 1100) ---------- */
-#rbSidebar{ z-index: 1098; }
-
-/* ---------- Desktop spacing between rail and content (optional helper)
-   Note: prefer adding padding-left on your <main class="rb-main"> from layout.css
------------------------------------------------------------------------------ */
-/* (kept empty here to avoid styling main) */
