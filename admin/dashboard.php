@@ -98,193 +98,239 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   <title>Admin Dashboard - RB Stores</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Bootstrap 5.3 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
   <!-- Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/dashboard.css">
 
-
-
-  
-
-  <!-- Minimal touch-ups + theme hook (white background by default) -->
-  <style>
-    :root{
-      /* You can override these via JS for live theming */
-      --bs-body-bg:#fff; --bs-body-color:#212529;
-      /* Optional: preset CSS vars for quick theme switching */
-      --brand-primary:var(--bs-primary);
-      --brand-success:var(--bs-success);
-      --brand-warning:var(--bs-warning);
-      --brand-danger: var(--bs-danger);
-      --brand-info:   var(--bs-info);
-      --brand-secondary:var(--bs-secondary);
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'poppins': ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            'brand': {
+              primary: '#3b82f6',
+              success: '#10b981',
+              warning: '#f59e0b',
+              danger: '#ef4444',
+              info: '#06b6d4',
+              secondary: '#6b7280'
+            }
+          }
+        }
+      }
     }
-    .hero{background:linear-gradient(135deg,#0d6efd12,#6610f212); border-radius:1rem; padding:1rem 1.25rem;}
-    .kpi .icon{font-size:1.5rem}
-    .table-soft tbody tr:hover{background-color:#00000008}
-    .minw-150{min-width:150px}
-    .minw-220{min-width:220px}
-    .btn-action{box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  </script>
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .hero-gradient { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1)); }
+    .table-hover tbody tr:hover { background-color: rgba(0, 0, 0, 0.02); }
   </style>
 </head>
-<body class="bg-body">
+<body class="bg-gray-50">
 
 <?php if (file_exists($headerFile)) include $headerFile; ?>
-<div class="container-fluid">
-  <div class="row">
+<div class="min-h-screen">
+  <div class="flex">
     <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
 
-    <main class="col-12 px-3 px-lg-4 py-4">
-      <!-- Bar: Title + Theme -->
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <div class="hero w-100 w-md-auto">
-          <h1 class="h4 mb-1">RB Stores Dashboard</h1>
-          <div class="text-secondary small">As of <?=date('Y-m-d H:i');?> • <b>Balance = TotalAmount − AmountPaid</b></div>
+    <main class="flex-1 px-4 lg:px-6 py-6">
+      <!-- Header Section -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div class="hero-gradient w-full md:w-auto rounded-2xl p-6">
+          <h1 class="text-2xl font-semibold text-gray-900 mb-2">RB Stores Dashboard</h1>
+          <div class="text-gray-600 text-sm">As of <?=date('Y-m-d H:i');?> • <span class="font-medium">Balance = TotalAmount − AmountPaid</span></div>
         </div>
 
-        <!-- Theme controls (live color change for cards/tables/text) -->
-        <div class="d-flex flex-wrap gap-2">
-          <select id="themePreset" class="form-select form-select-sm minw-150" title="Theme preset">
-            <option value="default">Default (Bootstrap)</option>
+        <!-- Theme controls -->
+        <div class="flex flex-wrap gap-2">
+          <select id="themePreset" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[150px]" title="Theme preset">
+            <option value="default">Default</option>
             <option value="ocean">Ocean</option>
             <option value="emerald">Emerald</option>
             <option value="crimson">Crimson</option>
           </select>
-          <button id="themeReset" class="btn btn-sm btn-outline-secondary">Reset</button>
+          <button id="themeReset" class="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 focus:ring-2 focus:ring-gray-500">Reset</button>
         </div>
       </div>
 
       <!-- Alerts -->
-      <div class="mb-3" aria-live="polite">
+      <div class="mb-6">
         <?php if (($kpi['low_stock_cnt']??0)>0): ?>
-          <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below ≤5.</div>
-            <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php">Review</a>
+          <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg flex items-center gap-3 mb-3">
+            <i class="fa-solid fa-triangle-exclamation text-yellow-600"></i>
+            <div class="flex-1">
+              <strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below ≤5.
+            </div>
+            <a class="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-md text-sm hover:bg-yellow-300 transition-colors" href="/admin/low_stock.php">Review</a>
           </div>
         <?php endif; ?>
         <?php if (($rev['balance_due']??0)>0): ?>
-          <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3">
-            <i class="fa-solid fa-sack-xmark"></i>
-            <div><strong>Balance due:</strong> <?=h(lkr($rev['balance_due']));?> outstanding.</div>
-            <a class="ms-auto btn btn-sm btn-outline-danger" href="/billing/view_billing.php">Collect</a>
+          <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-3">
+            <i class="fa-solid fa-sack-xmark text-red-600"></i>
+            <div class="flex-1">
+              <strong>Balance due:</strong> <?=h(lkr($rev['balance_due']));?> outstanding.
+            </div>
+            <a class="bg-red-200 text-red-800 px-3 py-1 rounded-md text-sm hover:bg-red-300 transition-colors" href="/billing/view_billing.php">Collect</a>
           </div>
         <?php endif; ?>
       </div>
 
       <!-- Quick actions -->
-      <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
-        <a href="/billing/billing.php" class="btn btn-primary btn-action"><i class="fa-solid fa-plus me-2"></i>New Order</a>
-        <a href="/inventory/add_inventory.php" class="btn btn-outline-primary btn-action"><i class="fa-solid fa-boxes-packing me-2"></i>Add Stock</a>
-        <a href="/transport/add_transport.php" class="btn btn-outline-secondary btn-action"><i class="fa-solid fa-truck me-2"></i>Schedule Delivery</a>
-        <a href="/reports/" class="btn btn-outline-dark btn-action"><i class="fa-solid fa-chart-line me-2"></i>Reports</a>
+      <div class="flex flex-wrap gap-3 mb-6">
+        <a href="/billing/billing.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm inline-flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i>New Order
+        </a>
+        <a href="/inventory/add_inventory.php" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors shadow-sm inline-flex items-center gap-2">
+          <i class="fa-solid fa-boxes-packing"></i>Add Stock
+        </a>
+        <a href="/transport/add_transport.php" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm inline-flex items-center gap-2">
+          <i class="fa-solid fa-truck"></i>Schedule Delivery
+        </a>
+        <a href="/reports/" class="border border-gray-800 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors shadow-sm inline-flex items-center gap-2">
+          <i class="fa-solid fa-chart-line"></i>Reports
+        </a>
       </div>
 
       <!-- KPI Grid -->
-      <section class="mb-4">
-        <h3 class="h6 mb-3">Business Overview</h3>
-        <div class="row g-3 kpi">
+      <section class="mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Business Overview</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <?php
           $cards = [
-            ['Customers',        number_format($kpi['customers']??0),         'fa-users','primary', null],
-            ['Orders',           number_format($kpi['orders']??0),            'fa-receipt','secondary', null],
-            ['Revenue (Total)',  h(lkr($rev['total_amount']??0)),             'fa-coins','success', null],
-            ['Amount Paid',      h(lkr($rev['amount_paid']??0)),              'fa-hand-holding-dollar','info', null],
-            ['Balance Due',      h(lkr($rev['balance_due']??0)),              'fa-scale-balanced','danger', null],
-            ['Low Stock (≤5)',   number_format($kpi['low_stock_cnt']??0),     'fa-warehouse','warning', '/admin/low_stock.php'],
-            ['Items in Stock',   number_format($kpi['stock_qty']??0),         'fa-cubes','dark', null],
-            ['Pending Orders',   number_format($kpi['pending_orders']??0),    'fa-hourglass-half','warning', null],
-            ['Deliveries Today', number_format($kpi['deliveries_today']??0),  'fa-truck-ramp-box','primary', '/admin/pending_deliveries.php'],
-            ['Returns',          number_format($kpi['returns']??0),           'fa-rotate-left','secondary', null],
+            ['Customers',        number_format($kpi['customers']??0),         'fa-users','blue', null],
+            ['Orders',           number_format($kpi['orders']??0),            'fa-receipt','gray', null],
+            ['Revenue (Total)',  h(lkr($rev['total_amount']??0)),             'fa-coins','green', null],
+            ['Amount Paid',      h(lkr($rev['amount_paid']??0)),              'fa-hand-holding-dollar','cyan', null],
+            ['Balance Due',      h(lkr($rev['balance_due']??0)),              'fa-scale-balanced','red', null],
+            ['Low Stock (≤5)',   number_format($kpi['low_stock_cnt']??0),     'fa-warehouse','yellow', '/admin/low_stock.php'],
+            ['Items in Stock',   number_format($kpi['stock_qty']??0),         'fa-cubes','gray', null],
+            ['Pending Orders',   number_format($kpi['pending_orders']??0),    'fa-hourglass-half','yellow', null],
+            ['Deliveries Today', number_format($kpi['deliveries_today']??0),  'fa-truck-ramp-box','blue', '/admin/pending_deliveries.php'],
+            ['Returns',          number_format($kpi['returns']??0),           'fa-rotate-left','gray', null],
           ];
-          foreach($cards as [$label,$val,$icon,$variant,$href]){
-            $inner = '<div class="card h-100 shadow-sm border-0"><div class="card-body d-flex align-items-center gap-3">'
-                   . '<div class="icon text-'.$variant.'"><i class="fa '.$icon.'"></i></div>'
-                   . '<div><div class="text-secondary small">'.$label.'</div><div class="fs-4 fw-semibold">'.$val.'</div></div>'
+          $colorMap = [
+            'blue' => 'text-blue-600',
+            'gray' => 'text-gray-600',
+            'green' => 'text-green-600',
+            'cyan' => 'text-cyan-600',
+            'red' => 'text-red-600',
+            'yellow' => 'text-yellow-600'
+          ];
+          foreach($cards as [$label,$val,$icon,$color,$href]){
+            $iconColor = $colorMap[$color] ?? 'text-gray-600';
+            $inner = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full hover:shadow-md transition-shadow">'
+                   . '<div class="flex items-center gap-4">'
+                   . '<div class="'.$iconColor.' text-2xl"><i class="fa '.$icon.'"></i></div>'
+                   . '<div><div class="text-gray-600 text-sm">'.$label.'</div><div class="text-2xl font-semibold text-gray-900">'.$val.'</div></div>'
                    . '</div></div>';
-            echo '<div class="col-12 col-sm-6 col-lg-4">'.($href?'<a class="text-decoration-none" href="'.h($href).'">'.$inner.'</a>':$inner).'</div>';
+            echo '<div class="col-span-1">'.($href?'<a class="block" href="'.h($href).'">'.$inner.'</a>':$inner).'</div>';
           }
           ?>
         </div>
       </section>
 
-      <!-- Tables -->
-      <section class="row g-3">
+      <!-- Tables Section -->
+      <section class="grid grid-cols-1 xl:grid-cols-12 gap-6">
         <!-- Recent Orders -->
-        <div class="col-12 col-xl-7">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-header border-0 pb-0">
-              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                <h4 class="h6 m-0">Recent Orders</h4>
-                <div class="d-flex gap-2 flex-wrap">
-                  <select id="orderStatusFilter" class="form-select form-select-sm minw-150" title="Filter by status">
+        <div class="xl:col-span-7">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-full">
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between gap-4 flex-wrap">
+                <h4 class="text-lg font-semibold text-gray-900">Recent Orders</h4>
+                <div class="flex gap-2 flex-wrap">
+                  <select id="orderStatusFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[150px]" title="Filter by status">
                     <option value="">All statuses</option>
                     <option>Paid</option><option>Pending</option><option>Cancelled</option><option>Refunded</option>
                   </select>
-                  <input id="orderSearch" class="form-control form-control-sm minw-220" placeholder="Search invoice / customer" />
-                  <a class="btn btn-sm btn-outline-light" href="/billing/view_billing.php">View all</a>
+                  <input id="orderSearch" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[220px]" placeholder="Search invoice / customer" />
+                  <a class="px-3 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors" href="/billing/view_billing.php">View all</a>
                 </div>
               </div>
             </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-hover align-middle table-striped table-soft recent-orders">
-                  <thead class="table-light">
-                  <tr><th>Order #</th><th>Invoice</th><th>Customer</th><th>Date</th><th class="text-end">Total</th><th>Status</th></tr>
+            <div class="p-6">
+              <div class="overflow-x-auto">
+                <table class="w-full table-hover recent-orders">
+                  <thead>
+                    <tr class="border-b border-gray-200 text-left">
+                      <th class="py-3 text-sm font-medium text-gray-900">Order #</th>
+                      <th class="py-3 text-sm font-medium text-gray-900">Invoice</th>
+                      <th class="py-3 text-sm font-medium text-gray-900">Customer</th>
+                      <th class="py-3 text-sm font-medium text-gray-900">Date</th>
+                      <th class="py-3 text-sm font-medium text-gray-900 text-right">Total</th>
+                      <th class="py-3 text-sm font-medium text-gray-900">Status</th>
+                    </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="divide-y divide-gray-100">
                   <?php if (!$recentOrders): ?>
-                    <tr><td colspan="6" class="text-secondary">No orders yet.</td></tr>
+                    <tr><td colspan="6" class="py-4 text-gray-500 text-center">No orders yet.</td></tr>
                   <?php else: foreach($recentOrders as $o): $status=$o['Status']??'Pending';
-                    $map=['Paid'=>'success','Pending'=>'warning','Cancelled'=>'danger','Refunded'=>'secondary'];
-                    $cls=$map[$status]??'secondary'; ?>
-                    <tr>
-                      <td>#<?= (int)$o['OrderID']; ?></td>
-                      <td class="text-primary fw-semibold"><?= h($o['InvoiceID']?:'—'); ?></td>
-                      <td><?= h($o['CustomerName']??'Guest'); ?></td>
-                      <td><?= h(d($o['OrderDate'])); ?></td>
-                      <td class="text-end"><?= h(lkr($o['TotalAmount']??0)); ?></td>
-                      <td><span class="badge text-bg-<?=$cls;?>"><?= h($status); ?></span></td>
+                    $statusColors = [
+                      'Paid' => 'bg-green-100 text-green-800',
+                      'Pending' => 'bg-yellow-100 text-yellow-800',
+                      'Cancelled' => 'bg-red-100 text-red-800',
+                      'Refunded' => 'bg-gray-100 text-gray-800'
+                    ];
+                    $statusClass = $statusColors[$status] ?? 'bg-gray-100 text-gray-800'; ?>
+                    <tr class="hover:bg-gray-50">
+                      <td class="py-3 text-sm text-gray-900">#<?= (int)$o['OrderID']; ?></td>
+                      <td class="py-3 text-sm text-blue-600 font-medium"><?= h($o['InvoiceID']?:'—'); ?></td>
+                      <td class="py-3 text-sm text-gray-900"><?= h($o['CustomerName']??'Guest'); ?></td>
+                      <td class="py-3 text-sm text-gray-900"><?= h(d($o['OrderDate'])); ?></td>
+                      <td class="py-3 text-sm text-gray-900 text-right"><?= h(lkr($o['TotalAmount']??0)); ?></td>
+                      <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-medium <?=$statusClass;?>"><?= h($status); ?></span></td>
                     </tr>
                   <?php endforeach; endif; ?>
                   </tbody>
                 </table>
               </div>
             </div>
-            <div class="card-footer border-0 pt-0 small text-secondary">
-              <span class="badge text-bg-success">Paid</span>
-              <span class="badge text-bg-warning">Pending</span>
-              <span class="badge text-bg-danger">Cancelled</span>
-              <span class="badge text-bg-secondary">Refunded</span>
+            <div class="px-6 py-4 border-t border-gray-200">
+              <div class="flex gap-2 text-xs">
+                <span class="px-2 py-1 rounded-full bg-green-100 text-green-800">Paid</span>
+                <span class="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                <span class="px-2 py-1 rounded-full bg-red-100 text-red-800">Cancelled</span>
+                <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-800">Refunded</span>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Right column -->
-        <div class="col-12 col-xl-5">
-          <div class="card shadow-sm border-0 mb-3">
-            <div class="card-header border-0 pb-0">
-              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
-                <input id="itemSearch" class="form-control form-control-sm minw-220" placeholder="Search item…" />
+        <div class="xl:col-span-5 space-y-6">
+          <!-- Top Items -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between gap-4 flex-wrap">
+                <h4 class="text-lg font-semibold text-gray-900">Top Items (by Qty Sold)</h4>
+                <input id="itemSearch" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[220px]" placeholder="Search item…" />
               </div>
             </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-sm align-middle table-striped table-soft top-items">
-                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
-                  <tbody>
+            <div class="p-6">
+              <div class="overflow-x-auto">
+                <table class="w-full top-items">
+                  <thead>
+                    <tr class="border-b border-gray-200 text-left">
+                      <th class="py-2 text-sm font-medium text-gray-900">Item</th>
+                      <th class="py-2 text-sm font-medium text-gray-900 text-right">Qty Sold</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
                   <?php if (!$topItems): ?>
-                    <tr><td colspan="2" class="text-secondary">No sales yet.</td></tr>
+                    <tr><td colspan="2" class="py-3 text-gray-500 text-center">No sales yet.</td></tr>
                   <?php else: foreach($topItems as $t): ?>
-                    <tr>
-                      <td><?= h($t['ItemName']); ?> <span class="text-secondary">(ID: <?= (int)$t['ItemID']; ?>)</span></td>
-                      <td class="text-end"><?= number_format((int)$t['QtySold']); ?></td>
+                    <tr class="hover:bg-gray-50">
+                      <td class="py-3 text-sm text-gray-900">
+                        <?= h($t['ItemName']); ?> 
+                        <span class="text-gray-500">(ID: <?= (int)$t['ItemID']; ?>)</span>
+                      </td>
+                      <td class="py-3 text-sm text-gray-900 text-right"><?= number_format((int)$t['QtySold']); ?></td>
                     </tr>
                   <?php endforeach; endif; ?>
                   </tbody>
@@ -293,23 +339,37 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
             </div>
           </div>
 
-          <div class="card shadow-sm border-0">
-            <div class="card-header border-0 pb-0 d-flex align-items-center justify-content-between">
-              <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
-              <a class="btn btn-sm btn-outline-light" href="/admin/low_stock.php">View all</a>
+          <!-- Low Stock -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h4 class="text-lg font-semibold text-gray-900">Low Stock (≤ 5)</h4>
+                <a class="px-3 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors" href="/admin/low_stock.php">View all</a>
+              </div>
             </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-sm align-middle table-striped table-soft low-stock">
-                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
-                  <tbody>
+            <div class="p-6">
+              <div class="overflow-x-auto">
+                <table class="w-full low-stock">
+                  <thead>
+                    <tr class="border-b border-gray-200 text-left">
+                      <th class="py-2 text-sm font-medium text-gray-900">Item</th>
+                      <th class="py-2 text-sm font-medium text-gray-900 text-right">Qty</th>
+                      <th class="py-2 text-sm font-medium text-gray-900">Invoice</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
                   <?php if (!$lowStock): ?>
-                    <tr><td colspan="3" class="text-secondary">All good.</td></tr>
-                  <?php else: foreach($lowStock as $ls): $q=(int)$ls['Quantity']; $qCls=$q<=3?'text-danger fw-semibold':($q<=5?'text-warning':''); ?>
-                    <tr>
-                      <td><?= h($ls['NAME']); ?> <span class="text-secondary">(ID: <?= (int)$ls['ItemID']; ?>)</span></td>
-                      <td class="text-end <?=$qCls;?>"><?= number_format($q); ?></td>
-                      <td><code><?= h($ls['InvoiceID']); ?></code></td>
+                    <tr><td colspan="3" class="py-3 text-gray-500 text-center">All good.</td></tr>
+                  <?php else: foreach($lowStock as $ls): 
+                    $q=(int)$ls['Quantity']; 
+                    $qClass=$q<=3?'text-red-600 font-semibold':($q<=5?'text-yellow-600':'text-gray-900'); ?>
+                    <tr class="hover:bg-gray-50">
+                      <td class="py-3 text-sm text-gray-900">
+                        <?= h($ls['NAME']); ?> 
+                        <span class="text-gray-500">(ID: <?= (int)$ls['ItemID']; ?>)</span>
+                      </td>
+                      <td class="py-3 text-sm text-right <?=$qClass;?>"><?= number_format($q); ?></td>
+                      <td class="py-3 text-sm text-gray-900 font-mono"><?= h($ls['InvoiceID']); ?></td>
                     </tr>
                   <?php endforeach; endif; ?>
                   </tbody>
@@ -325,17 +385,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
 
 <?php if (file_exists($footerFile)) include $footerFile; ?>
 
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
 <script>
-/* ---------- Tooltips (only if used) ---------- */
-(()=>{
-  const els = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  if (els.length) els.forEach(el => new bootstrap.Tooltip(el));
-})();
-
 /* ---------- Recent Orders filter/search ---------- */
 (()=>{
   const q=document.getElementById('orderSearch'), s=document.getElementById('orderStatusFilter');
@@ -346,7 +396,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
     const qq=(q?.value||'').trim().toLowerCase(), ss=(s?.value||'').trim().toLowerCase();
     rows.forEach(tr=>{
       if(tr.querySelector('td[colspan]')) return;
-      const text=tr.innerText.toLowerCase(), badge=tr.querySelector('.badge')?.innerText.toLowerCase()||'';
+      const text=tr.innerText.toLowerCase(), badge=tr.querySelector('span')?.innerText.toLowerCase()||'';
       const okQ=!qq||text.includes(qq), okS=!ss||badge===ss;
       tr.style.display=(okQ&&okS)?'':'none';
     });
@@ -369,67 +419,128 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   q&&q.addEventListener('input',apply);
 })();
 
-/* ---------- Theme Switcher (updates Bootstrap component vars) ---------- */
+/* ---------- Theme Switcher ---------- */
 (()=>{
-  const key  = 'rb_theme_preset';
-  const sel  = document.getElementById('themePreset');
-  const reset= document.getElementById('themeReset');
+  const key = 'rb_theme_preset';
+  const sel = document.getElementById('themePreset');
+  const reset = document.getElementById('themeReset');
 
   const presets = {
-    default: null,
-    ocean:   {primary:'#0ea5e9', success:'#10b981', warning:'#eab308', danger:'#ef4444', info:'#38bdf8', secondary:'#64748b'},
-    emerald: {primary:'#059669', success:'#16a34a', warning:'#f59e0b', danger:'#dc2626', info:'#14b8a6', secondary:'#6b7280'},
-    crimson: {primary:'#e11d48', success:'#22c55e', warning:'#f59e0b', danger:'#b91c1c', info:'#3b82f6', secondary:'#4b5563'}
+    default: {
+      primary: '#3b82f6',
+      success: '#10b981',
+      warning: '#f59e0b',
+      danger: '#ef4444',
+      info: '#06b6d4',
+      secondary: '#6b7280'
+    },
+    ocean: {
+      primary: '#0ea5e9',
+      success: '#10b981',
+      warning: '#eab308',
+      danger: '#ef4444',
+      info: '#38bdf8',
+      secondary: '#64748b'
+    },
+    emerald: {
+      primary: '#059669',
+      success: '#16a34a',
+      warning: '#f59e0b',
+      danger: '#dc2626',
+      info: '#14b8a6',
+      secondary: '#6b7280'
+    },
+    crimson: {
+      primary: '#e11d48',
+      success: '#22c55e',
+      warning: '#f59e0b',
+      danger: '#b91c1c',
+      info: '#3b82f6',
+      secondary: '#4b5563'
+    }
   };
 
   function ensureStyleEl(){
     let el = document.getElementById('rb-theme-vars');
-    if (!el) { el = document.createElement('style'); el.id='rb-theme-vars'; document.head.appendChild(el); }
+    if (!el) { 
+      el = document.createElement('style'); 
+      el.id='rb-theme-vars'; 
+      document.head.appendChild(el); 
+    }
     return el;
   }
 
-  function cssFor(p){
-    if (!p) return ''; /* default Bootstrap */
-    return `
-:root{
-  --bs-primary:${p.primary}; --bs-success:${p.success}; --bs-warning:${p.warning};
-  --bs-danger:${p.danger}; --bs-info:${p.info}; --bs-secondary:${p.secondary};
-}
-/* Buttons */
-.btn-primary{
-  --bs-btn-bg: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
-  --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
-  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
-  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
-}
-.btn-outline-primary{
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-bg: var(--bs-primary);
-  --bs-btn-hover-border-color: var(--bs-primary);
-}
-/* Links & badges */
-a, .link-primary { color: var(--bs-primary) !important; }
-.badge.text-bg-primary { background-color: var(--bs-primary) !important; }
-`;
+  function rgbToHex(rgb) {
+    return rgb.replace(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/, function(match, r, g, b) {
+      return "#" + ((1 << 24) + (parseInt(r) << 16) + (parseInt(g) << 8) + parseInt(b)).toString(16).slice(1);
+    });
   }
 
   function applyPreset(name){
     const styleEl = ensureStyleEl();
-    const p = presets[name] || null;
-    styleEl.textContent = cssFor(p);
-    if (name && name !== 'default') document.documentElement.setAttribute('data-theme', name);
-    else document.documentElement.removeAttribute('data-theme');
+    const p = presets[name] || presets.default;
+    
+    // Update CSS custom properties and classes
+    styleEl.textContent = `
+      :root {
+        --theme-primary: ${p.primary};
+        --theme-success: ${p.success};
+        --theme-warning: ${p.warning};
+        --theme-danger: ${p.danger};
+        --theme-info: ${p.info};
+        --theme-secondary: ${p.secondary};
+      }
+      
+      /* Primary buttons */
+      .bg-blue-600 { background-color: ${p.primary} !important; }
+      .hover\\:bg-blue-700:hover { background-color: color-mix(in srgb, ${p.primary} 90%, #000 10%) !important; }
+      .border-blue-600 { border-color: ${p.primary} !important; }
+      .text-blue-600 { color: ${p.primary} !important; }
+      .hover\\:bg-blue-50:hover { background-color: color-mix(in srgb, ${p.primary} 10%, #fff 90%) !important; }
+      .focus\\:ring-blue-500:focus { --tw-ring-color: color-mix(in srgb, ${p.primary} 80%, #fff 20%) !important; }
+      .focus\\:border-blue-500:focus { border-color: color-mix(in srgb, ${p.primary} 80%, #fff 20%) !important; }
+      
+      /* Status badges */
+      .bg-green-100 { background-color: color-mix(in srgb, ${p.success} 15%, #fff 85%) !important; }
+      .text-green-800 { color: color-mix(in srgb, ${p.success} 90%, #000 10%) !important; }
+      .text-green-600 { color: ${p.success} !important; }
+      
+      .bg-yellow-100 { background-color: color-mix(in srgb, ${p.warning} 15%, #fff 85%) !important; }
+      .text-yellow-800 { color: color-mix(in srgb, ${p.warning} 90%, #000 10%) !important; }
+      .text-yellow-600 { color: ${p.warning} !important; }
+      .bg-yellow-50 { background-color: color-mix(in srgb, ${p.warning} 5%, #fff 95%) !important; }
+      .border-yellow-200 { border-color: color-mix(in srgb, ${p.warning} 30%, #fff 70%) !important; }
+      .bg-yellow-200 { background-color: color-mix(in srgb, ${p.warning} 30%, #fff 70%) !important; }
+      .hover\\:bg-yellow-300:hover { background-color: color-mix(in srgb, ${p.warning} 40%, #fff 60%) !important; }
+      
+      .bg-red-100 { background-color: color-mix(in srgb, ${p.danger} 15%, #fff 85%) !important; }
+      .text-red-800 { color: color-mix(in srgb, ${p.danger} 90%, #000 10%) !important; }
+      .text-red-600 { color: ${p.danger} !important; }
+      .bg-red-50 { background-color: color-mix(in srgb, ${p.danger} 5%, #fff 95%) !important; }
+      .border-red-200 { border-color: color-mix(in srgb, ${p.danger} 30%, #fff 70%) !important; }
+      .bg-red-200 { background-color: color-mix(in srgb, ${p.danger} 30%, #fff 70%) !important; }
+      .hover\\:bg-red-300:hover { background-color: color-mix(in srgb, ${p.danger} 40%, #fff 60%) !important; }
+      
+      .bg-gray-100 { background-color: color-mix(in srgb, ${p.secondary} 15%, #fff 85%) !important; }
+      .text-gray-800 { color: color-mix(in srgb, ${p.secondary} 90%, #000 10%) !important; }
+      .text-gray-600 { color: ${p.secondary} !important; }
+      
+      .text-cyan-600 { color: ${p.info} !important; }
+    `;
+    
+    if (name && name !== 'default') {
+      document.documentElement.setAttribute('data-theme', name);
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
   }
 
-  // Load saved
+  // Load saved theme
   const saved = localStorage.getItem(key) || 'default';
   applyPreset(saved);
   if (sel) sel.value = saved;
 
-  // Events
+  // Event listeners
   sel && sel.addEventListener('change', ()=>{
     const v = sel.value || 'default';
     applyPreset(v);
@@ -437,7 +548,7 @@ a, .link-primary { color: var(--bs-primary) !important; }
   });
 
   reset && reset.addEventListener('click', ()=>{
-    sel.value = 'default';
+    if (sel) sel.value = 'default';
     applyPreset('default');
     localStorage.setItem(key, 'default');
   });
@@ -449,3 +560,4 @@ a, .link-primary { color: var(--bs-primary) !important; }
 <?php
 $conn->close();
 if (ob_get_level()>0) ob_end_flush();
+?>
