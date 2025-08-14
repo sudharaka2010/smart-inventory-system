@@ -1,0 +1,30 @@
+/* app.css — master order using cascade layers */
+@layer bootstrap, tokens, header, sidebar, main, footer, pages, overrides;
+
+/* 1) Vendor first */
+@import url("../vendor/bootstrap.min.css") layer(bootstrap);
+
+/* 2) Design tokens (colors, spacing, variables only; no styling) */
+@import url("./tokens.css") layer(tokens);
+
+/* 3) Shell pieces */
+@import url("./header.css")  layer(header);
+@import url("./sidebar.css") layer(sidebar);
+@import url("./footer.css")  layer(footer);
+
+/* 4) Site-wide main area rules (grid, cards, tables in <main>) */
+@import url("./main.css")    layer(main);
+
+/* 5) Page-specific files (scoped to main) */
+@import url("./dashboard.css")    layer(pages);
+@import url("./billing.css")      layer(pages);
+@import url("./invoice.css")      layer(pages);
+@import url("./customer.css")     layer(pages);
+@import url("./employee.css")     layer(pages);
+@import url("./inventory.css")    layer(pages);
+@import url("./add_inventory.css") layer(pages);
+@import url("./edit_inventory.css") layer(pages);
+/* …add others here… */
+
+/* 6) Last-chance small fixes (rare) */
+@import url("./overrides.css") layer(overrides);
