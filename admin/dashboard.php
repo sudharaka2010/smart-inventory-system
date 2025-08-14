@@ -14,19 +14,27 @@ if ($IS_DEV) {
   ini_set('display_errors','0'); ini_set('display_startup_errors','0'); error_reporting(0);
 }
 
-// Sessions (simple, no CSP/security headers)
+// Sessions (simple)
 session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>!$IS_DEV,'httponly'=>true,'samesite'=>'Lax']);
 session_start(['use_strict_mode'=>true,'cookie_secure'=>!$IS_DEV,'cookie_httponly'=>true,'cookie_samesite'=>'Lax']);
 if (!isset($_SESSION['regen_at']) || time()-($_SESSION['regen_at']??0)>600){ session_regenerate_id(true); $_SESSION['regen_at']=time(); }
 
 // Auth (Admin only)
 function redirect_to_login(): never { header("Location: /auth/login.php?denied=1"); exit; }
-if (empty($_SESSION['username']) || ($_SESSION['role']??'')!=='Admin') redirect_to_login();
+if (empty($_SESSION['username']) || (($_SESSION['role']??'')!=='Admin')) redirect_to_login();
 
 // DB
 require_once(__DIR__.'/../includes/db_connect.php'); // provides $conn (mysqli)
 if (!isset($conn) || !($conn instanceof mysqli)) { http_response_code(500); echo "<h1>DB not connected.</h1>"; exit; }
 $conn->set_charset('utf8mb4');
+
+// ---------- Routing / Paths ----------
+$APP_BASE = '/admin'; // <-- change if needed
+$href = function(string $path) use ($APP_BASE){
+  $base = rtrim($APP_BASE, '/');
+  $path = ltrim($path, '/');
+  return ($base === '') ? "/{$path}" : "{$base}/{$path}";
+};
 
 // Helpers
 function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES,'UTF-8'); }
@@ -98,299 +106,284 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   <title>Admin Dashboard - RB Stores</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Bootstrap 5.3 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <!-- Vendor CSS (load ONCE globally) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+
+  <!-- App bundle (imports tokens.css, header.css, sidebar.css, main.css, dashboard.css, …) -->
+  <link rel="stylesheet" href="<?= h($href('assets/css/app.css')); ?>?v=2025-08-15">
+
+  <!-- Fonts (optional) -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/app.css">
-
-
-
-  
-
-  <!-- Minimal touch-ups + theme hook (white background by default) -->
-  <style>
-    :root{
-      /* You can override these via JS for live theming */
-      --bs-body-bg:#fff; --bs-body-color:#212529;
-      /* Optional: preset CSS vars for quick theme switching */
-      --brand-primary:var(--bs-primary);
-      --brand-success:var(--bs-success);
-      --brand-warning:var(--bs-warning);
-      --brand-danger: var(--bs-danger);
-      --brand-info:   var(--bs-info);
-      --brand-secondary:var(--bs-secondary);
-    }
-    .hero{background:linear-gradient(135deg,#0d6efd12,#6610f212); border-radius:1rem; padding:1rem 1.25rem;}
-    .kpi .icon{font-size:1.5rem}
-    .table-soft tbody tr:hover{background-color:#00000008}
-    .minw-150{min-width:150px}
-    .minw-220{min-width:220px}
-    .btn-action{box-shadow:0 1px 2px rgba(0,0,0,.06)}
-  </style>
 </head>
 <body class="bg-body">
 
-<?php if (file_exists($headerFile)) include $headerFile; ?>
-<div class="container-fluid">
-  <div class="row">
-    <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
+  <!-- Skip link for a11y -->
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 p-2 bg-light rounded"
+     href="#rb-main">Skip to main content</a>
 
-    <main class="col-12 px-3 px-lg-4 py-4">
-      <!-- Bar: Title + Theme -->
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <div class="hero w-100 w-md-auto">
-          <h1 class="h4 mb-1">RB Stores Dashboard</h1>
-          <div class="text-secondary small">As of <?=date('Y-m-d H:i');?> • <b>Balance = TotalAmount − AmountPaid</b></div>
+  <?php if (file_exists($headerFile)) include $headerFile; ?>
+
+  <!-- Sidebar include (offcanvas on mobile; fixed rail on ≥992px via CSS) -->
+  <?php
+    // Make sure sidebar does NOT try to load CSS/JS itself
+    $RB_SIDEBAR_LOAD_VENDOR = false;
+    $RB_SIDEBAR_LOAD_CSS    = false;
+    $RB_SIDEBAR_SHOW_BRAND  = false;
+    if (file_exists($sidebarFile)) include $sidebarFile;
+  ?>
+
+  <!-- Main content (offset handled in main.css via data-rb-scope="main") -->
+  <main id="rb-main" data-rb-scope="main" class="container-fluid px-3 px-lg-4 py-4" role="main">
+    <!-- Title + Theme -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <div class="hero w-100 w-md-auto">
+        <h1 class="h4 mb-1">RB Stores Dashboard</h1>
+        <div class="text-secondary small">As of <?=date('Y-m-d H:i');?> • <b>Balance = TotalAmount − AmountPaid</b></div>
+      </div>
+
+      <!-- Theme controls -->
+      <div class="d-flex flex-wrap gap-2">
+        <select id="themePreset" class="form-select form-select-sm minw-150" title="Theme preset">
+          <option value="default">Default (Bootstrap)</option>
+          <option value="ocean">Ocean</option>
+          <option value="emerald">Emerald</option>
+          <option value="crimson">Crimson</option>
+        </select>
+        <button id="themeReset" class="btn btn-sm btn-outline-secondary">Reset</button>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="mb-3" aria-live="polite">
+      <?php if (($kpi['low_stock_cnt']??0)>0): ?>
+        <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below ≤5.</div>
+          <a class="ms-auto btn btn-sm btn-outline-warning" href="<?= h($href('low_stock.php')); ?>">Review</a>
         </div>
+      <?php endif; ?>
+      <?php if (($rev['balance_due']??0)>0): ?>
+        <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3">
+          <i class="fa-solid fa-sack-xmark"></i>
+          <div><strong>Balance due:</strong> <?=h(lkr($rev['balance_due']));?> outstanding.</div>
+          <a class="ms-auto btn btn-sm btn-outline-danger" href="<?= h($href('view_billing.php')); ?>">Collect</a>
+        </div>
+      <?php endif; ?>
+    </div>
 
-        <!-- Theme controls (live color change for cards/tables/text) -->
-        <div class="d-flex flex-wrap gap-2">
-          <select id="themePreset" class="form-select form-select-sm minw-150" title="Theme preset">
-            <option value="default">Default (Bootstrap)</option>
-            <option value="ocean">Ocean</option>
-            <option value="emerald">Emerald</option>
-            <option value="crimson">Crimson</option>
-          </select>
-          <button id="themeReset" class="btn btn-sm btn-outline-secondary">Reset</button>
+    <!-- Quick actions -->
+    <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
+      <a href="<?= h($href('billing.php')); ?>" class="btn btn-primary btn-action"><i class="fa-solid fa-plus me-2"></i>New Order</a>
+      <a href="<?= h($href('add_inventory.php')); ?>" class="btn btn-outline-primary btn-action"><i class="fa-solid fa-boxes-packing me-2"></i>Add Stock</a>
+      <a href="<?= h($href('add_transport.php')); ?>" class="btn btn-outline-secondary btn-action"><i class="fa-solid fa-truck me-2"></i>Schedule Delivery</a>
+      <a href="<?= h($href('reports/')); ?>" class="btn btn-outline-dark btn-action"><i class="fa-solid fa-chart-line me-2"></i>Reports</a>
+    </div>
+
+    <!-- KPI Grid -->
+    <section class="mb-4">
+      <h3 class="h6 mb-3">Business Overview</h3>
+      <div class="row g-3 kpi">
+        <?php
+        $cards = [
+          ['Customers',        number_format($kpi['customers']??0),         'fa-users','primary', null],
+          ['Orders',           number_format($kpi['orders']??0),            'fa-receipt','secondary', null],
+          ['Revenue (Total)',  h(lkr($rev['total_amount']??0)),             'fa-coins','success', null],
+          ['Amount Paid',      h(lkr($rev['amount_paid']??0)),              'fa-hand-holding-dollar','info', null],
+          ['Balance Due',      h(lkr($rev['balance_due']??0)),              'fa-scale-balanced','danger', null],
+          ['Low Stock (≤5)',   number_format($kpi['low_stock_cnt']??0),     'fa-warehouse','warning', $href('low_stock.php')],
+          ['Items in Stock',   number_format($kpi['stock_qty']??0),         'fa-cubes','dark', null],
+          ['Pending Orders',   number_format($kpi['pending_orders']??0),    'fa-hourglass-half','warning', null],
+          ['Deliveries Today', number_format($kpi['deliveries_today']??0),  'fa-truck-ramp-box','primary', $href('pending_deliveries.php')],
+          ['Returns',          number_format($kpi['returns']??0),           'fa-rotate-left','secondary', null],
+        ];
+        foreach($cards as [$label,$val,$icon,$variant,$goto]){
+          $inner = '<div class="card h-100 shadow-sm border-0"><div class="card-body d-flex align-items-center gap-3">'
+                 . '<div class="icon text-'.$variant.'"><i class="fa '.$icon.'"></i></div>'
+                 . '<div><div class="text-secondary small">'.$label.'</div><div class="fs-4 fw-semibold">'.$val.'</div></div>'
+                 . '</div></div>';
+          echo '<div class="col-12 col-sm-6 col-lg-4">'.($goto?'<a class="text-decoration-none" href="'.h($goto).'">'.$inner.'</a>':$inner).'</div>';
+        }
+        ?>
+      </div>
+    </section>
+
+    <!-- Tables -->
+    <section class="row g-3">
+      <!-- Recent Orders -->
+      <div class="col-12 col-xl-7">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header border-0 pb-0">
+            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+              <h4 class="h6 m-0">Recent Orders</h4>
+              <div class="d-flex gap-2 flex-wrap">
+                <select id="orderStatusFilter" class="form-select form-select-sm minw-150" title="Filter by status">
+                  <option value="">All statuses</option>
+                  <option>Paid</option><option>Pending</option><option>Cancelled</option><option>Refunded</option>
+                </select>
+                <input id="orderSearch" class="form-control form-control-sm minw-220" placeholder="Search invoice / customer" />
+                <a class="btn btn-sm btn-outline-light" href="<?= h($href('view_billing.php')); ?>">View all</a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle table-striped table-soft recent-orders">
+                <thead class="table-light">
+                <tr><th>Order #</th><th>Invoice</th><th>Customer</th><th>Date</th><th class="text-end">Total</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                <?php if (!$recentOrders): ?>
+                  <tr><td colspan="6" class="text-secondary">No orders yet.</td></tr>
+                <?php else: foreach($recentOrders as $o): $status=$o['Status']??'Pending';
+                  $map=['Paid'=>'success','Pending'=>'warning','Cancelled'=>'danger','Refunded'=>'secondary'];
+                  $cls=$map[$status]??'secondary'; ?>
+                  <tr>
+                    <td>#<?= (int)$o['OrderID']; ?></td>
+                    <td class="text-primary fw-semibold"><?= h($o['InvoiceID']?:'—'); ?></td>
+                    <td><?= h($o['CustomerName']??'Guest'); ?></td>
+                    <td><?= h(d($o['OrderDate'])); ?></td>
+                    <td class="text-end"><?= h(lkr($o['TotalAmount']??0)); ?></td>
+                    <td><span class="badge text-bg-<?=$cls;?>"><?= h($status); ?></span></td>
+                  </tr>
+                <?php endforeach; endif; ?>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer border-0 pt-0 small text-secondary">
+            <span class="badge text-bg-success">Paid</span>
+            <span class="badge text-bg-warning">Pending</span>
+            <span class="badge text-bg-danger">Cancelled</span>
+            <span class="badge text-bg-secondary">Refunded</span>
+          </div>
         </div>
       </div>
 
-      <!-- Alerts -->
-      <div class="mb-3" aria-live="polite">
-        <?php if (($kpi['low_stock_cnt']??0)>0): ?>
-          <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below ≤5.</div>
-            <a class="ms-auto btn btn-sm btn-outline-warning" href="/admin/low_stock.php">Review</a>
+      <!-- Right column -->
+      <div class="col-12 col-xl-5">
+        <div class="card shadow-sm border-0 mb-3">
+          <div class="card-header border-0 pb-0">
+            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+              <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
+              <input id="itemSearch" class="form-control form-control-sm minw-220" placeholder="Search item…" />
+            </div>
           </div>
-        <?php endif; ?>
-        <?php if (($rev['balance_due']??0)>0): ?>
-          <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3">
-            <i class="fa-solid fa-sack-xmark"></i>
-            <div><strong>Balance due:</strong> <?=h(lkr($rev['balance_due']));?> outstanding.</div>
-            <a class="ms-auto btn btn-sm btn-outline-danger" href="/billing/view_billing.php">Collect</a>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm align-middle table-striped table-soft top-items">
+                <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
+                <tbody>
+                <?php if (!$topItems): ?>
+                  <tr><td colspan="2" class="text-secondary">No sales yet.</td></tr>
+                <?php else: foreach($topItems as $t): ?>
+                  <tr>
+                    <td><?= h($t['ItemName']); ?> <span class="text-secondary">(ID: <?= (int)$t['ItemID']; ?>)</span></td>
+                    <td class="text-end"><?= number_format((int)$t['QtySold']); ?></td>
+                  </tr>
+                <?php endforeach; endif; ?>
+                </tbody>
+              </table>
+            </div>
           </div>
-        <?php endif; ?>
+        </div>
+
+        <div class="card shadow-sm border-0">
+          <div class="card-header border-0 pb-0 d-flex align-items-center justify-content-between">
+            <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
+            <a class="btn btn-sm btn-outline-light" href="<?= h($href('low_stock.php')); ?>">View all</a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm align-middle table-striped table-soft low-stock">
+                <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
+                <tbody>
+                <?php if (!$lowStock): ?>
+                  <tr><td colspan="3" class="text-secondary">All good.</td></tr>
+                <?php else: foreach($lowStock as $ls): $q=(int)$ls['Quantity']; $qCls=$q<=3?'text-danger fw-semibold':($q<=5?'text-warning':''); ?>
+                  <tr>
+                    <td><?= h($ls['NAME']); ?> <span class="text-secondary">(ID: <?= (int)$ls['ItemID']; ?>)</span></td>
+                    <td class="text-end <?=$qCls;?>"><?= number_format($q); ?></td>
+                    <td><code><?= h($ls['InvoiceID']); ?></code></td>
+                  </tr>
+                <?php endforeach; endif; ?>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
+    </section>
+  </main>
 
-      <!-- Quick actions -->
-      <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
-        <a href="/billing/billing.php" class="btn btn-primary btn-action"><i class="fa-solid fa-plus me-2"></i>New Order</a>
-        <a href="/inventory/add_inventory.php" class="btn btn-outline-primary btn-action"><i class="fa-solid fa-boxes-packing me-2"></i>Add Stock</a>
-        <a href="/transport/add_transport.php" class="btn btn-outline-secondary btn-action"><i class="fa-solid fa-truck me-2"></i>Schedule Delivery</a>
-        <a href="/reports/" class="btn btn-outline-dark btn-action"><i class="fa-solid fa-chart-line me-2"></i>Reports</a>
-      </div>
+  <?php if (file_exists($footerFile)) include $footerFile; ?>
 
-      <!-- KPI Grid -->
-      <section class="mb-4">
-        <h3 class="h6 mb-3">Business Overview</h3>
-        <div class="row g-3 kpi">
-          <?php
-          $cards = [
-            ['Customers',        number_format($kpi['customers']??0),         'fa-users','primary', null],
-            ['Orders',           number_format($kpi['orders']??0),            'fa-receipt','secondary', null],
-            ['Revenue (Total)',  h(lkr($rev['total_amount']??0)),             'fa-coins','success', null],
-            ['Amount Paid',      h(lkr($rev['amount_paid']??0)),              'fa-hand-holding-dollar','info', null],
-            ['Balance Due',      h(lkr($rev['balance_due']??0)),              'fa-scale-balanced','danger', null],
-            ['Low Stock (≤5)',   number_format($kpi['low_stock_cnt']??0),     'fa-warehouse','warning', '/admin/low_stock.php'],
-            ['Items in Stock',   number_format($kpi['stock_qty']??0),         'fa-cubes','dark', null],
-            ['Pending Orders',   number_format($kpi['pending_orders']??0),    'fa-hourglass-half','warning', null],
-            ['Deliveries Today', number_format($kpi['deliveries_today']??0),  'fa-truck-ramp-box','primary', '/admin/pending_deliveries.php'],
-            ['Returns',          number_format($kpi['returns']??0),           'fa-rotate-left','secondary', null],
-          ];
-          foreach($cards as [$label,$val,$icon,$variant,$href]){
-            $inner = '<div class="card h-100 shadow-sm border-0"><div class="card-body d-flex align-items-center gap-3">'
-                   . '<div class="icon text-'.$variant.'"><i class="fa '.$icon.'"></i></div>'
-                   . '<div><div class="text-secondary small">'.$label.'</div><div class="fs-4 fw-semibold">'.$val.'</div></div>'
-                   . '</div></div>';
-            echo '<div class="col-12 col-sm-6 col-lg-4">'.($href?'<a class="text-decoration-none" href="'.h($href).'">'.$inner.'</a>':$inner).'</div>';
-          }
-          ?>
-        </div>
-      </section>
+  <!-- JS (Bootstrap bundle once) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-      <!-- Tables -->
-      <section class="row g-3">
-        <!-- Recent Orders -->
-        <div class="col-12 col-xl-7">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-header border-0 pb-0">
-              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                <h4 class="h6 m-0">Recent Orders</h4>
-                <div class="d-flex gap-2 flex-wrap">
-                  <select id="orderStatusFilter" class="form-select form-select-sm minw-150" title="Filter by status">
-                    <option value="">All statuses</option>
-                    <option>Paid</option><option>Pending</option><option>Cancelled</option><option>Refunded</option>
-                  </select>
-                  <input id="orderSearch" class="form-control form-control-sm minw-220" placeholder="Search invoice / customer" />
-                  <a class="btn btn-sm btn-outline-light" href="/billing/view_billing.php">View all</a>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-hover align-middle table-striped table-soft recent-orders">
-                  <thead class="table-light">
-                  <tr><th>Order #</th><th>Invoice</th><th>Customer</th><th>Date</th><th class="text-end">Total</th><th>Status</th></tr>
-                  </thead>
-                  <tbody>
-                  <?php if (!$recentOrders): ?>
-                    <tr><td colspan="6" class="text-secondary">No orders yet.</td></tr>
-                  <?php else: foreach($recentOrders as $o): $status=$o['Status']??'Pending';
-                    $map=['Paid'=>'success','Pending'=>'warning','Cancelled'=>'danger','Refunded'=>'secondary'];
-                    $cls=$map[$status]??'secondary'; ?>
-                    <tr>
-                      <td>#<?= (int)$o['OrderID']; ?></td>
-                      <td class="text-primary fw-semibold"><?= h($o['InvoiceID']?:'—'); ?></td>
-                      <td><?= h($o['CustomerName']??'Guest'); ?></td>
-                      <td><?= h(d($o['OrderDate'])); ?></td>
-                      <td class="text-end"><?= h(lkr($o['TotalAmount']??0)); ?></td>
-                      <td><span class="badge text-bg-<?=$cls;?>"><?= h($status); ?></span></td>
-                    </tr>
-                  <?php endforeach; endif; ?>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="card-footer border-0 pt-0 small text-secondary">
-              <span class="badge text-bg-success">Paid</span>
-              <span class="badge text-bg-warning">Pending</span>
-              <span class="badge text-bg-danger">Cancelled</span>
-              <span class="badge text-bg-secondary">Refunded</span>
-            </div>
-          </div>
-        </div>
+  <script>
+  /* ---------- Tooltips (only if used) ---------- */
+  (()=>{
+    const els = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    els.forEach(el => new bootstrap.Tooltip(el));
+  })();
 
-        <!-- Right column -->
-        <div class="col-12 col-xl-5">
-          <div class="card shadow-sm border-0 mb-3">
-            <div class="card-header border-0 pb-0">
-              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
-                <input id="itemSearch" class="form-control form-control-sm minw-220" placeholder="Search item…" />
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-sm align-middle table-striped table-soft top-items">
-                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
-                  <tbody>
-                  <?php if (!$topItems): ?>
-                    <tr><td colspan="2" class="text-secondary">No sales yet.</td></tr>
-                  <?php else: foreach($topItems as $t): ?>
-                    <tr>
-                      <td><?= h($t['ItemName']); ?> <span class="text-secondary">(ID: <?= (int)$t['ItemID']; ?>)</span></td>
-                      <td class="text-end"><?= number_format((int)$t['QtySold']); ?></td>
-                    </tr>
-                  <?php endforeach; endif; ?>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+  /* ---------- Recent Orders filter/search ---------- */
+  (()=>{
+    const q=document.getElementById('orderSearch'), s=document.getElementById('orderStatusFilter');
+    const rows=[...document.querySelectorAll('.recent-orders tbody tr')];
+    const has=rows.some(tr=>!tr.querySelector('td[colspan]'));
+    if(q) q.disabled=!has; if(s) s.disabled=!has;
+    function apply(){
+      const qq=(q?.value||'').trim().toLowerCase(), ss=(s?.value||'').trim().toLowerCase();
+      rows.forEach(tr=>{
+        if(tr.querySelector('td[colspan]')) return;
+        const text=tr.innerText.toLowerCase(), badge=tr.querySelector('.badge')?.innerText.toLowerCase()||'';
+        const okQ=!qq||text.includes(qq), okS=!ss||badge===ss;
+        tr.style.display=(okQ&&okS)?'':'none';
+      });
+    }
+    q&&q.addEventListener('input',apply); s&&s.addEventListener('change',apply);
+  })();
 
-          <div class="card shadow-sm border-0">
-            <div class="card-header border-0 pb-0 d-flex align-items-center justify-content-between">
-              <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
-              <a class="btn btn-sm btn-outline-light" href="/admin/low_stock.php">View all</a>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-sm align-middle table-striped table-soft low-stock">
-                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
-                  <tbody>
-                  <?php if (!$lowStock): ?>
-                    <tr><td colspan="3" class="text-secondary">All good.</td></tr>
-                  <?php else: foreach($lowStock as $ls): $q=(int)$ls['Quantity']; $qCls=$q<=3?'text-danger fw-semibold':($q<=5?'text-warning':''); ?>
-                    <tr>
-                      <td><?= h($ls['NAME']); ?> <span class="text-secondary">(ID: <?= (int)$ls['ItemID']; ?>)</span></td>
-                      <td class="text-end <?=$qCls;?>"><?= number_format($q); ?></td>
-                      <td><code><?= h($ls['InvoiceID']); ?></code></td>
-                    </tr>
-                  <?php endforeach; endif; ?>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-</div>
+  /* ---------- Top Items search ---------- */
+  (()=>{
+    const q=document.getElementById('itemSearch');
+    const rows=[...document.querySelectorAll('.top-items tbody tr')];
+    const has=rows.some(tr=>!tr.querySelector('td[colspan]')); if(q) q.disabled=!has;
+    function apply(){
+      const qq=(q?.value||'').trim().toLowerCase();
+      rows.forEach(tr=>{
+        if(tr.querySelector('td[colspan]')) return;
+        tr.style.display=!qq||tr.innerText.toLowerCase().includes(qq)?'':'none';
+      });
+    }
+    q&&q.addEventListener('input',apply);
+  })();
 
-<?php if (file_exists($footerFile)) include $footerFile; ?>
+  /* ---------- Theme Switcher (updates Bootstrap component vars) ---------- */
+  (()=>{
+    const key  = 'rb_theme_preset';
+    const sel  = document.getElementById('themePreset');
+    const reset= document.getElementById('themeReset');
 
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    const presets = {
+      default: null,
+      ocean:   {primary:'#0ea5e9', success:'#10b981', warning:'#eab308', danger:'#ef4444', info:'#38bdf8', secondary:'#64748b'},
+      emerald: {primary:'#059669', success:'#16a34a', warning:'#f59e0b', danger:'#dc2626', info:'#14b8a6', secondary:'#6b7280'},
+      crimson: {primary:'#e11d48', success:'#22c55e', warning:'#f59e0b', danger:'#b91c1c', info:'#3b82f6', secondary:'#4b5563'}
+    };
 
-<script>
-/* ---------- Tooltips (only if used) ---------- */
-(()=>{
-  const els = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  if (els.length) els.forEach(el => new bootstrap.Tooltip(el));
-})();
+    function ensureStyleEl(){
+      let el = document.getElementById('rb-theme-vars');
+      if (!el) { el = document.createElement('style'); el.id='rb-theme-vars'; document.head.appendChild(el); }
+      return el;
+    }
 
-/* ---------- Recent Orders filter/search ---------- */
-(()=>{
-  const q=document.getElementById('orderSearch'), s=document.getElementById('orderStatusFilter');
-  const rows=[...document.querySelectorAll('.recent-orders tbody tr')];
-  const has=rows.some(tr=>!tr.querySelector('td[colspan]'));
-  if(q) q.disabled=!has; if(s) s.disabled=!has;
-  function apply(){
-    const qq=(q?.value||'').trim().toLowerCase(), ss=(s?.value||'').trim().toLowerCase();
-    rows.forEach(tr=>{
-      if(tr.querySelector('td[colspan]')) return;
-      const text=tr.innerText.toLowerCase(), badge=tr.querySelector('.badge')?.innerText.toLowerCase()||'';
-      const okQ=!qq||text.includes(qq), okS=!ss||badge===ss;
-      tr.style.display=(okQ&&okS)?'':'none';
-    });
-  }
-  q&&q.addEventListener('input',apply); s&&s.addEventListener('change',apply);
-})();
-
-/* ---------- Top Items search ---------- */
-(()=>{
-  const q=document.getElementById('itemSearch');
-  const rows=[...document.querySelectorAll('.top-items tbody tr')];
-  const has=rows.some(tr=>!tr.querySelector('td[colspan]')); if(q) q.disabled=!has;
-  function apply(){
-    const qq=(q?.value||'').trim().toLowerCase();
-    rows.forEach(tr=>{
-      if(tr.querySelector('td[colspan]')) return;
-      tr.style.display=!qq||tr.innerText.toLowerCase().includes(qq)?'':'none';
-    });
-  }
-  q&&q.addEventListener('input',apply);
-})();
-
-/* ---------- Theme Switcher (updates Bootstrap component vars) ---------- */
-(()=>{
-  const key  = 'rb_theme_preset';
-  const sel  = document.getElementById('themePreset');
-  const reset= document.getElementById('themeReset');
-
-  const presets = {
-    default: null,
-    ocean:   {primary:'#0ea5e9', success:'#10b981', warning:'#eab308', danger:'#ef4444', info:'#38bdf8', secondary:'#64748b'},
-    emerald: {primary:'#059669', success:'#16a34a', warning:'#f59e0b', danger:'#dc2626', info:'#14b8a6', secondary:'#6b7280'},
-    crimson: {primary:'#e11d48', success:'#22c55e', warning:'#f59e0b', danger:'#b91c1c', info:'#3b82f6', secondary:'#4b5563'}
-  };
-
-  function ensureStyleEl(){
-    let el = document.getElementById('rb-theme-vars');
-    if (!el) { el = document.createElement('style'); el.id='rb-theme-vars'; document.head.appendChild(el); }
-    return el;
-  }
-
-  function cssFor(p){
-    if (!p) return ''; /* default Bootstrap */
-    return `
+    function cssFor(p){
+      if (!p) return '';
+      return `
 :root{
   --bs-primary:${p.primary}; --bs-success:${p.success}; --bs-warning:${p.warning};
   --bs-danger:${p.danger}; --bs-info:${p.info}; --bs-secondary:${p.secondary};
@@ -414,36 +407,33 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
 a, .link-primary { color: var(--bs-primary) !important; }
 .badge.text-bg-primary { background-color: var(--bs-primary) !important; }
 `;
-  }
+    }
 
-  function applyPreset(name){
-    const styleEl = ensureStyleEl();
-    const p = presets[name] || null;
-    styleEl.textContent = cssFor(p);
-    if (name && name !== 'default') document.documentElement.setAttribute('data-theme', name);
-    else document.documentElement.removeAttribute('data-theme');
-  }
+    function applyPreset(name){
+      const styleEl = ensureStyleEl();
+      const p = presets[name] || null;
+      styleEl.textContent = cssFor(p);
+      if (name && name !== 'default') document.documentElement.setAttribute('data-theme', name);
+      else document.documentElement.removeAttribute('data-theme');
+    }
 
-  // Load saved
-  const saved = localStorage.getItem(key) || 'default';
-  applyPreset(saved);
-  if (sel) sel.value = saved;
+    const saved = localStorage.getItem(key) || 'default';
+    applyPreset(saved);
+    if (sel) sel.value = saved;
 
-  // Events
-  sel && sel.addEventListener('change', ()=>{
-    const v = sel.value || 'default';
-    applyPreset(v);
-    localStorage.setItem(key, v);
-  });
+    sel && sel.addEventListener('change', ()=>{
+      const v = sel.value || 'default';
+      applyPreset(v);
+      localStorage.setItem(key, v);
+    });
 
-  reset && reset.addEventListener('click', ()=>{
-    sel.value = 'default';
-    applyPreset('default');
-    localStorage.setItem(key, 'default');
-  });
-})();
-</script>
-
+    reset && reset.addEventListener('click', ()=>{
+      sel.value = 'default';
+      applyPreset('default');
+      localStorage.setItem(key, 'default');
+    });
+  })();
+  </script>
 </body>
 </html>
 <?php
