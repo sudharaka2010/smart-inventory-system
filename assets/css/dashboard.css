@@ -158,13 +158,7 @@ main .text-dim { color: var(--rb-text-dim) !important; }
 }
 
 @media (min-width:1200px){
-  /* Push main so it doesn't sit under the fixed sidebar */
-  main{
-    margin-left: var(--rb-sb-w);
-    /* If your header is fixed and the sidebar starts below it, give main the same top spacing */
-    padding-top: 0; /* keep your existing spacing; set to calc(var(--rb-header-h)) if needed */
-    min-height: calc(100dvh - var(--rb-header-h) - var(--rb-footer-h));
-  }
+  .container-fluid > .row{ --bs-gutter-x: 0; }
 }
 
 /* On md/lg (where the sidebar is offcanvas), let main span full width */
