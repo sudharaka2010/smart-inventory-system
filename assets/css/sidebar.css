@@ -9,7 +9,7 @@
 [data-rb-scope="sidebar"]{
   --rb-sb-w: 280px;                 /* rail width on xl+ */
   --rb-header-h: 68px;   /* exact fixed header height */
-  --rb-footer-h: 56px;               /* set to your fixed header height if needed (e.g., 68px) */
+  --rb-footer-h: 56px;    /* set to your fixed header height if needed (e.g., 68px) */
 
   --rb-sb-bg:#0f172a;               /* slate-900 */
   --rb-sb-bg-soft:#0b1222;          /* deeper */
