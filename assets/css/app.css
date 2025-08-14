@@ -2,7 +2,7 @@
 @layer bootstrap, tokens, header, sidebar, main, footer, pages, overrides;
 
 /* 1) Vendor first */
-@import url("../vendor/bootstrap.min.css") layer(bootstrap);
+/* @import url("../vendor/bootstrap.min.css") layer(bootstrap); */
 
 /* 2) Design tokens (colors, spacing, variables only; no styling) */
 @import url("./tokens.css") layer(tokens);
