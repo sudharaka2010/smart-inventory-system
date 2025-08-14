@@ -149,3 +149,26 @@ main .text-dim { color: var(--rb-text-dim) !important; }
    No rules for header, .navbar, .sidebar, .offcanvas, footer
    so includes remain visually unchanged.
 */
+/* ====== RB Stores — Dashboard layout shim for fixed sidebar (xl+) ====== */
+@media (min-width: 1200px){
+  /* Reserve horizontal space for the rail */
+  body.with-fixed-rail .container-fluid > .row > main{
+    margin-left: var(--rb-sb-w, 280px);   /* fallback to 280 if not defined */
+  }
+
+  /* Keep main content below the fixed header */
+  body.with-fixed-rail .container-fluid > .row > main{
+    padding-top: 0;                        /* Bootstrap spacing stays */
+    min-height: calc(100dvh - var(--rb-header-h, 68px) - var(--rb-footer-h, 0px));
+  }
+
+  /* Optional: if your header is fixed and overlaps, add top padding to the page */
+  body.with-fixed-rail{
+    padding-top: var(--rb-header-h, 68px);
+  }
+
+  /* Optional: if your footer is fixed, leave breathing space at bottom */
+  body.with-fixed-rail{
+    padding-bottom: var(--rb-footer-h, 0px);
+  }
+}

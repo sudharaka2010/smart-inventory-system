@@ -157,19 +157,23 @@
 @media (min-width: 1200px){
   /* FIXED rail that never moves on page scroll */
   #rbSidebar.offcanvas{
-    position: fixed;                 /* bullet‑proof vs. sticky */
-    top: var(--rb-header-h);         /* set header height via --rb-header-h if your header is fixed */
+    position: fixed;
+    top: var(--rb-header-h, 68px);
     left: 0;
-    z-index: 1029;                   /* keep below a 1030 header if needed */
+    z-index: 1029;
 
     transform: none !important;
     visibility: visible !important;
     transition: none !important;
 
-    width: var(--rb-sb-w);
-    max-width: var(--rb-sb-w);
-    height: calc(100dvh - var(--rb-header-h));   /* full viewport minus header */
-    min-height: calc(100dvh - var(--rb-header-h));
+    /* Width pinning */
+    width: var(--rb-sb-w, 280px);
+    max-width: var(--rb-sb-w, 280px);
+    min-width: var(--rb-sb-w, 280px);
+
+    /* Full height minus header/footer if footer is fixed */
+    height: calc(100dvh - var(--rb-header-h, 68px) - var(--rb-footer-h, 0px));
+    min-height: calc(100dvh - var(--rb-header-h, 68px) - var(--rb-footer-h, 0px));
 
     box-shadow: var(--rb-sb-shadow);
     border-right: 1px solid var(--rb-sb-border);
@@ -183,13 +187,14 @@
   /* Only the inside scrolls */
   #rbSidebar .offcanvas-body{
     height: 100%;
-    overflow: auto;                   /* independent scroll */
+    overflow: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   /* Hide the mobile top bar on desktop */
   [data-rb-scope="sidebar"] .rb-sb-topbar{ display: none !important; }
 }
+
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){

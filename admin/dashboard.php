@@ -132,7 +132,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
     .btn-action{box-shadow:0 1px 2px rgba(0,0,0,.06)}
   </style>
 </head>
-<body class="bg-body">
+<body class="bg-body with-fixed-rail" style="--rb-header-h:68px; --rb-footer-h:56px;">
 
 <?php if (file_exists($headerFile)) include $headerFile; ?>
 <div class="container-fluid">
