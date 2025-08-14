@@ -41,7 +41,7 @@ $RB_LOGOUT_PATH = $RB_LOGOUT_PATH ?? 'auth/logout.php';
 <!-- Sidebar Styles (scoped; won’t affect header/footer/main).
      Expects CSS variables from header.css/layout.css:
      --rb-header-h, --rb-footer-h, --rb-sidebar-w -->
-<link rel="stylesheet" href="/assets/css/sidebar.css" />
+<link rel="stylesheet" href="/assets/css/app.css" />
 
 <!-- Mobile Top Bar (hamburger) -->
 <header class="rb-sb-topbar d-xl-none" role="banner" data-rb-scope="sidebar">
