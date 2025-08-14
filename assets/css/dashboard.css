@@ -157,15 +157,19 @@ main .text-dim { color: var(--rb-text-dim) !important; }
   --rb-footer-h: 56px;  /* optional; set to 0 if footer not fixed */
 }
 
-@media (min-width:1200px){
-  /* Push main so it doesn't sit under the fixed sidebar */
+/* Desktop: make main actually fit beside the fixed rail */
+@media (min-width: 1200px){
+  /* If your sidebar keeps a 1px right border, subtract it too */
   main{
     margin-left: var(--rb-sb-w);
-    /* If your header is fixed and the sidebar starts below it, give main the same top spacing */
-    padding-top: 0; /* keep your existing spacing; set to calc(var(--rb-header-h)) if needed */
-    min-height: calc(100dvh - var(--rb-header-h) - var(--rb-footer-h));
+    width: calc(100% - var(--rb-sb-w) - 1px);
+    box-sizing: border-box;
   }
 }
+
+/* Safety guard (prevents rare 1px overflow from shadows, etc.) */
+html, body { overflow-x: hidden; }
+
 
 /* On md/lg (where the sidebar is offcanvas), let main span full width */
 @media (max-width:1199.98px){
