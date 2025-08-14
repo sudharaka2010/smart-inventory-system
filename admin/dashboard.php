@@ -136,7 +136,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
 
 <?php if (file_exists($headerFile)) include $headerFile; ?>
 <div class="container-fluid">
-  <div class="row">
+  <div class="row g-0">
     <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
 
     <main class="col-12 px-3 px-lg-4 py-4">
