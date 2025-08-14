@@ -1,6 +1,6 @@
 <?php
 // ================= RB Stores — Isolated Sidebar (Bootstrap 5 + Bootstrap Icons) =================
-// Safe current page detection (ignores query strings)
+// Safe current page detection (ignores query string)
 $urlPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
 $current = basename($urlPath) ?: 'index.php';
 
