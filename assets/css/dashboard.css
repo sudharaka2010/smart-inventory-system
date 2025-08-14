@@ -149,3 +149,30 @@ main .text-dim { color: var(--rb-text-dim) !important; }
    No rules for header, .navbar, .sidebar, .offcanvas, footer
    so includes remain visually unchanged.
 */
+/* ===== RB Stores — Fixed-rail layout glue for dashboard ===== */
+:root{
+  /* mirror the sidebar vars globally so main can read them */
+  --rb-sb-w: 280px;     /* must match sidebar.css' --rb-sb-w */
+  --rb-header-h: 68px;  /* must match sidebar.css' --rb-header-h (0 if header not fixed) */
+  --rb-footer-h: 56px;  /* optional; set to 0 if footer not fixed */
+}
+
+@media (min-width:1200px){
+  /* Push main so it doesn't sit under the fixed sidebar */
+  main{
+    margin-left: var(--rb-sb-w);
+    /* If your header is fixed and the sidebar starts below it, give main the same top spacing */
+    padding-top: 0; /* keep your existing spacing; set to calc(var(--rb-header-h)) if needed */
+    min-height: calc(100dvh - var(--rb-header-h) - var(--rb-footer-h));
+  }
+}
+
+/* On md/lg (where the sidebar is offcanvas), let main span full width */
+@media (max-width:1199.98px){
+  main{ margin-left: 0; }
+}
+
+/* Optional: make the overall row fill the viewport nicely */
+.container-fluid > .row{
+  min-height: calc(100dvh - var(--rb-header-h) - var(--rb-footer-h));
+}

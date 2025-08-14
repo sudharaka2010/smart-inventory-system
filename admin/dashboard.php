@@ -139,7 +139,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   <div class="row">
     <?php if (file_exists($sidebarFile)) include $sidebarFile; ?>
 
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-3 px-lg-4 py-4">
+    <main class="col-12 px-3 px-lg-4 py-4">
       <!-- Bar: Title + Theme -->
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
         <div class="hero w-100 w-md-auto">
