@@ -1,21 +1,18 @@
-/* ===================== RB Stores — FIXED Sidebar (STRICTLY SCOPED) =====================
+/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) =====================
    Scope guard: ONLY target inside [data-rb-scope="sidebar"] and #rbSidebar
    - Safe for Bootstrap 5.3.x
    - Offcanvas on mobile, FIXED rail on desktop (xl+)
    - Does NOT touch header.php / footer.php / main content
 ================================================================================== */
-
-/* Fix: Remove white area by ensuring proper header height detection */
-:root{ 
-  --rb-header-h: 68px; /* Set your actual header height here */
-}
-[data-rb-scope="sidebar"]{ --rb-header-h: var(--rb-header-h); }
+/* Keep sidebar perfectly flush under your header */
+:root{ --rb-header-h: var(--header-h, 56px); }          /* read from header.css or fall back to 56px */
+[data-rb-scope="sidebar"]{ --rb-header-h: var(--rb-header-h); }  /* use the exact same value in the rail */
 
 /* ---------- Theme tokens (scoped) ---------- */
 [data-rb-scope="sidebar"]{
   --rb-sb-w: 280px;                 /* rail width on xl+ */
-  --rb-header-h: 68px;              /* exact fixed header height */
-  --rb-footer-h: 56px;              /* footer height if needed */
+  --rb-header-h: 68px;   /* exact fixed header height */
+  --rb-footer-h: 56px;    /* set to your fixed header height if needed (e.g., 68px) */
 
   --rb-sb-bg:#0f172a;               /* slate-900 */
   --rb-sb-bg-soft:#0b1222;          /* deeper */
@@ -34,11 +31,8 @@
 
 /* ---------- Mobile Top Bar (shows only < xl) ---------- */
 [data-rb-scope="sidebar"] .rb-sb-topbar{
-  position: sticky; 
-  top: 0; 
-  z-index: 1030;
-  display: flex; 
-  align-items: center;
+  position: sticky; top: 0; z-index: 1030;
+  display: flex; align-items: center;
   height: 56px;
   padding: 0 .75rem;
   background: linear-gradient(180deg,var(--rb-sb-bg),var(--rb-sb-bg-soft));
@@ -46,14 +40,9 @@
   border-bottom: 1px solid var(--rb-sb-border);
   box-shadow: 0 6px 16px rgba(0,0,0,.2);
 }
-
 [data-rb-scope="sidebar"] .rb-sb-topbar-btn{
-  display: inline-flex; 
-  align-items: center; 
-  justify-content: center;
-  width: 44px; 
-  height: 44px; 
-  border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 12px;
   color: var(--rb-sb-text);
   background: transparent;
   border: 1px solid transparent;
@@ -76,8 +65,7 @@
 
 /* ---------- Sidebar body/nav ---------- */
 #rbSidebar .offcanvas-body{
-  display: flex; 
-  flex-direction: column;
+  display: flex; flex-direction: column;
   gap: .25rem;
   padding: 0 !important;
   background: var(--rb-sb-bg);
@@ -89,8 +77,7 @@
   background: linear-gradient(180deg,var(--rb-sb-bg-soft),var(--rb-sb-bg));
 }
 #rbSidebar .rb-sb-brand .rb-sb-brand-text{
-  font-weight: 700; 
-  letter-spacing: .2px;
+  font-weight: 700; letter-spacing: .2px;
 }
 
 /* ---------- Accordion (menus) ---------- */
@@ -101,7 +88,7 @@
   --bs-accordion-btn-padding-x: 1rem;
   --bs-accordion-btn-padding-y: .875rem;
   --bs-accordion-active-color: var(--rb-sb-text);
-  --bs-accordion-btn-focus-box-shadow: 0 0 0 0 transparent;
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0 transparent; /* we'll handle focus */
 }
 
 #rbSidebar .rb-sb-acc-item{
@@ -126,14 +113,11 @@
 
 /* ---------- Link list inside sections ---------- */
 #rbSidebar .rb-sb-menu{
-  margin: 0; 
-  padding: .375rem 0;
-  display: grid; 
-  gap: 2px;
+  margin: 0; padding: .375rem 0;
+  display: grid; gap: 2px;
 }
 #rbSidebar .rb-sb-link{
-  display: flex; 
-  align-items: center;
+  display: flex; align-items: center;
   padding: .625rem 1rem;
   gap: .5rem;
   color: var(--rb-sb-text);
@@ -148,13 +132,18 @@
   color: var(--rb-sb-text);
 }
 #rbSidebar .rb-sb-link:focus-visible{
-  outline: none; 
-  box-shadow: inset var(--rb-sb-focus);
+  outline: none; box-shadow: inset var(--rb-sb-focus);
 }
 #rbSidebar .rb-sb-link.active{
   background: var(--rb-sb-active);
   border-left-color: var(--rb-sb-accent);
   color: #fff;
+}
+
+/* Divider utility (optional) */
+#rbSidebar .rb-sb-divider{
+  height: 1px; margin: .25rem 0;
+  background: var(--rb-sb-divider);
 }
 
 /* ---------- Footer area ---------- */
@@ -167,32 +156,28 @@
 }
 #rbSidebar .rb-sb-footer .rb-sb-link:hover{ background: var(--rb-sb-hover); }
 
-/* ---------- FIXED: Desktop rail mode (xl and up) ---------- */
+/* ---------- Desktop rail mode (xl and up) ---------- */
 @media (min-width: 1200px){
-  /* FIXED rail that starts immediately below header - NO WHITE SPACE */
+  /* FIXED rail that never moves on page scroll */
   #rbSidebar.offcanvas{
-    position: fixed !important;
-    top: var(--rb-header-h) !important;    /* Start exactly below header */
-    left: 0 !important;
-    z-index: 1029;
+    position: fixed;                 /* bullet‑proof vs. sticky */
+    top: var(--rb-header-h);         /* set header height via --rb-header-h if your header is fixed */
+    left: 0;
+    z-index: 1029;                   /* keep below a 1030 header if needed */
 
     transform: none !important;
     visibility: visible !important;
     transition: none !important;
 
-    width: var(--rb-sb-w) !important;
-    max-width: var(--rb-sb-w) !important;
-    height: calc(100vh - var(--rb-header-h)) !important;  /* Fill remaining height */
-    min-height: calc(100vh - var(--rb-header-h)) !important;
+    width: var(--rb-sb-w);
+    max-width: var(--rb-sb-w);
+    height: calc(100dvh - var(--rb-header-h));   /* full viewport minus header */
+    min-height: calc(100dvh - var(--rb-header-h));
 
     box-shadow: var(--rb-sb-shadow);
     border-right: 1px solid var(--rb-sb-border);
-    border-radius: 0 !important;
+    border-radius: 0;
     background: var(--rb-sb-bg);
-    
-    /* Remove any margin/padding that could create white space */
-    margin: 0 !important;
-    padding: 0 !important;
   }
 
   /* Hide the offcanvas close header on desktop */
@@ -201,36 +186,35 @@
   /* Only the inside scrolls */
   #rbSidebar .offcanvas-body{
     height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: auto;                   /* independent scroll */
     -webkit-overflow-scrolling: touch;
-    /* Remove any padding that creates white space */
-    padding: 0 !important;
-    margin: 0 !important;
   }
 
   /* Hide the mobile top bar on desktop */
   [data-rb-scope="sidebar"] .rb-sb-topbar{ display: none !important; }
 }
 
-/* ---------- Dashboard Layout Fixes ---------- */
-
-/* FIXED: Proper main content positioning */
-@media (min-width: 1200px){
-  main{
-    margin-left: var(--rb-sb-w) !important;
-    width: calc(100% - var(--rb-sb-w)) !important;
-    min-height: calc(100vh - var(--rb-header-h)) !important;
-    box-sizing: border-box;
-    padding: 1rem 1.5rem !important; /* Better spacing */
-  }
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  #rbSidebar .accordion-collapse{ transition: none; }
 }
 
-/* Mobile: full width */
-@media (max-width: 1199.98px){
-  main{ 
-    margin-left: 0 !important; 
-    width: 100% !important;
-    padding: 1rem !important;
-  }
+/* ---------- High-contrast tweaks ---------- */
+@media (forced-colors: active){
+  [data-rb-scope="sidebar"]{ --rb-sb-border: CanvasText; }
+  #rbSidebar .rb-sb-link.active{ outline: 2px solid Highlight; border-left-color: Highlight; }
+}
+
+/* ---------- Optional: thin scrollbars in the rail (supported browsers) ---------- */
+#rbSidebar .offcanvas-body{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148,208,236,.5) transparent;
+}
+#rbSidebar .offcanvas-body::-webkit-scrollbar{ width: 10px; }
+#rbSidebar .offcanvas-body::-webkit-scrollbar-track{ background: transparent; }
+#rbSidebar .offcanvas-body::-webkit-scrollbar-thumb{
+  background: rgba(148,208,236,.28);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
