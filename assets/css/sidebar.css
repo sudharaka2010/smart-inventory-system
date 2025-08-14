@@ -4,6 +4,9 @@
    - Offcanvas on mobile, FIXED rail on desktop (xl+)
    - Does NOT touch header.php / footer.php / main content
 ================================================================================== */
+/* Keep sidebar perfectly flush under your header */
+:root{ --rb-header-h: var(--header-h, 56px); }          /* read from header.css or fall back to 56px */
+[data-rb-scope="sidebar"]{ --rb-header-h: var(--rb-header-h); }  /* use the exact same value in the rail */
 
 /* ---------- Theme tokens (scoped) ---------- */
 [data-rb-scope="sidebar"]{
