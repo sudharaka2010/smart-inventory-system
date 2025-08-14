@@ -45,7 +45,7 @@ function isOpen($files){
 
 <?php if ($RB_SIDEBAR_LOAD_CSS): ?>
   <!-- Scoped sidebar CSS (skip if you import it via app.css) -->
-  <link rel="stylesheet" href="<?= htmlspecialchars($href('assets/css/sidebar.css'), ENT_QUOTES) ?>?v=2025-08-15">
+  <link rel="stylesheet" href="<?= htmlspecialchars($href('assets/css/app.css'), ENT_QUOTES) ?>?v=2025-08-15">
 <?php endif; ?>
 
 <!-- Mobile Top Bar (hamburger) -->
