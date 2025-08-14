@@ -1,106 +1,117 @@
-/* ===================== RB Stores — Footer (SCOPED) =====================
-   Scope: only under [data-rb-scope="footer"] to avoid touching header/sidebar.
-   Plays nicely with Bootstrap 5.3+.
-   Key fixes to stop "auto-growing" on scroll:
-   - flex-nowrap row and min-width:0 on left cluster to prevent wrap.
-   - fixed icon sizes and controlled gaps.
-   - stable padding and borders, no dynamic margins.
-======================================================================= */
+/* ============================ RB Stores — Footer (scoped) ============================
+   Scope: only targets [data-rb-scope="footer"]
+   Notes: stable visual height, business look, a11y-friendly focus, mobile-first.
+===================================================================================== */
 
-:root{
-  /* Will be updated by JS to the real px height */
-  --rb-footer-h: 56px;
+[data-rb-scope="footer"] {
+  --rb-footer-bg: var(--rb-card, #0f172a);
+  --rb-footer-fg: var(--rb-text, #e5e7eb);
+  --rb-footer-muted: #9aa6b2;
+  --rb-footer-border: rgba(255,255,255,.12);
+  --rb-focus: 0 0 0 3px rgba(99,117,255,.35);
 }
 
-[data-rb-scope="footer"] .rb-footer{
-  background: #0f172a;              /* slate-900 */
-  color: #e5e7eb;                    /* gray-200 */
-  border-top: 1px solid rgba(148,208,236,.28);
-  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  /* Prevent accidental overlap with main content that uses this var */
-  min-height: var(--rb-footer-h);
+@media (prefers-color-scheme: light) {
+  [data-rb-scope="footer"] {
+    --rb-footer-bg: #ffffff;
+    --rb-footer-fg: #0f172a;
+    --rb-footer-muted: #5b6570;
+    --rb-footer-border: rgba(0,0,0,.08);
+  }
 }
 
-[data-rb-scope="footer"] .rb-footer__inner{
-  padding: .5rem .75rem;
+[data-rb-scope="footer"] .rb-footer {
+  background: var(--rb-footer-bg);
+  color: var(--rb-footer-fg);
+  border-top: 1px solid var(--rb-footer-border);
+  padding: .5rem 0;                       /* compact height */
+  padding-bottom: calc(.5rem + env(safe-area-inset-bottom, 0px));
+  font-size: .875rem;                      /* 14px */
+  line-height: 1.2;
 }
 
-[data-rb-scope="footer"] .rb-footer__row{
-  /* Critical to stop height jumps when scrollbar appears/disappears */
-  flex-wrap: nowrap;
+[data-rb-scope="footer"] .rb-footer__row {
+  /* allow wrap on xs; nowrap from sm+ via .flex-sm-nowrap in markup */
 }
 
-/* Left cluster */
-[data-rb-scope="footer"] .rb-footer__left{
-  gap: .5rem;
-  min-width: 0;              /* allow text-truncate to actually truncate */
-}
-
-[data-rb-scope="footer"] .rb-footer__brand{
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  min-width: 0;
-}
-
-[data-rb-scope="footer"] .rb-footer__logo{
+[data-rb-scope="footer"] .rb-footer__logo {
   width: 22px;
   height: 22px;
-  object-fit: contain;
-  flex: 0 0 22px;
-}
-
-[data-rb-scope="footer"] .rb-footer__appname{
-  max-width: 220px;          /* keep things stable on mid screens */
-  white-space: nowrap;
-}
-
-/* Right cluster */
-[data-rb-scope="footer"] .rb-footer__right{
-  gap: .25rem;
-  flex-shrink: 0;            /* don’t let buttons wrap under pressure */
-}
-
-[data-rb-scope="footer"] .rb-footer__link{
-  color: #9fb9e8;
-  text-decoration: none;
-  padding: .25rem .5rem;
-  border-radius: .375rem;
+  border-radius: 6px;
   display: inline-block;
+  object-fit: cover;
+  margin-right: .25rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+
+[data-rb-scope="footer"] .rb-footer__appname {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+[data-rb-scope="footer"] .rb-footer__muted {
+  color: var(--rb-footer-muted);
   white-space: nowrap;
 }
 
-[data-rb-scope="footer"] .rb-footer__link:hover{
-  background: rgba(255,255,255,.06);
-  color: #e5e7eb;
+[data-rb-scope="footer"] .rb-footer__brand {
+  color: inherit;
+  text-decoration: none;
+  gap: .25rem;
 }
 
-[data-rb-scope="footer"] .rb-footer__muted{
-  color: #9ca3af;
-  font-weight: 400;
-  white-space: nowrap;
+[data-rb-scope="footer"] .rb-footer__nav {
+  display: flex;
+  gap: .5rem;
+  margin: 0 .5rem 0 0;
+  padding: 0;
+  list-style: none;
+  flex-wrap: wrap;
 }
 
-/* Back-to-top button (Bootstrap btn overrides kept minimal) */
-[data-rb-scope="footer"] .rb-footer__top{
+[data-rb-scope="footer"] .rb-footer__link {
+  display: inline-block;
+  padding: .25rem .5rem;
+  border-radius: .5rem;
+  text-decoration: none;
+  color: inherit;
+  opacity: .9;
+}
+[data-rb-scope="footer"] .rb-footer__link:hover,
+[data-rb-scope="footer"] .rb-footer__link:focus {
+  opacity: 1;
+  text-decoration: underline;
+  outline: none;
+  box-shadow: var(--rb-focus);
+}
+
+[data-rb-scope="footer"] .rb-footer__right {
+  gap: .25rem;
+}
+
+[data-rb-scope="footer"] .rb-footer__top.btn {
+  --bs-btn-color: inherit;
+  --bs-btn-border-color: var(--rb-footer-border);
+  --bs-btn-hover-bg: rgba(255,255,255,.08);
+  --bs-btn-hover-border-color: var(--rb-footer-border);
+  --bs-btn-font-size: .75rem;
+  border-radius: .6rem;
   display: inline-flex;
   align-items: center;
   gap: .35rem;
-  border-radius: .5rem;
-  line-height: 1.2;
-  padding: .3rem .55rem;
+  padding: .25rem .5rem;
+}
+[data-rb-scope="footer"] .rb-footer__top:focus-visible {
+  box-shadow: var(--rb-focus);
+  outline: none;
 }
 
-/* Small screens: allow stacking WITHOUT height jumps */
-@media (max-width: 575.98px){
-  [data-rb-scope="footer"] .rb-footer__row{
-    flex-wrap: wrap;         /* okay to wrap on very small screens */
-    row-gap: .5rem;
-  }
-  [data-rb-scope="footer"] .rb-footer__muted{
-    display: none;           /* hide long copyright on XS */
-  }
-  [data-rb-scope="footer"] .rb-footer__appname{
-    max-width: 140px;
-  }
+/* Prevent accidental horizontal scroll */
+[data-rb-scope="footer"] .rb-footer__inner {
+  overflow: hidden;
+}
+
+/* Print: hide footer by default */
+@media print {
+  [data-rb-scope="footer"] .rb-footer { display: none !important; }
 }
