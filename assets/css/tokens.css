@@ -1,5 +1,4 @@
 @layer tokens {
-  /* ---------- Base (default = dark theme) ---------- */
   :root{
     /* Brand */
     --rb-primary-500:#6375ff;
@@ -8,21 +7,21 @@
     --rb-accent-1:#6d28d9;
     --rb-accent-2:#3b82f6;
 
-    /* Surfaces & text (DARK) */
-    --rb-bg:#0f172a;         /* page bg */
-    --rb-bg-soft:#0b1222;    /* panels / rails */
-    --rb-card:#111827;       /* cards */
-    --rb-text:#e5e7eb;       /* primary text */
-    --rb-text-dim:#a3b4c7;   /* secondary text */
-    --rb-border:#24324a;     /* soft borders */
+    /* Surfaces & text (DARK default) */
+    --rb-bg:#0f172a;
+    --rb-bg-soft:#0b1222;
+    --rb-card:#111827;
+    --rb-text:#e5e7eb;
+    --rb-text-dim:#a3b4c7;
+    --rb-border:#24324a;
     --rb-table-stripe: rgba(255,255,255,.03);
 
-    /* Layout constants */
+    /* Layout */
     --rb-header-h:68px;
     --rb-footer-h:56px;
     --rb-sb-w:280px;
 
-    /* Sizing scale */
+    /* Spacing */
     --rb-space-0:0;
     --rb-space-1:4px;
     --rb-space-2:8px;
@@ -54,12 +53,14 @@
     --rb-speed-fast: 120ms;
     --rb-speed: 200ms;
 
-    /* Z-index (local) */
     --rb-z-main: 1;
+    color-scheme: dark light;
   }
 
-  /* ---------- Light theme (optional switch) ---------- */
-  :root[data-theme="light"], [data-theme="light"] :root {
+  /* Explicit light theme (attribute on html or body) */
+  :root[data-theme="light"],
+  html[data-theme="light"],
+  body[data-theme="light"]{
     --rb-bg:#f6f8fb;
     --rb-bg-soft:#ffffff;
     --rb-card:#ffffff;
@@ -67,9 +68,10 @@
     --rb-text-dim:#4b5563;
     --rb-border:#d0d7e2;
     --rb-table-stripe: rgba(0,0,0,.03);
+    color-scheme: light;
   }
 
-  /* ---------- Respect system preference if you want auto mode ---------- */
+  /* Auto-light if system is light and user hasn’t forced dark */
   @media (prefers-color-scheme: light){
     :root:not([data-theme="dark"]){
       --rb-bg:#f6f8fb;
@@ -79,6 +81,7 @@
       --rb-text-dim:#4b5563;
       --rb-border:#d0d7e2;
       --rb-table-stripe: rgba(0,0,0,.03);
+      color-scheme: light;
     }
   }
 }
