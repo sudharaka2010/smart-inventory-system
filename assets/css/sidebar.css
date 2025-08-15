@@ -1,165 +1,142 @@
-/* ============================ RB Stores — Sidebar (SCOPED) ============================
-   • Offcanvas on mobile, fixed rail on desktop (≥992px)
-   • No global selectors — safe beside Bootstrap and your other CSS
-   • Dark by default; light mode via prefers-color-scheme
-====================================================================================== */
+/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) =====================
+   Scope guard: ONLY target inside [data-rb-scope="sidebar"] and #rbSidebar
+   - Safe for Bootstrap 5.3.x
+   - Offcanvas on mobile, FIXED rail on desktop (xl+)
+   - Does NOT touch header.php / footer.php / main content
+================================================================================== */
 
-:where([data-rb-scope="sidebar"]) {
-  /* Layout tokens (keep in sync with header/main) */
-  --rb-header-h: 68px;     /* header height */
-  --rb-sb-w: 280px;        /* sidebar width on desktop/laptop */
+/* ---------- Theme tokens (scoped) ---------- */
+[data-rb-scope="sidebar"]{
+  --rb-sb-w: 280px;                 /* rail width on xl+ */
+  --rb-header-h: 68px;              /* exact fixed header height */
+  --rb-footer-h: 0px;               /* footer height if fixed; adjust if you use one */
 
-  /* Palette (dark) */
-  --rb-sb-bg: #0f172a;     /* rail bg */
-  --rb-sb-bg-soft: #0b1222;
-  --rb-sb-fg: #e5e7eb;     /* text */
-  --rb-sb-dim: #94a3b8;    /* dim text */
-  --rb-sb-border: rgba(255,255,255,.10);
+  --rb-sb-bg:#0f172a;               /* slate-900 */
+  --rb-sb-bg-soft:#0b1222;          /* deeper */
+  --rb-sb-text:#cbd5e1;             /* slate-300 */
+  --rb-sb-text-dim:#96a6c6;         /* slate-400/500 */
+  --rb-sb-border:rgba(148,208,236,.2);
+  --rb-sb-hover:rgba(255,255,255,.06);
+  --rb-sb-active:#1f2a44;           /* active row bg */
+  --rb-sb-brand:#e5e7eb;
 
-  --rb-sb-link: #cbd5e1;
-  --rb-sb-link-hover: #ffffff;
-  --rb-sb-active-bg: rgba(255,255,255,.10);
-  --rb-sb-active-fg: #ffffff;
-
-  /* Focus ring color (match your brand) */
-  --rb-focus: rgba(99,117,255,.35);
+  --rb-sb-shadow: 0 10px 30px rgba(0,0,0,.35);
 }
 
-/* --------------------- Mobile top bar (hamburger) --------------------- */
-:where([data-rb-scope="sidebar"] .rb-sb-topbar){
-  position: sticky; top: 0; z-index: 1030;
-  display: flex; align-items: center; gap: .5rem;
-  min-height: 48px; padding: .375rem .5rem;
-  background: var(--rb-sb-bg); color: var(--rb-sb-fg);
-  border-bottom: 1px solid var(--rb-sb-border);
+/* ---------- Mobile top bar (hamburger) ---------- */
+[data-rb-scope="sidebar"] .rb-sb-topbar{
+  display:flex; align-items:center; gap:.25rem;
+  position:sticky; top:0; z-index:1030; /* above page content */
+  padding:.6rem .8rem; background:var(--rb-sb-bg); color:var(--rb-sb-text);
+  border-bottom:1px solid var(--rb-sb-border);
+  box-shadow: var(--rb-sb-shadow);
 }
-:where([data-rb-scope="sidebar"] .rb-sb-topbar-btn){
-  color: inherit; background: transparent;
-  border: 1px solid var(--rb-sb-border);
-  border-radius: .5rem; line-height: 1;
+[data-rb-scope="sidebar"] .rb-sb-topbar-btn{
+  color:var(--rb-sb-text);
 }
 
-/* --------------------- Offcanvas (mobile) --------------------- */
-:where([data-rb-scope="sidebar"] .rb-sb){
-  background: var(--rb-sb-bg);
-  color: var(--rb-sb-fg);
-  width: min(92vw, var(--rb-sb-w));
-  border-right: 1px solid var(--rb-sb-border);
+/* ---------- Base offcanvas ---------- */
+#rbSidebar.rb-sb.offcanvas{
+  background:var(--rb-sb-bg);
+  color:var(--rb-sb-text);
+  width: min(100vw, var(--rb-sb-w));
+  border-right:1px solid var(--rb-sb-border);
+  box-shadow: var(--rb-sb-shadow);
 }
-:where([data-rb-scope="sidebar"] .offcanvas-shadow){
-  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+#rbSidebar .offcanvas-header{
+  border-bottom:1px solid var(--rb-sb-border);
+  color:var(--rb-sb-brand);
 }
-:where([data-rb-scope="sidebar"] .offcanvas-header){
-  border-bottom: 1px solid var(--rb-sb-border);
+#rbSidebar .offcanvas-title{ font-weight:600; }
+
+/* ---------- Accordion / groups ---------- */
+[data-rb-scope="sidebar"] .rb-sb-acc-item{
+  background:none; border:none; border-bottom:1px solid rgba(255,255,255,.04);
 }
-:where([data-rb-scope="sidebar"] .offcanvas-body){
-  display: flex; flex-direction: column; gap: .25rem; padding: 0;
+[data-rb-scope="sidebar"] .rb-sb-acc-btn{
+  background:none; color:var(--rb-sb-text);
+  padding:.9rem 1rem;
+  border-radius:0;
+  box-shadow:none;
+}
+[data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed){
+  background-color:var(--rb-sb-bg-soft);
+  color:var(--rb-sb-brand);
+}
+[data-rb-scope="sidebar"] .rb-sb-acc-btn:focus{
+  box-shadow: 0 0 0 .2rem rgba(99,117,255,.25);
 }
 
-/* --------------------- Desktop rail (≥992px) --------------------- */
-@media (min-width: 992px){
-  /* Turn offcanvas into a fixed left rail */
-  :where([data-rb-scope="sidebar"] #rbSidebar){
-    position: fixed;
-    top: var(--rb-header-h);
-    bottom: 0; left: 0;
-    width: var(--rb-sb-w);
-    visibility: visible !important;
+/* ---------- Links list ---------- */
+[data-rb-scope="sidebar"] .rb-sb-menu > li{
+  display:block;
+}
+[data-rb-scope="sidebar"] .rb-sb-link{
+  display:flex; align-items:center;
+  gap:.5rem;
+  padding:.65rem 1rem;
+  color:var(--rb-sb-text);
+  text-decoration:none;
+  border-left:3px solid transparent;
+}
+[data-rb-scope="sidebar"] .rb-sb-link:hover{
+  background:var(--rb-sb-hover);
+}
+[data-rb-scope="sidebar"] .rb-sb-link.active,
+[data-rb-scope="sidebar"] .rb-sb-link[aria-current="page"]{
+  background:var(--rb-sb-active);
+  color:#fff;
+  border-left-color:var(--rb-sb-text-dim);
+}
+
+/* ---------- Footer area inside the sidebar ---------- */
+[data-rb-scope="sidebar"] .rb-sb-footer{
+  border-top:1px solid var(--rb-sb-border);
+}
+[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link{
+  padding:.6rem .8rem;
+}
+
+/* ---------- Offcanvas shadow helper ---------- */
+[data-rb-scope="sidebar"] .offcanvas-shadow{
+  box-shadow: var(--rb-sb-shadow);
+}
+
+/* ================== Desktop rail (xl and up) ================== */
+@media (min-width:1200px){
+  /* Hide the mobile top bar */
+  [data-rb-scope="sidebar"] .rb-sb-topbar{ display:none; }
+
+  /* Turn the offcanvas into a fixed rail */
+  #rbSidebar.offcanvas{
+    position: fixed !important;
     transform: none !important;
-    transition: none !important;
-    box-shadow: none;
-    border-right: 1px solid var(--rb-sb-border);
+    visibility: visible !important;
+    inset: var(--rb-header-h) auto auto 0;             /* top/left */
+    width: var(--rb-sb-w);
+    height: calc(100vh - var(--rb-header-h) - var(--rb-footer-h));
+    border-right:1px solid var(--rb-sb-border);
+    z-index:1030; /* below fixed header if header has 1035+ */
   }
-  /* Hide the offcanvas header on desktop */
-  :where([data-rb-scope="sidebar"] .offcanvas-header){ display: none !important; }
-}
 
-/* --------------------- Brand (optional block) --------------------- */
-:where([data-rb-scope="sidebar"] .rb-sb-brand){
-  color: var(--rb-sb-fg);
-  border-bottom: 1px solid var(--rb-sb-border);
-}
+  /* No backdrop on desktop */
+  .offcanvas-backdrop{ display:none !important; }
 
-/* --------------------- Accordion groups --------------------- */
-:where([data-rb-scope="sidebar"] .rb-sb-acc-item){
-  background: transparent; border: 0;
-  border-bottom: 1px solid rgba(255,255,255,.05);
-}
-:where([data-rb-scope="sidebar"] .rb-sb-acc-btn){
-  background: transparent; color: var(--rb-sb-fg);
-  padding: .7rem .9rem; gap: .5rem; box-shadow: none;
-}
-:where([data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed)){
-  background: rgba(255,255,255,.03);
-  color: var(--rb-sb-fg);
-  box-shadow: inset 0 -1px 0 var(--rb-sb-border);
-}
-:where([data-rb-scope="sidebar"] .accordion-button:focus){
-  box-shadow: 0 0 0 .2rem var(--rb-focus);
-}
-:where([data-rb-scope="sidebar"] .accordion-collapse){
-  border-top: 1px dashed rgba(255,255,255,.06);
-}
-
-/* --------------------- Menu + links --------------------- */
-:where([data-rb-scope="sidebar"] .rb-sb-menu){
-  margin: 0; padding: .375rem;
-}
-:where([data-rb-scope="sidebar"] .rb-sb-link){
-  display: flex; align-items: center; gap: .5rem;
-  padding: .55rem .625rem;
-  border-radius: .6rem;
-  text-decoration: none;
-  color: var(--rb-sb-link);
-  white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis;
-  transition: background .15s ease, color .15s ease, opacity .15s ease;
-}
-:where([data-rb-scope="sidebar"] .rb-sb-link:hover){
-  background: rgba(255,255,255,.06);
-  color: var(--rb-sb-link-hover);
-}
-:where([data-rb-scope="sidebar"] .rb-sb-link.active),
-:where([data-rb-scope="sidebar"] .rb-sb-link[aria-current="page"]){
-  background: var(--rb-sb-active-bg);
-  color: var(--rb-sb-active-fg);
-}
-:where([data-rb-scope="sidebar"] .rb-sb-link:focus-visible){
-  outline: 2px solid var(--rb-focus);
-  outline-offset: 2px; border-radius: .5rem;
-}
-:where([data-rb-scope="sidebar"] .rb-sb-link i){
-  font-size: 1.05rem; width: 1.25rem; text-align: center;
-}
-
-/* --------------------- Sidebar footer (logout) --------------------- */
-:where([data-rb-scope="sidebar"] .rb-sb-footer){
-  border-top: 1px solid var(--rb-sb-border);
-}
-
-/* --------------------- Typography safety (inside scope only) --------------------- */
-:where([data-rb-scope="sidebar"] *){
-  color: inherit; font: inherit; line-height: inherit;
-}
-
-/* --------------------- Light theme (auto) --------------------- */
-@media (prefers-color-scheme: light){
-  :where([data-rb-scope="sidebar"]){
-    --rb-sb-bg: #f8fafc;
-    --rb-sb-bg-soft: #f1f5f9;
-    --rb-sb-fg: #0f172a;
-    --rb-sb-dim: #475569;
-    --rb-sb-border: rgba(2,6,23,.10);
-    --rb-sb-link: #1f2937;
-    --rb-sb-link-hover: #000000;
-    --rb-sb-active-bg: rgba(2,6,23,.08);
-    --rb-sb-active-fg: #111827;
+  /* Prevent layout shift: when body has the rail, push main content */
+  body.has-rail { overflow-x:hidden; } /* stops random horizontal scroll */
+  body.has-rail [data-rb-content],
+  body.has-rail main{
+    margin-left: var(--rb-sb-w);
   }
 }
 
-/* --------------------- Reduced motion --------------------- */
-@media (prefers-reduced-motion: reduce){
-  :where([data-rb-scope="sidebar"] *){
-    transition: none !important;
-    animation: none !important;
-  }
+/* ---------- Micro polish ---------- */
+#rbSidebar .accordion-button::after{
+  filter: invert(1) opacity(.75);
+}
+#rbSidebar .bi{ opacity:.9; }
+
+/* ---------- Optional: reduce white flash on load ---------- */
+@media (prefers-reduced-motion: no-preference){
+  #rbSidebar{ will-change: transform; }
 }
