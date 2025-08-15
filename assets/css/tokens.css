@@ -1,0 +1,84 @@
+@layer tokens {
+  /* ---------- Base (default = dark theme) ---------- */
+  :root{
+    /* Brand */
+    --rb-primary-500:#6375ff;
+    --rb-primary-600:#5a63ff;
+    --rb-primary-700:#4a56ff;
+    --rb-accent-1:#6d28d9;
+    --rb-accent-2:#3b82f6;
+
+    /* Surfaces & text (DARK) */
+    --rb-bg:#0f172a;         /* page bg */
+    --rb-bg-soft:#0b1222;    /* panels / rails */
+    --rb-card:#111827;       /* cards */
+    --rb-text:#e5e7eb;       /* primary text */
+    --rb-text-dim:#a3b4c7;   /* secondary text */
+    --rb-border:#24324a;     /* soft borders */
+    --rb-table-stripe: rgba(255,255,255,.03);
+
+    /* Layout constants */
+    --rb-header-h:68px;
+    --rb-footer-h:56px;
+    --rb-sb-w:280px;
+
+    /* Sizing scale */
+    --rb-space-0:0;
+    --rb-space-1:4px;
+    --rb-space-2:8px;
+    --rb-space-3:12px;
+    --rb-space-4:16px;
+    --rb-space-5:20px;
+    --rb-space-6:24px;
+    --rb-space-8:32px;
+    --rb-space-10:40px;
+
+    /* Radius & shadow */
+    --rb-radius-sm:8px;
+    --rb-radius:12px;
+    --rb-radius-lg:16px;
+    --rb-shadow-sm:0 4px 14px rgba(0,0,0,.22);
+    --rb-shadow:0 10px 30px rgba(0,0,0,.25);
+
+    /* Typography */
+    --rb-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --rb-fs-12:12px;
+    --rb-fs-14:14px;
+    --rb-fs-16:16px;
+    --rb-fs-18:18px;
+    --rb-fs-20:20px;
+    --rb-fs-24:24px;
+
+    /* Animation */
+    --rb-ease: cubic-bezier(.2,.6,.2,1);
+    --rb-speed-fast: 120ms;
+    --rb-speed: 200ms;
+
+    /* Z-index (local) */
+    --rb-z-main: 1;
+  }
+
+  /* ---------- Light theme (optional switch) ---------- */
+  :root[data-theme="light"], [data-theme="light"] :root {
+    --rb-bg:#f6f8fb;
+    --rb-bg-soft:#ffffff;
+    --rb-card:#ffffff;
+    --rb-text:#0f172a;
+    --rb-text-dim:#4b5563;
+    --rb-border:#d0d7e2;
+    --rb-table-stripe: rgba(0,0,0,.03);
+  }
+
+  /* ---------- Respect system preference if you want auto mode ---------- */
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --rb-bg:#f6f8fb;
+      --rb-bg-soft:#ffffff;
+      --rb-card:#ffffff;
+      --rb-text:#0f172a;
+      --rb-text-dim:#4b5563;
+      --rb-border:#d0d7e2;
+      --rb-table-stripe: rgba(0,0,0,.03);
+    }
+  }
+}

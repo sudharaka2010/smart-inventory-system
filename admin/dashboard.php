@@ -112,7 +112,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
 
   <!-- App bundle (imports tokens.css, header.css, sidebar.css, main.css, dashboard.css, …) -->
-  <link rel="stylesheet" href="<?= h($href('assets/css/app.css')); ?>?v=2025-08-15">
+  <link rel="stylesheet" href="<?= h($href('assets/css/app.css')); ?>?v=2025-08-15" />
 
   <!-- Fonts (optional) -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -120,202 +120,206 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
 <body class="bg-body">
 
   <!-- Skip link for a11y -->
-  <a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 p-2 bg-light rounded"
-     href="#rb-main">Skip to main content</a>
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 p-2 bg-light rounded" href="#rb-main">
+    Skip to main content
+  </a>
 
   <?php if (file_exists($headerFile)) include $headerFile; ?>
 
-  <!-- Sidebar include (offcanvas on mobile; fixed rail on ≥992px via CSS) -->
-  <?php
-    // Make sure sidebar does NOT try to load CSS/JS itself
-    $RB_SIDEBAR_LOAD_VENDOR = false;
-    $RB_SIDEBAR_LOAD_CSS    = false;
-    $RB_SIDEBAR_SHOW_BRAND  = false;
-    if (file_exists($sidebarFile)) include $sidebarFile;
-  ?>
+  <!-- Shell wrapper: places sidebar + main in a 2‑col grid on desktop -->
+  <div id="rbShell">
+    <!-- Sidebar include (offcanvas on mobile; fixed rail on ≥lg via CSS) -->
+    <?php
+      // Ensure sidebar include does not try to load its own CSS/JS
+      $RB_SIDEBAR_LOAD_VENDOR = false;
+      $RB_SIDEBAR_LOAD_CSS    = false;
+      $RB_SIDEBAR_SHOW_BRAND  = false;
+      if (file_exists($sidebarFile)) include $sidebarFile;
+    ?>
 
-  <!-- Main content (offset handled in main.css via data-rb-scope="main") -->
-  <main id="rb-main" data-rb-scope="main" class="container-fluid px-3 px-lg-4 py-4" role="main">
-    <!-- Title + Theme -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-      <div class="hero w-100 w-md-auto">
-        <h1 class="h4 mb-1">RB Stores Dashboard</h1>
-        <div class="text-secondary small">As of <?=date('Y-m-d H:i');?> • <b>Balance = TotalAmount − AmountPaid</b></div>
-      </div>
-
-      <!-- Theme controls -->
-      <div class="d-flex flex-wrap gap-2">
-        <select id="themePreset" class="form-select form-select-sm minw-150" title="Theme preset">
-          <option value="default">Default (Bootstrap)</option>
-          <option value="ocean">Ocean</option>
-          <option value="emerald">Emerald</option>
-          <option value="crimson">Crimson</option>
-        </select>
-        <button id="themeReset" class="btn btn-sm btn-outline-secondary">Reset</button>
-      </div>
-    </div>
-
-    <!-- Alerts -->
-    <div class="mb-3" aria-live="polite">
-      <?php if (($kpi['low_stock_cnt']??0)>0): ?>
-        <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below ≤5.</div>
-          <a class="ms-auto btn btn-sm btn-outline-warning" href="<?= h($href('low_stock.php')); ?>">Review</a>
+    <!-- Main content (scoped via data-rb-scope, page key for page CSS) -->
+    <main id="rb-main" data-rb-scope="main" data-page="dashboard" class="container-fluid px-3 px-lg-4 py-4" role="main">
+      <!-- Title + Theme -->
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div class="hero w-100 w-md-auto">
+          <h1 class="h4 mb-1">RB Stores Dashboard</h1>
+          <div class="text-secondary small">As of <?=date('Y-m-d H:i');?> • <b>Balance = TotalAmount − AmountPaid</b></div>
         </div>
-      <?php endif; ?>
-      <?php if (($rev['balance_due']??0)>0): ?>
-        <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3">
-          <i class="fa-solid fa-sack-xmark"></i>
-          <div><strong>Balance due:</strong> <?=h(lkr($rev['balance_due']));?> outstanding.</div>
-          <a class="ms-auto btn btn-sm btn-outline-danger" href="<?= h($href('view_billing.php')); ?>">Collect</a>
+
+        <!-- Theme controls -->
+        <div class="d-flex flex-wrap gap-2">
+          <select id="themePreset" class="form-select form-select-sm minw-150" title="Theme preset">
+            <option value="default">Default (Bootstrap)</option>
+            <option value="ocean">Ocean</option>
+            <option value="emerald">Emerald</option>
+            <option value="crimson">Crimson</option>
+          </select>
+          <button id="themeReset" class="btn btn-sm btn-outline-secondary">Reset</button>
         </div>
-      <?php endif; ?>
-    </div>
-
-    <!-- Quick actions -->
-    <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
-      <a href="<?= h($href('billing.php')); ?>" class="btn btn-primary btn-action"><i class="fa-solid fa-plus me-2"></i>New Order</a>
-      <a href="<?= h($href('add_inventory.php')); ?>" class="btn btn-outline-primary btn-action"><i class="fa-solid fa-boxes-packing me-2"></i>Add Stock</a>
-      <a href="<?= h($href('add_transport.php')); ?>" class="btn btn-outline-secondary btn-action"><i class="fa-solid fa-truck me-2"></i>Schedule Delivery</a>
-      <a href="<?= h($href('reports/')); ?>" class="btn btn-outline-dark btn-action"><i class="fa-solid fa-chart-line me-2"></i>Reports</a>
-    </div>
-
-    <!-- KPI Grid -->
-    <section class="mb-4">
-      <h3 class="h6 mb-3">Business Overview</h3>
-      <div class="row g-3 kpi">
-        <?php
-        $cards = [
-          ['Customers',        number_format($kpi['customers']??0),         'fa-users','primary', null],
-          ['Orders',           number_format($kpi['orders']??0),            'fa-receipt','secondary', null],
-          ['Revenue (Total)',  h(lkr($rev['total_amount']??0)),             'fa-coins','success', null],
-          ['Amount Paid',      h(lkr($rev['amount_paid']??0)),              'fa-hand-holding-dollar','info', null],
-          ['Balance Due',      h(lkr($rev['balance_due']??0)),              'fa-scale-balanced','danger', null],
-          ['Low Stock (≤5)',   number_format($kpi['low_stock_cnt']??0),     'fa-warehouse','warning', $href('low_stock.php')],
-          ['Items in Stock',   number_format($kpi['stock_qty']??0),         'fa-cubes','dark', null],
-          ['Pending Orders',   number_format($kpi['pending_orders']??0),    'fa-hourglass-half','warning', null],
-          ['Deliveries Today', number_format($kpi['deliveries_today']??0),  'fa-truck-ramp-box','primary', $href('pending_deliveries.php')],
-          ['Returns',          number_format($kpi['returns']??0),           'fa-rotate-left','secondary', null],
-        ];
-        foreach($cards as [$label,$val,$icon,$variant,$goto]){
-          $inner = '<div class="card h-100 shadow-sm border-0"><div class="card-body d-flex align-items-center gap-3">'
-                 . '<div class="icon text-'.$variant.'"><i class="fa '.$icon.'"></i></div>'
-                 . '<div><div class="text-secondary small">'.$label.'</div><div class="fs-4 fw-semibold">'.$val.'</div></div>'
-                 . '</div></div>';
-          echo '<div class="col-12 col-sm-6 col-lg-4">'.($goto?'<a class="text-decoration-none" href="'.h($goto).'">'.$inner.'</a>':$inner).'</div>';
-        }
-        ?>
       </div>
-    </section>
 
-    <!-- Tables -->
-    <section class="row g-3">
-      <!-- Recent Orders -->
-      <div class="col-12 col-xl-7">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-header border-0 pb-0">
-            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-              <h4 class="h6 m-0">Recent Orders</h4>
-              <div class="d-flex gap-2 flex-wrap">
-                <select id="orderStatusFilter" class="form-select form-select-sm minw-150" title="Filter by status">
-                  <option value="">All statuses</option>
-                  <option>Paid</option><option>Pending</option><option>Cancelled</option><option>Refunded</option>
-                </select>
-                <input id="orderSearch" class="form-control form-control-sm minw-220" placeholder="Search invoice / customer" />
-                <a class="btn btn-sm btn-outline-light" href="<?= h($href('view_billing.php')); ?>">View all</a>
+      <!-- Alerts -->
+      <div class="mb-3" aria-live="polite">
+        <?php if (($kpi['low_stock_cnt']??0)>0): ?>
+          <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-2">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div><strong>Low stock:</strong> <?=number_format($kpi['low_stock_cnt']);?> item(s) at or below ≤5.</div>
+            <a class="ms-auto btn btn-sm btn-outline-warning" href="<?= h($href('low_stock.php')); ?>">Review</a>
+          </div>
+        <?php endif; ?>
+        <?php if (($rev['balance_due']??0)>0): ?>
+          <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3">
+            <i class="fa-solid fa-sack-xmark"></i>
+            <div><strong>Balance due:</strong> <?=h(lkr($rev['balance_due']));?> outstanding.</div>
+            <a class="ms-auto btn btn-sm btn-outline-danger" href="<?= h($href('view_billing.php')); ?>">Collect</a>
+          </div>
+        <?php endif; ?>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="d-flex flex-wrap gap-2 mb-4" aria-label="Quick actions">
+        <a href="<?= h($href('billing.php')); ?>" class="btn btn-primary btn-action"><i class="fa-solid fa-plus me-2"></i>New Order</a>
+        <a href="<?= h($href('add_inventory.php')); ?>" class="btn btn-outline-primary btn-action"><i class="fa-solid fa-boxes-packing me-2"></i>Add Stock</a>
+        <a href="<?= h($href('add_transport.php')); ?>" class="btn btn-outline-secondary btn-action"><i class="fa-solid fa-truck me-2"></i>Schedule Delivery</a>
+        <a href="<?= h($href('reports/')); ?>" class="btn btn-outline-dark btn-action"><i class="fa-solid fa-chart-line me-2"></i>Reports</a>
+      </div>
+
+      <!-- KPI Grid -->
+      <section class="mb-4">
+        <h3 class="h6 mb-3">Business Overview</h3>
+        <div class="row g-3 kpi">
+          <?php
+          $cards = [
+            ['Customers',        number_format($kpi['customers']??0),         'fa-users','primary', null],
+            ['Orders',           number_format($kpi['orders']??0),            'fa-receipt','secondary', null],
+            ['Revenue (Total)',  h(lkr($rev['total_amount']??0)),             'fa-coins','success', null],
+            ['Amount Paid',      h(lkr($rev['amount_paid']??0)),              'fa-hand-holding-dollar','info', null],
+            ['Balance Due',      h(lkr($rev['balance_due']??0)),              'fa-scale-balanced','danger', null],
+            ['Low Stock (≤5)',   number_format($kpi['low_stock_cnt']??0),     'fa-warehouse','warning', $href('low_stock.php')],
+            ['Items in Stock',   number_format($kpi['stock_qty']??0),         'fa-cubes','dark', null],
+            ['Pending Orders',   number_format($kpi['pending_orders']??0),    'fa-hourglass-half','warning', null],
+            ['Deliveries Today', number_format($kpi['deliveries_today']??0),  'fa-truck-ramp-box','primary', $href('pending_deliveries.php')],
+            ['Returns',          number_format($kpi['returns']??0),           'fa-rotate-left','secondary', null],
+          ];
+          foreach($cards as [$label,$val,$icon,$variant,$goto]){
+            $inner = '<div class="card h-100 shadow-sm border-0"><div class="card-body d-flex align-items-center gap-3">'
+                   . '<div class="icon text-'.$variant.'"><i class="fa '.$icon.'"></i></div>'
+                   . '<div><div class="text-secondary small">'.$label.'</div><div class="fs-4 fw-semibold">'.$val.'</div></div>'
+                   . '</div></div>';
+            echo '<div class="col-12 col-sm-6 col-lg-4">'.($goto?'<a class="text-decoration-none" href="'.h($goto).'">'.$inner.'</a>':$inner).'</div>';
+          }
+          ?>
+        </div>
+      </section>
+
+      <!-- Tables -->
+      <section class="row g-3">
+        <!-- Recent Orders -->
+        <div class="col-12 col-xl-7">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-header border-0 pb-0">
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                <h4 class="h6 m-0">Recent Orders</h4>
+                <div class="d-flex gap-2 flex-wrap">
+                  <select id="orderStatusFilter" class="form-select form-select-sm minw-150" title="Filter by status">
+                    <option value="">All statuses</option>
+                    <option>Paid</option><option>Pending</option><option>Cancelled</option><option>Refunded</option>
+                  </select>
+                  <input id="orderSearch" class="form-control form-control-sm minw-220" placeholder="Search invoice / customer" />
+                  <a class="btn btn-sm btn-outline-light" href="<?= h($href('view_billing.php')); ?>">View all</a>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle table-striped table-soft recent-orders">
+                  <thead class="table-light">
+                  <tr><th>Order #</th><th>Invoice</th><th>Customer</th><th>Date</th><th class="text-end">Total</th><th>Status</th></tr>
+                  </thead>
+                  <tbody>
+                  <?php if (!$recentOrders): ?>
+                    <tr><td colspan="6" class="text-secondary">No orders yet.</td></tr>
+                  <?php else: foreach($recentOrders as $o): $status=$o['Status']??'Pending';
+                    $map=['Paid'=>'success','Pending'=>'warning','Cancelled'=>'danger','Refunded'=>'secondary'];
+                    $cls=$map[$status]??'secondary'; ?>
+                    <tr>
+                      <td>#<?= (int)$o['OrderID']; ?></td>
+                      <td class="text-primary fw-semibold"><?= h($o['InvoiceID']?:'—'); ?></td>
+                      <td><?= h($o['CustomerName']??'Guest'); ?></td>
+                      <td><?= h(d($o['OrderDate'])); ?></td>
+                      <td class="text-end"><?= h(lkr($o['TotalAmount']??0)); ?></td>
+                      <td><span class="badge text-bg-<?=$cls;?>"><?= h($status); ?></span></td>
+                    </tr>
+                  <?php endforeach; endif; ?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer border-0 pt-0 small text-secondary">
+              <span class="badge text-bg-success">Paid</span>
+              <span class="badge text-bg-warning">Pending</span>
+              <span class="badge text-bg-danger">Cancelled</span>
+              <span class="badge text-bg-secondary">Refunded</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="col-12 col-xl-5">
+          <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header border-0 pb-0">
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
+                <input id="itemSearch" class="form-control form-control-sm minw-220" placeholder="Search item…" />
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle table-striped table-soft top-items">
+                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
+                  <tbody>
+                  <?php if (!$topItems): ?>
+                    <tr><td colspan="2" class="text-secondary">No sales yet.</td></tr>
+                  <?php else: foreach($topItems as $t): ?>
+                    <tr>
+                      <td><?= h($t['ItemName']); ?> <span class="text-secondary">(ID: <?= (int)$t['ItemID']; ?>)</span></td>
+                      <td class="text-end"><?= number_format((int)$t['QtySold']); ?></td>
+                    </tr>
+                  <?php endforeach; endif; ?>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle table-striped table-soft recent-orders">
-                <thead class="table-light">
-                <tr><th>Order #</th><th>Invoice</th><th>Customer</th><th>Date</th><th class="text-end">Total</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                <?php if (!$recentOrders): ?>
-                  <tr><td colspan="6" class="text-secondary">No orders yet.</td></tr>
-                <?php else: foreach($recentOrders as $o): $status=$o['Status']??'Pending';
-                  $map=['Paid'=>'success','Pending'=>'warning','Cancelled'=>'danger','Refunded'=>'secondary'];
-                  $cls=$map[$status]??'secondary'; ?>
-                  <tr>
-                    <td>#<?= (int)$o['OrderID']; ?></td>
-                    <td class="text-primary fw-semibold"><?= h($o['InvoiceID']?:'—'); ?></td>
-                    <td><?= h($o['CustomerName']??'Guest'); ?></td>
-                    <td><?= h(d($o['OrderDate'])); ?></td>
-                    <td class="text-end"><?= h(lkr($o['TotalAmount']??0)); ?></td>
-                    <td><span class="badge text-bg-<?=$cls;?>"><?= h($status); ?></span></td>
-                  </tr>
-                <?php endforeach; endif; ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="card-footer border-0 pt-0 small text-secondary">
-            <span class="badge text-bg-success">Paid</span>
-            <span class="badge text-bg-warning">Pending</span>
-            <span class="badge text-bg-danger">Cancelled</span>
-            <span class="badge text-bg-secondary">Refunded</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Right column -->
-      <div class="col-12 col-xl-5">
-        <div class="card shadow-sm border-0 mb-3">
-          <div class="card-header border-0 pb-0">
-            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-              <h4 class="h6 m-0">Top Items (by Qty Sold)</h4>
-              <input id="itemSearch" class="form-control form-control-sm minw-220" placeholder="Search item…" />
+          <div class="card shadow-sm border-0">
+            <div class="card-header border-0 pb-0 d-flex align-items-center justify-content-between">
+              <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
+              <a class="btn btn-sm btn-outline-light" href="<?= h($href('low_stock.php')); ?>">View all</a>
             </div>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm align-middle table-striped table-soft top-items">
-                <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty Sold</th></tr></thead>
-                <tbody>
-                <?php if (!$topItems): ?>
-                  <tr><td colspan="2" class="text-secondary">No sales yet.</td></tr>
-                <?php else: foreach($topItems as $t): ?>
-                  <tr>
-                    <td><?= h($t['ItemName']); ?> <span class="text-secondary">(ID: <?= (int)$t['ItemID']; ?>)</span></td>
-                    <td class="text-end"><?= number_format((int)$t['QtySold']); ?></td>
-                  </tr>
-                <?php endforeach; endif; ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="card shadow-sm border-0">
-          <div class="card-header border-0 pb-0 d-flex align-items-center justify-content-between">
-            <h4 class="h6 m-0">Low Stock (≤ 5)</h4>
-            <a class="btn btn-sm btn-outline-light" href="<?= h($href('low_stock.php')); ?>">View all</a>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm align-middle table-striped table-soft low-stock">
-                <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
-                <tbody>
-                <?php if (!$lowStock): ?>
-                  <tr><td colspan="3" class="text-secondary">All good.</td></tr>
-                <?php else: foreach($lowStock as $ls): $q=(int)$ls['Quantity']; $qCls=$q<=3?'text-danger fw-semibold':($q<=5?'text-warning':''); ?>
-                  <tr>
-                    <td><?= h($ls['NAME']); ?> <span class="text-secondary">(ID: <?= (int)$ls['ItemID']; ?>)</span></td>
-                    <td class="text-end <?=$qCls;?>"><?= number_format($q); ?></td>
-                    <td><code><?= h($ls['InvoiceID']); ?></code></td>
-                  </tr>
-                <?php endforeach; endif; ?>
-                </tbody>
-              </table>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle table-striped table-soft low-stock">
+                  <thead class="table-light"><tr><th>Item</th><th class="text-end">Qty</th><th>Invoice</th></tr></thead>
+                  <tbody>
+                  <?php if (!$lowStock): ?>
+                    <tr><td colspan="3" class="text-secondary">All good.</td></tr>
+                  <?php else: foreach($lowStock as $ls): $q=(int)$ls['Quantity']; $qCls=$q<=3?'text-danger fw-semibold':($q<=5?'text-warning':''); ?>
+                    <tr>
+                      <td><?= h($ls['NAME']); ?> <span class="text-secondary">(ID: <?= (int)$ls['ItemID']; ?>)</span></td>
+                      <td class="text-end <?=$qCls;?>"><?= number_format($q); ?></td>
+                      <td><code><?= h($ls['InvoiceID']); ?></code></td>
+                    </tr>
+                  <?php endforeach; endif; ?>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div><!-- /#rbShell -->
 
   <?php if (file_exists($footerFile)) include $footerFile; ?>
 
@@ -324,13 +328,10 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
 
   <script>
   /* ---------- Tooltips (only if used) ---------- */
-  (()=>{
-    const els = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    els.forEach(el => new bootstrap.Tooltip(el));
-  })();
+  (()=>{ const els = document.querySelectorAll('[data-bs-toggle="tooltip"]'); els.forEach(el => new bootstrap.Tooltip(el)); })();
 
   /* ---------- Recent Orders filter/search ---------- */
-  (()=>{
+  (()=> {
     const q=document.getElementById('orderSearch'), s=document.getElementById('orderStatusFilter');
     const rows=[...document.querySelectorAll('.recent-orders tbody tr')];
     const has=rows.some(tr=>!tr.querySelector('td[colspan]'));
@@ -348,7 +349,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   })();
 
   /* ---------- Top Items search ---------- */
-  (()=>{
+  (()=> {
     const q=document.getElementById('itemSearch');
     const rows=[...document.querySelectorAll('.top-items tbody tr')];
     const has=rows.some(tr=>!tr.querySelector('td[colspan]')); if(q) q.disabled=!has;
@@ -363,7 +364,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   })();
 
   /* ---------- Theme Switcher (updates Bootstrap component vars) ---------- */
-  (()=>{
+  (()=> {
     const key  = 'rb_theme_preset';
     const sel  = document.getElementById('themePreset');
     const reset= document.getElementById('themeReset');

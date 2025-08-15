@@ -1,182 +1,167 @@
-/* RB Stores — Dashboard theme (scoped to <main> only)
-   ✅ Does NOT style header.php, sidebar.php, or footer.php
-   How: every rule is prefixed with "main" so header/sidebar/footer are untouched.
-*/
-
-/* ---------- Scope & theme tokens ---------- */
-main {
-  /* Theme tokens (local to main) */
-  --rb-primary-500:#6375ff;
-  --rb-primary-600:#5a63ff;
-  --rb-primary-700:#4a56ff;
-  --rb-accent-1:#6d28d9;
-  --rb-accent-2:#3b82f6;
-  --rb-card:#0f172a;
-  --rb-card-soft:#111827;
-  --rb-text:#e5e7eb;
-  --rb-text-dim:#84bdeb;
-  --rb-border:#94d0ec;
-  --rb-table-stripe: rgba(255,255,255,.02);
-  --rb-shadow: 0 12px 30px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.03) inset;
-
-  color: var(--rb-text);
-  position: relative;
-  z-index: 0; /* ensures background sits behind content */
-}
-
-/* Background gradient only behind <main> content */
-main::before{
-  content:"";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(1200px 600px at 60% -10%, rgba(255,255,255,.06) 0%, rgba(255,255,255,0) 60%),
-    linear-gradient(160deg, #1e3a8a 0%, #3847db 35%, #3b82f6 70%, #6d28d9 100%);
-  background-attachment: fixed;
-  pointer-events: none;
-  display: block;
-  border-radius: 0; /* keep squared; adjust if main is boxed */
-}
-
-/* ---------- Cards ---------- */
-main .card {
-  background: linear-gradient(180deg, var(--rb-card) 0%, var(--rb-card-soft) 100%);
-  border: 1px solid var(--rb-border);
-  border-radius: 16px;
-  box-shadow: var(--rb-shadow);
-  color: var(--rb-text);
-}
-main .card-header,
-main .card-footer{
-  background: transparent;
-  border-color: var(--rb-border);
-  color: var(--rb-text-dim);
-}
-
-/* ---------- KPI icon tint ---------- */
-main .kpi .icon { color: var(--rb-primary-600); }
-
-/* ---------- Forms (dark) ---------- */
-main .form-control,
-main .form-select {
-  background-color: #0b1220;
-  border: 1px solid var(--rb-border);
-  color: var(--rb-text);
-}
-main .form-control::placeholder { color: #6b7280; }
-main .form-control:focus,
-main .form-select:focus {
-  background-color: #0b1220;
-  border-color: #6a76ff; /* derived from primary */
-  box-shadow: 0 0 0 .2rem rgba(90,99,255,.25);
-  color: var(--rb-text);
-}
-
-/* ---------- Tables ---------- */
-main .table { color: var(--rb-text); }
-main .table thead {
-  color: var(--rb-text);
-  background: rgba(255,255,255,.04);
-}
-main .table-striped > tbody > tr:nth-of-type(odd) > * {
-  background: var(--rb-table-stripe);
-}
-main .table-soft tbody tr:hover {
-  background: rgba(255,255,255,.06) !important;
-}
-main .table > :not(caption) > * > * {
-  border-bottom-color: var(--rb-border);
-}
-
-/* ---------- Badges ---------- */
-main .badge.text-bg-primary { background: #5b6bff; }
-main .badge.text-bg-success { background: #16a34a; }
-main .badge.text-bg-warning { background: #f59e0b; color:#0f172a; }
-main .badge.text-bg-danger  { background: #dc2626; }
-main .badge.text-bg-secondary{ background: #64748b; }
-
-/* ---------- Alerts ---------- */
-main .alert{
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  border: 1px solid var(--rb-border);
-  color: var(--rb-text);
-}
-
-/* ---------- Buttons ---------- */
-main .btn{ border-radius: 12px; }
-main .btn-primary{
-  border: 0;
-  color: #fff;
-  background-image: linear-gradient(90deg, var(--rb-accent-1), var(--rb-accent-2));
-  box-shadow: 0 8px 20px rgba(59,130,246,.35);
-}
-main .btn-primary:hover{
-  transform: translateY(-1px);
-  background-image: linear-gradient(90deg, #7c3aed, #3b82f6);
-}
-main .btn-primary:active{
-  transform: translateY(0);
-  background-image: linear-gradient(90deg, #6d28d9, #325fdc);
-}
-main .btn-outline-primary{
-  color: #c7d2fe;
-  border-color: #818cf8;
-}
-main .btn-outline-primary:hover{
-  color:#fff;
-  background-image: linear-gradient(90deg, #6366f1, #3b82f6);
-  border-color: transparent;
-}
-
-/* ---------- Links (only inside main) ---------- */
-main a,
-main .link-primary { color:#c7d2fe; }
-main a:hover { color:#ffffff; }
-
-/* ---------- “Hero” bars inside main ---------- */
-main .hero{
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
-  border: 1px solid var(--rb-border);
-  color: var(--rb-text);
-}
-
-/* ---------- Tiny utilities (scoped) ---------- */
-main .shadow-soft { box-shadow: var(--rb-shadow); }
-main .text-dim { color: var(--rb-text-dim) !important; }
-
-/* ---------- Explicit NON-targets ----------
-   No rules for header, .navbar, .sidebar, .offcanvas, footer
-   so includes remain visually unchanged.
-*/
-/* ===== RB Stores — Fixed-rail layout glue for dashboard ===== */
-:root{
-  /* mirror the sidebar vars globally so main can read them */
-  --rb-sb-w: 280px;     /* must match sidebar.css' --rb-sb-w */
-  --rb-header-h: 68px;  /* must match sidebar.css' --rb-header-h (0 if header not fixed) */
-  --rb-footer-h: 56px;  /* optional; set to 0 if footer not fixed */
-}
-
-/* Desktop: make main actually fit beside the fixed rail */
-@media (min-width: 1200px){
-  /* If your sidebar keeps a 1px right border, subtract it too */
-  main{
-    margin-left: var(--rb-sb-w);
-    width: calc(100% - var(--rb-sb-w) - 1px);
-    box-sizing: border-box;
+/* assets/css/dashboard.css */
+@layer pages {
+  /* ───────── Root scope: ONLY the dashboard page ───────── */
+  [data-rb-scope="main"][data-page="dashboard"]{
+    --dash-gap: var(--rb-space-4);
+    --dash-card-pad: var(--rb-space-4);
+    --dash-kpi-icon-size: 36px;
   }
-}
 
-/* Safety guard (prevents rare 1px overflow from shadows, etc.) */
-html, body { overflow-x: hidden; }
+  /* ───────── Page header / hero ───────── */
+  [data-rb-scope="main"][data-page="dashboard"] .hero h1{
+    font-weight: 600;
+    letter-spacing: .2px;
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .hero .small{
+    color: var(--rb-text-dim);
+  }
 
+  /* ───────── Utilities (local to dashboard) ───────── */
+  [data-rb-scope="main"][data-page="dashboard"] .minw-150{ min-width:150px; }
+  [data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width:220px; }
+  [data-rb-scope="main"][data-page="dashboard"] .btn-action{
+    height: 38px; border-radius: 10px;
+  }
 
-/* On md/lg (where the sidebar is offcanvas), let main span full width */
-@media (max-width:1199.98px){
-  main{ margin-left: 0; }
-}
+  /* ───────── KPI area ───────── */
+  [data-rb-scope="main"][data-page="dashboard"] .kpi .card{
+    background: var(--rb-card);
+    border: 1px solid var(--rb-border);
+    border-radius: var(--rb-radius);
+    padding: 0;
+    box-shadow: var(--rb-shadow-sm);
+    transition: transform var(--rb-speed-fast) var(--rb-ease), box-shadow var(--rb-speed) var(--rb-ease);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .kpi .card:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--rb-shadow);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .kpi .card-body{
+    padding: var(--dash-card-pad);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .kpi .icon{
+    width: var(--dash-kpi-icon-size);
+    height: var(--dash-kpi-icon-size);
+    display: grid; place-items: center;
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--rb-bg-soft) 80%, #fff 20%);
+    font-size: 18px;
+  }
+  /* Ensure links wrapping KPI cards look like cards */
+  [data-rb-scope="main"][data-page="dashboard"] .kpi a.text-decoration-none{
+    color: inherit;
+  }
 
-/* Optional: make the overall row fill the viewport nicely */
-.container-fluid > .row{
-  min-height: calc(100dvh - var(--rb-header-h) - var(--rb-footer-h));
+  /* ───────── Section headings ───────── */
+  [data-rb-scope="main"][data-page="dashboard"] h3.h6{
+    color: var(--rb-text-dim);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  /* ───────── Tables (Recent Orders / Top Items / Low Stock) ───────── */
+  [data-rb-scope="main"][data-page="dashboard"] .card{
+    background: var(--rb-card);
+    border: 1px solid var(--rb-border);
+    border-radius: var(--rb-radius);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .card-header{
+    background: transparent;
+    color: var(--rb-text);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .card-footer{
+    background: transparent;
+    color: var(--rb-text-dim);
+  }
+
+  /* Make table header stick inside card; guard horizontal overflow */
+  [data-rb-scope="main"][data-page="dashboard"] .table-responsive{
+    border-radius: var(--rb-radius);
+    overflow: auto; /* enables sticky header behavior within */
+  }
+  [data-rb-scope="main"][data-page="dashboard"] table{
+    color: var(--rb-text);
+    background: var(--rb-card);
+    border-color: var(--rb-border);
+    width: 100%;
+  }
+  [data-rb-scope="main"][data-page="dashboard"] thead.table-light th{
+    background: var(--rb-bg-soft);
+    color: var(--rb-text);
+    border-bottom: 1px solid var(--rb-border);
+    position: sticky; top: 0; z-index: 1;
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .table-soft tbody tr:nth-child(odd){
+    background: var(--rb-table-stripe);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .table > :not(caption) > * > *{
+    padding: 10px 12px;
+    background-clip: padding-box;
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .table-hover tbody tr:hover{
+    background: color-mix(in oklab, var(--rb-table-stripe), #fff 2%);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .recent-orders td.text-end,
+  [data-rb-scope="main"][data-page="dashboard"] .top-items   td.text-end,
+  [data-rb-scope="main"][data-page="dashboard"] .low-stock   td.text-end{
+    text-align: right;
+  }
+
+  /* Status badge spacing on legend (card footer) */
+  [data-rb-scope="main"][data-page="dashboard"] .card-footer .badge{
+    margin-right: 8px;
+  }
+
+  /* ───────── Filters row (dropdowns / search) ───────── */
+  [data-rb-scope="main"][data-page="dashboard"] .form-select,
+  [data-rb-scope="main"][data-page="dashboard"] .form-control{
+    background: var(--rb-bg-soft);
+    color: var(--rb-text);
+    border: 1px solid var(--rb-border);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .form-select:focus,
+  [data-rb-scope="main"][data-page="dashboard"] .form-control:focus{
+    border-color: color-mix(in oklab, var(--rb-border), var(--rb-primary-600));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--rb-primary-600), transparent 70%);
+  }
+
+  /* ───────── Links styled to match theme (e.g., “View all”) ───────── */
+  [data-rb-scope="main"][data-page="dashboard"] a.btn-outline-light{
+    color: var(--rb-text); border-color: var(--rb-border);
+    background: transparent;
+  }
+  [data-rb-scope="main"][data-page="dashboard"] a.btn-outline-light:hover{
+    background: color-mix(in oklab, var(--rb-bg-soft) 85%, #fff 15%);
+  }
+
+  /* ───────── Responsive tweaks ───────── */
+  @media (max-width: 1199px){
+    [data-rb-scope="main"][data-page="dashboard"]{
+      --dash-card-pad: var(--rb-space-3);
+    }
+    [data-rb-scope="main"][data-page="dashboard"] .kpi .icon{
+      --dash-kpi-icon-size: 32px;
+      font-size: 16px;
+    }
+  }
+  @media (max-width: 767px){
+    [data-rb-scope="main"][data-page="dashboard"] .hero .w-md-auto{
+      width: 100% !important;
+    }
+    [data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width: 100%; }
+  }
+
+  /* ───────── Print (only dashboard content) ───────── */
+  @media print{
+    [data-rb-scope="main"][data-page="dashboard"] .btn,
+    [data-rb-scope="main"][data-page="dashboard"] select,
+    [data-rb-scope="main"][data-page="dashboard"] input{
+      display: none !important;
+    }
+    [data-rb-scope="main"][data-page="dashboard"] .card,
+    [data-rb-scope="main"][data-page="dashboard"] table{
+      box-shadow: none !important;
+      border-color: #bbb !important;
+    }
+  }
 }
