@@ -14,7 +14,9 @@ $href = function(string $path) use ($APP_BASE){
   return ($base === '') ? "/{$path}" : "{$base}/{$path}";
 };
 ?>
-<link rel="stylesheet" href="<?= htmlspecialchars($href('assets/css/app.css'), ENT_QUOTES) ?>?v=2025-08-15" />
+<!-- App bundle (tokens, header, sidebar, main, dashboard, …) -->
+<link rel="stylesheet" href="/assets/css/app.css?v=2025-08-16">
+
 
 <footer class="rb-footer py-3 border-top" role="contentinfo" data-rb-scope="footer">
   <div class="container-fluid d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">

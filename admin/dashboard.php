@@ -111,8 +111,10 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
 
-  <!-- App bundle (imports tokens.css, header.css, sidebar.css, main.css, dashboard.css, …) -->
-  <link rel="stylesheet" href="<?= h($href('assets/css/app.css')); ?>?v=2025-08-15" />
+  <!-- App bundle (tokens, header, sidebar, main, dashboard, …) -->
+  <link rel="stylesheet" href="/assets/css/app.css?v=2025-08-16">
+
+
 
   <!-- Fonts (optional) -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
