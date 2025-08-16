@@ -11,7 +11,8 @@
 
 /* ───────────────── 3) Shell pieces (strictly scoped) ───────────────── */
 @import url("./header.css")  layer(header);
-@import url("./sidebar.css") layer(sidebar);
+/* app.css — fix import path for sidebar.css */
+@import url("../../assets/css/sidebar.css") layer(sidebar);
 @import url("./footer.css")  layer(footer);
 
 /* ───────────────── 4) Generic main (safe defaults inside <main>) ───────────────── */
