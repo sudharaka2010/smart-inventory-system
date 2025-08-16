@@ -1,34 +1,38 @@
 <?php
-// ============================================================================
-// RB Stores — Sidebar (Bootstrap 5 Offcanvas on mobile, Fixed rail on desktop)
-// ----------------------------------------------------------------------------
-// • Scoped: styles only apply inside [data-rb-scope="sidebar"] (see sidebar.css)
-// • Mobile: Offcanvas; Desktop (≥1200px): fixed left rail via CSS
-// • Active detection: ignores query strings safely
-// • Load vendor/app CSS/JS from layout; flags below allow one-off loading
-// ============================================================================
+// ===================================================================================
+// RB Stores — Sidebar (Bootstrap 5 offcanvas on mobile, fixed rail on desktop)
+// - Strictly scoped styles (see assets/css/sidebar.css via app.css)
+// - Safe paths via $APP_BASE (set BEFORE include if you deploy under /admin etc.)
+// - Loads vendor/app CSS/JS only when flags are set (to avoid double-includes)
+// - Pushes <main> on desktop via body.has-rail helper
+// ===================================================================================
 
-// ---------- ROUTING / ENV ----------
-// If your admin lives at /admin, set $APP_BASE = '/admin' BEFORE including this file.
-$APP_BASE = $APP_BASE ?? '';
+// -------------------- BASE / ROUTING --------------------
+$APP_BASE = $APP_BASE ?? '';                     // e.g. '/admin' or ''
+$APP_BASE = rtrim($APP_BASE, '/');
 
 $href = function(string $path) use ($APP_BASE){
-  $base = rtrim($APP_BASE, '/');
-  $path = ltrim($path, '/');
-  return ($base === '') ? "/{$path}" : "{$base}/{$path}";
+  $path = '/' . ltrim($path, '/');
+  return ($APP_BASE === '') ? $path : $APP_BASE . $path;
 };
 
-// Current file for "active" highlights
-$urlPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
-$current = basename($urlPath ?: ($_SERVER['SCRIPT_NAME'] ?? 'index.php'));
+// Current file (for "active" state); ignores query string
+$reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
+$script  = $_SERVER['SCRIPT_NAME'] ?? '';
+$urlPath = $reqPath !== '' ? $reqPath : $script;
+$current = basename($urlPath ?: 'index.php');
 
-// ---------- CONFIG (override BEFORE include) ----------
-$RB_SIDEBAR_LOAD_VENDOR = $RB_SIDEBAR_LOAD_VENDOR ?? false; // Bootstrap & Icons CSS/JS
-$RB_SIDEBAR_LOAD_CSS    = $RB_SIDEBAR_LOAD_CSS    ?? false; // Load /assets/css/app.css here
-$RB_SIDEBAR_SHOW_BRAND  = $RB_SIDEBAR_SHOW_BRAND  ?? false; // Desktop brand row on top of menu
+// -------------------- CONFIG (override before include) --------------------
+$RB_SIDEBAR_LOAD_VENDOR = $RB_SIDEBAR_LOAD_VENDOR ?? false;  // Bootstrap & Icons (CSS+JS)
+$RB_SIDEBAR_LOAD_CSS    = $RB_SIDEBAR_LOAD_CSS    ?? false;  // Load /assets/css/app.css
+$RB_SIDEBAR_SHOW_BRAND  = $RB_SIDEBAR_SHOW_BRAND  ?? false;  // Show brand row
 $RB_LOGOUT_PATH         = $RB_LOGOUT_PATH         ?? 'auth/logout.php';
 
-// ---------- HELPERS ----------
+// Optional: header height to align the rail under a fixed header (CSS var)
+// If your header.css already defines --rb-header-h, you can ignore this.
+$RB_HEADER_PX           = $RB_HEADER_PX ?? 68; // matches your fixed header height
+
+// -------------------- HELPERS --------------------
 function isActive($files){
   global $current; $files = (array)$files;
   return in_array($current, $files, true) ? 'active' : '';
@@ -39,16 +43,20 @@ function isOpen($files){
 }
 ?>
 <?php if ($RB_SIDEBAR_LOAD_VENDOR): ?>
-  <!-- Vendor CSS (Bootstrap & Icons) — disable if your layout already loads these -->
+  <!-- Vendor CSS (Bootstrap & Icons) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  
 <?php endif; ?>
 
 <?php if ($RB_SIDEBAR_LOAD_CSS): ?>
-  <!-- Load your bundled app.css from the correct base (no leading slash) -->
+  <!-- App CSS bundle (tokens + header + sidebar + main + pages) -->
   <link rel="stylesheet" href="<?= htmlspecialchars($href('assets/css/app.css'), ENT_QUOTES) ?>?v=2025-08-15">
 <?php endif; ?>
+
+<!-- Optional inline CSS var to align rail under fixed header (safe + scoped) -->
+<style>
+  [data-rb-scope="sidebar"]{ --rb-header-h: <?= (int)$RB_HEADER_PX ?>px; }
+</style>
 
 <!-- Mobile Top Bar (hamburger) -->
 <header class="rb-sb-topbar d-xl-none" role="banner" data-rb-scope="sidebar">
@@ -60,7 +68,7 @@ function isOpen($files){
   <div class="ms-2 fw-semibold">Menu</div>
 </header>
 
-<!-- Sidebar (Offcanvas on mobile, fixed rail on desktop) -->
+<!-- Sidebar (Offcanvas on mobile; fixed rail on desktop via CSS) -->
 <aside id="rbSidebar"
        class="offcanvas offcanvas-start rb-sb offcanvas-shadow"
        tabindex="-1"
@@ -69,7 +77,7 @@ function isOpen($files){
        data-bs-backdrop="false"
        data-rb-scope="sidebar">
 
-  <!-- Offcanvas header (hidden on desktop via CSS) -->
+  <!-- Offcanvas header (mobile only) -->
   <div class="offcanvas-header d-xl-none">
     <h5 class="offcanvas-title" id="rbSidebarLabel">Navigation</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -399,7 +407,7 @@ function isOpen($files){
 
     </div>
 
-    <!-- Sidebar footer (sticks to bottom in the rail) -->
+    <!-- Sidebar footer -->
     <div class="mt-auto rb-sb-footer px-3 py-3">
       <a href="<?= htmlspecialchars($href($RB_LOGOUT_PATH), ENT_QUOTES); ?>"
          class="rb-sb-link d-inline-flex align-items-center"
@@ -411,23 +419,33 @@ function isOpen($files){
 </aside>
 
 <?php if ($RB_SIDEBAR_LOAD_VENDOR): ?>
-  <!-- Vendor JS (Bootstrap bundle) — disable if your layout already loads it -->
+  <!-- Vendor JS (Bootstrap bundle) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php endif; ?>
 
-<!-- Small helper: sync aria-expanded with default "show" and close offcanvas on link click -->
+<!-- Behavior helpers (desktop push, aria sync, mobile close) -->
 <script>
 (function(){
   var root = document.getElementById('rbSidebar');
   if(!root) return;
 
-  // Sync buttons’ aria-expanded with default open sections
+  // 1) Push main content when rail is present on desktop
+  function applyRail(){
+    if (window.innerWidth >= 1200) {
+      document.body.classList.add('has-rail');
+    } else {
+      document.body.classList.remove('has-rail');
+    }
+  }
+  applyRail(); window.addEventListener('resize', applyRail);
+
+  // 2) Sync aria-expanded with default "show" sections
   root.querySelectorAll('.accordion-collapse').forEach(function(c){
     var btn = root.querySelector('[data-bs-target="#'+c.id+'"]');
     if (btn) btn.setAttribute('aria-expanded', c.classList.contains('show') ? 'true' : 'false');
   });
 
-  // Close offcanvas after any link click on mobile
+  // 3) Close offcanvas after any link click on mobile
   root.addEventListener('click', function(e){
     var a = e.target.closest('a');
     if (!a) return;
