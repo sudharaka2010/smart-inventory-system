@@ -37,10 +37,10 @@
 .rb-sidebar{
   position: fixed;
   inset: 0;
-  pointer-events: none;
-  z-index: 999;
+  pointer-events: none;           /* off-canvas CLOSED by default on mobile */
+  z-index: 9999;                  /* sit above main header/content */
 }
-.rb-sidebar[data-open="true"]{ pointer-events: auto; }
+.rb-sidebar[data-open="true"]{ pointer-events: auto; } /* clickable when open */
 
 /* Overlay */
 .rb-sidebar__overlay{
@@ -65,19 +65,30 @@
   display: flex; flex-direction: column;
   padding-top: var(--rb-header-h);
   overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   will-change: transform;
+  pointer-events: auto;           /* panel itself should always accept clicks */
 }
 .rb-sidebar[data-open="true"] .rb-sidebar__panel{ transform: translateX(0); }
 
 /* Fixed rail on desktop */
 @media (min-width: 1200px){
-  .rb-sidebar{ pointer-events: none; }
+  /* IMPORTANT: allow clicks on the sidebar on desktop */
+  .rb-sidebar{ pointer-events: auto; }     /* <-- FIXED */
+
+  /* No dim overlay on desktop */
   .rb-sidebar__overlay{ display: none; }
+
+  /* Show panel as a fixed rail */
   .rb-sidebar__panel{
     transform: none !important;
     width: var(--rb-sb-w);
-    top: 0; padding-top: var(--rb-header-h);
+    top: 0;
+    padding-top: var(--rb-header-h);
+    pointer-events: auto;                 /* paranoia: keep clickable */
   }
+
+  /* Push layout to make room for the rail */
   body.has-rail{ padding-left: var(--rb-sb-w); }
 }
 
@@ -110,7 +121,7 @@
   padding: 11px 12px; border-radius: 12px;
   border: 1px solid transparent;
   position: relative;
-  transition: background .18s ease, border-color .18s ease, transform .12s ease;
+  transition: background .18s ease, border-color .18s ease, transform .12s ease, box-shadow .18s ease;
 }
 .rb-link .i{
   width: 22px; display: grid; place-items: center;
