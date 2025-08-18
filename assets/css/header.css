@@ -1,106 +1,110 @@
 /* ===================== RB Stores — Header (STRICTLY SCOPED) =====================
-   File: /assets/css/header.css
-   - Matches sidebar theme; blur is OFF by default (clean, sharp header)
-   - Enable subtle glass by setting: [data-rb-scope="header"]{ --rb-enable-blur:1; }
-   - No horizontal scroll / no white gap; safe-area friendly; a11y-focused
-================================================================================ */
+   - Compact bar (64px)
+   - Centered inner width to look like a neat "rectangle"
+   - Sidebar-matching colors; blur OFF by default
+   - Auto logo swap for dark/light
+=============================================================================== */
 
-/* ---------- Scope root & tokens ---------- */
+/* Visually hidden utility for screen-readers */
+.sr-only{
+  position:absolute!important; width:1px!important; height:1px!important;
+  padding:0!important; margin:-1px!important; overflow:hidden!important;
+  clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
+}
+
+/* ---------- Scope & tokens ---------- */
 [data-rb-scope="header"]{
-  /* Layout tokens (override via :root or inline if needed) */
-  --rb-header-h: var(--rb-header-h, 68px);
+  --rb-header-h: 64px;
 
-  /* Brand theme */
+  /* Sidebar-matching palette */
+  --rb-blue-900: #0b1222;
   --rb-blue-800: #0f172a;
   --rb-blue-700: #1e3a8a;
   --rb-blue-600: #2563eb;
   --rb-sky-400:  #38bdf8;
 
-  /* Semantic tokens */
-  --rb-bg:          var(--rb-bg, var(--rb-blue-800));
-  --rb-card:        var(--rb-card, #111827);
-  --rb-text:        var(--rb-text, #e5e7eb);
-  --rb-text-dim:    var(--rb-text-dim, #a3b4c7);
-  --rb-border:      var(--rb-border, #23324a);
-  --rb-shadow:      0 14px 28px rgba(0,0,0,.25);
+  --rb-bg:       var(--rb-bg, var(--rb-blue-800));  /* header bg */
+  --rb-card:     var(--rb-card, #0b1222);           /* controls bg */
+  --rb-text:     var(--rb-text, #e5e7eb);
+  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
+  --rb-border:   var(--rb-border, #1e2a44);
 
-  /* Effect toggles */
-  --rb-enable-blur: 0;              /* 0 = off (default), 1 = on */
-  --rb-blur-amt:    3px;            /* used only if blur enabled */
-  --rb-glass-top:   rgba(56,189,248,.10);
-  --rb-glass-bot:   rgba(37,99,235,.08);
+  /* optional glass toggle */
+  --rb-enable-blur: 0;   /* 0=off, 1=on */
+  --rb-blur-amt: 3px;
 
   position: sticky;
   top: 0;
-  z-index: 10000;                   /* keep over sidebar rail */
+  z-index: 10000;
   height: var(--rb-header-h);
   color: var(--rb-text);
-
-  /* SOLID base to prevent haze/patchiness */
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.00), rgba(0,0,0,.00)),
-    var(--rb-bg);
-
-  /* Border & crisp separation */
+  background: var(--rb-bg);
   border-bottom: 1px solid var(--rb-border);
 
-  /* Avoid accidental page width expansion */
   max-width: 100%;
   overflow: visible;
 
-  /* Typographic rendering improvements */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 
-  /* Respect display cutouts / iOS notch */
   padding-left: max(0px, env(safe-area-inset-left));
   padding-right: max(0px, env(safe-area-inset-right));
 }
 
-/* Optional glass: enable via --rb-enable-blur:1 (kept off by default) */
-@supports (backdrop-filter: blur(1px)) {
+/* Optional subtle glass (kept OFF) */
+@supports (backdrop-filter: blur(1px)){
   :root :where([data-rb-scope="header"]){
+    backdrop-filter: blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)))
+                    saturate(calc(1 + .05 * var(--rb-enable-blur)));
+    -webkit-backdrop-filter: blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)))
+                             saturate(calc(1 + .05 * var(--rb-enable-blur)));
     background:
-      /* subtle sheen layer when blur is on, else transparent */
       linear-gradient(180deg,
-        color-mix(in srgb, var(--rb-glass-top) calc(var(--rb-enable-blur)*100%), rgba(0,0,0,0)),
-        color-mix(in srgb, var(--rb-glass-bot) calc(var(--rb-enable-blur)*100%), rgba(0,0,0,0))
+        rgba(56,189,248, calc(.10 * var(--rb-enable-blur))),
+        rgba(37,99,235, calc(.08 * var(--rb-enable-blur)))
       ),
       var(--rb-bg);
-    backdrop-filter: saturate(calc(1 + .05 * var(--rb-enable-blur))) blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)));
-    -webkit-backdrop-filter: saturate(calc(1 + .05 * var(--rb-enable-blur))) blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)));
   }
 }
 
-/* ---------- Inner layout ---------- */
+/* ---------- Centered "rectangle" container ---------- */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
-  grid-template-columns: auto minmax(0, 560px) auto; /* menu+brand | search | actions */
+  grid-template-columns: auto minmax(0, 560px) auto; /* brand | search | actions */
   align-items: center;
   gap: 12px;
+
+  /* This creates the neat inner rectangle feel */
+  max-width: 1240px;       /* <- tweak to your taste (1180–1320 work well) */
+  margin: 0 auto;
   padding: 0 16px;
-  box-sizing: border-box;            /* prevent layout overflow */
+  box-sizing: border-box;
 }
 
-/* ---------- Brand ---------- */
+/* ---------- Brand (image logo) ---------- */
 .rb-header__brand{
   display: inline-flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
   color: var(--rb-text);
-  font-weight: 700;
-  letter-spacing: .3px;
-  transition: color .18s ease, transform .18s ease;
-  min-width: 0;                      /* avoid overflow with long titles */
+  transition: transform .15s ease, opacity .15s ease;
+  min-width: 0;
 }
-.rb-header__brand:hover{
-  color: var(--rb-sky-400);
-  transform: translateY(-1px);
+.rb-header__brand:hover{ transform: translateY(-1px); opacity: .95; }
+
+.rb-brand-img{
+  display:block;
+  height: 24px;            /* consistent with a compact bar */
+  width: auto;
 }
-.rb-logo{ font-size: 20px; color: var(--rb-sky-400); }
-.rb-title{ font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Only one logo should show for current theme */
+.rb-brand-dark{ display: block; }
+.rb-brand-light{ display: none; }
+:root[data-theme="light"] .rb-brand-dark{ display: none; }
+:root[data-theme="light"] .rb-brand-light{ display: block; }
 
 /* ---------- Menu button (left) ---------- */
 .rb-header__menu{ justify-self: start; }
@@ -110,11 +114,10 @@
   justify-self: center;
   width: 100%;
   max-width: 560px;
-  display: none;                     /* hidden on very small screens */
+  display: none;
 }
-@media (min-width: 640px){
-  .rb-header__search{ display: block; }
-}
+@media (min-width: 640px){ .rb-header__search{ display: block; } }
+
 .rb-input{
   width: 100%;
   height: 38px;
@@ -153,35 +156,21 @@
   transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
   cursor: pointer;
   text-decoration: none;
-  will-change: transform;
 }
 
-.rb-icon-btn{
-  height: 36px; width: 36px;
-  display: inline-grid; place-items: center;
-}
-.rb-chip{
-  height: 36px;
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 0 12px; font-weight: 600;
-}
-.rb-user__btn{
-  height: 36px;
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 0 10px;
-}
+.rb-icon-btn{ height: 36px; width: 36px; display:grid; place-items:center; }
+.rb-chip{ height: 36px; display:inline-flex; align-items:center; gap:8px; padding: 0 12px; font-weight:600; }
+.rb-user__btn{ height: 36px; display:inline-flex; align-items:center; gap:8px; padding: 0 10px; }
 
 /* Hover */
-.rb-icon-btn:hover,
-.rb-chip:hover,
-.rb-user__btn:hover{
+.rb-icon-btn:hover, .rb-chip:hover, .rb-user__btn:hover{
   transform: translateY(-1px);
   border-color: rgba(56,189,248,.35);
   box-shadow: 0 8px 20px rgba(56,189,248,.12);
   color: var(--rb-sky-400);
 }
 
-/* Focus-visible for accessibility */
+/* Focus-visible (a11y) */
 .rb-icon-btn:focus-visible,
 .rb-chip:focus-visible,
 .rb-user__btn:focus-visible,
@@ -192,50 +181,28 @@
   border-color: rgba(56,189,248,.55);
 }
 
-/* ---------- User/avatar ---------- */
-.rb-avatar{
-  width: 22px; height: 22px; border-radius: 50%; object-fit: cover;
-}
+/* ---------- User menu ---------- */
 .rb-user{ position: relative; }
-.rb-user__name{ display: none; color: var(--rb-text-dim); }
-@media (min-width: 920px){
-  .rb-user__name{ display: inline; }
-}
+.rb-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; }
+.rb-user__name{ display:none; color: var(--rb-text-dim); }
+@media (min-width: 920px){ .rb-user__name{ display:inline; } }
 
-/* Dropdown menu */
 .rb-menu{
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  width: 200px;
-  background: var(--rb-card);
-  border: 1px solid var(--rb-border);
-  border-radius: 12px;
-  padding: 6px;
-  box-shadow: var(--rb-shadow);
+  position: absolute; right: 0; top: calc(100% + 8px);
+  width: 200px; background: var(--rb-card);
+  border:1px solid var(--rb-border); border-radius:12px; padding:6px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.45);
   z-index: 10;
 }
 .rb-menu a{
-  display: block;
-  padding: 10px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--rb-text);
+  display:block; padding:10px; border-radius:8px; text-decoration:none; color:var(--rb-text);
   transition: background .15s ease, color .15s ease;
 }
-.rb-menu a:hover{
-  background: rgba(56,189,248,.10);
-  color: var(--rb-sky-400);
-}
-.rb-menu hr{
-  border: 0; height: 1px; background: var(--rb-border); margin: 6px 0;
-}
+.rb-menu a:hover{ background: rgba(56,189,248,.10); color: var(--rb-sky-400); }
+.rb-menu hr{ border:0; height:1px; background: var(--rb-border); margin:6px 0; }
 
-/* ---------- Active link tint (if used on header items) ---------- */
+/* ---------- Active tint ---------- */
 .is-active{ color: var(--rb-blue-600) !important; }
-
-/* ---------- Utilities ---------- */
-.rb-no-scroll{ overflow: hidden; } /* used if you ever lock scroll on open menus */
 
 /* ---------- Light theme ---------- */
 :root[data-theme="light"] [data-rb-scope="header"]{
@@ -244,14 +211,11 @@
   --rb-text: #0b1222;
   --rb-text-dim: #4b5563;
   --rb-border: #d1d5db;
-  --rb-shadow: 0 12px 26px rgba(0,0,0,.12);
 }
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){
-  [data-rb-scope="header"] *,
-  [data-rb-scope="header"] ::before,
-  [data-rb-scope="header"] ::after{
+  [data-rb-scope="header"] *, [data-rb-scope="header"] ::before, [data-rb-scope="header"] ::after{
     transition: none !important;
   }
 }
