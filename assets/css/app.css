@@ -1,8 +1,7 @@
 /* app.css — master cascade layer order (single entry point) */
 @layer bootstrap, tokens, header, sidebar, main, footer, pages, overrides;
 
-/* 1) Vendor (optional) — only if you host it locally under /assets/vendor/ */
-@import url("../vendor/bootstrap.min.css") layer(bootstrap);
+
 
 /* 2) Design tokens (variables only) */
 @import url("./tokens.css") layer(tokens);
