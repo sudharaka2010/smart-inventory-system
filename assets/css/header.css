@@ -17,7 +17,7 @@
 
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 10000; /* ensure header always above rail */
   color: var(--rb-text);
   height: var(--rb-header-h);
 
@@ -44,20 +44,23 @@
   display: inline-flex; align-items: center; gap: 10px;
   text-decoration: none; color: var(--rb-text);
   font-weight: 700; letter-spacing: .3px;
+  transition: color .18s ease, transform .18s ease;
 }
+.rb-header__brand:hover{ color: var(--rb-sky-400); transform: translateY(-1px); }
 .rb-logo{ font-size: 20px; color: var(--rb-sky-400); }
 .rb-title{ font-size: 16px; }
 
 /* Menu button (left) */
 .rb-header__menu{ justify-self: start; }
 
-/* Search (center, hidden on very small screens) */
+/* Search (center) */
 .rb-header__search{
   justify-self: center;
   width: 100%; max-width: 560px;
   display: none;
 }
 @media (min-width: 640px){ .rb-header__search{ display: block; } }
+
 .rb-input{
   width: 100%; height: 38px; border-radius: 12px;
   background: var(--rb-card); color: var(--rb-text);
@@ -66,6 +69,7 @@
   transition: box-shadow .18s ease, border-color .18s ease, transform .12s ease;
 }
 .rb-input::placeholder{ color: var(--rb-text-dim); }
+.rb-input:hover{ border-color: rgba(56,189,248,.35); }
 .rb-input:focus{
   border-color: rgba(56,189,248,.55);
   box-shadow: 0 6px 18px rgba(56,189,248,.12), 0 0 0 3px rgba(56,189,248,.20);
@@ -160,5 +164,5 @@
   --rb-card: #f4f6fb;
   --rb-text: #0b1222;
   --rb-text-dim: #4b5563;
-  --rb-border: #e5e7eb;
+  --rb-border: #d1d5db; /* slightly softer border than #e5e7eb */
 }
