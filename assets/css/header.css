@@ -1,13 +1,17 @@
-/* ================= RB Stores — Responsive Header =================
-   Works with: header.php, sidebar.php, footer.php
-   Scope: Only targets .header and its children
-==================================================================== */
+/* ================= RB Stores — Responsive Header (STRICTLY SCOPED) =================
+   Scope: targets only the header include (.header and children)
+   Works with: header.php (your PHP include), sidebar.php, footer.php
+   Notes:
+   - No globals except the three CSS variables (kept in :root to share with sidebar/main)
+   - Mobile menu uses .header__nav--active (toggled by header.php JS)
+   - Avoids 100vw to prevent horizontal scrollbars on some browsers
+==================================================================================== */
 
-/* ---- Layout variables (keep in sync with footer.css / sidebar.css) ---- */
+/* ---- Shared layout tokens (keep in sync with sidebar.css / footer.css) ---- */
 :root {
   --rb-header-h: clamp(56px, 9vh, 68px); /* sticky header height */
-  --rb-footer-h: 56px;                   /* default footer height */
-  --rb-sidebar-w: 280px;                  /* desktop sidebar width */
+  --rb-footer-h: 56px;                   /* footer height */
+  --rb-sidebar-w: 280px;                 /* desktop sidebar width */
 }
 
 /* ---- Header shell ---- */
@@ -21,9 +25,17 @@
   font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   min-height: var(--rb-header-h);
   box-sizing: border-box;
+  width: 100%;                /* avoid layout jitter */
+  overflow: visible;          /* allow dropdowns/tooltips if any */
 }
 
-/* ---- Skip link ---- */
+/* Prevent accidental horizontal scroll caused by inner flex gaps/padding */
+.header * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ---- Skip link (accessibility) ---- */
 .skip-link {
   position: absolute;
   left: -9999px;
@@ -41,14 +53,17 @@
   background: #111827;
   color: #fff;
   border-radius: .5rem;
+  outline: 2px solid #94d0ec;
+  outline-offset: 2px;
 }
 
-/* ---- Header inner container ---- */
+/* ---- Inner container ---- */
 .header__container {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: .5rem 1rem;
+  min-height: var(--rb-header-h);
 }
 
 /* ---- Brand ---- */
@@ -62,10 +77,12 @@
 .header__logo-img {
   height: 36px;
   width: auto;
+  flex: 0 0 auto;
 }
 .header__logo-text {
   font-weight: 700;
   color: #e5e7eb;
+  white-space: nowrap;
 }
 
 /* ---- Mobile toggle ---- */
@@ -77,10 +94,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
+  padding: .25rem;
+  border-radius: .5rem;
 }
 .header__toggle:hover,
 .header__toggle:focus {
-  color: #fff;
+  color: #ffffff;
+  background: rgba(255,255,255,.08);
+  outline: none;
+}
+
+/* Hide the burger on large screens (nav is inline) */
+@media (min-width: 992px) {
+  .header__toggle { display: none; }
 }
 
 /* ---- Primary nav ---- */
@@ -102,44 +129,77 @@
   color: #e5e7eb;
   font-weight: 500;
   white-space: nowrap;
+  line-height: 1.2;
 }
-.header__link:hover {
+.header__link:hover,
+.header__link:focus {
   background: rgba(255, 255, 255, .06);
+  color: #ffffff;
+  outline: none;
 }
-.header__link.is-active {
-  background: rgba(99, 117, 255, .16);
+.header__link.is-active,
+.header__link[aria-current="page"] {
+  background: rgba(99, 117, 255, .16); /* primary tint */
 }
+
 .header__link--logout {
   color: #f87171; /* red-400 */
 }
-.header__link--logout:hover {
+.header__link--logout:hover,
+.header__link--logout:focus {
   background: rgba(248, 113, 113, .15);
   color: #fecaca; /* red-200 */
 }
 
-/* ---- Mobile menu styles ---- */
+/* Icon sizing in links (Font Awesome) */
+.header__link i {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ---- Mobile menu (off-canvas dropdown below header) ---- */
 @media (max-width: 991.98px) {
   .header__nav {
     position: fixed;
-    top: var(--rb-header-h);
-    right: 0;
     left: 0;
-    display: none;
+    right: 0;
+    top: var(--rb-header-h);
+    display: none;                 /* closed by default */
     flex-direction: column;
     gap: .25rem;
     padding: .75rem;
     background: #0f172a;
     border-bottom: 1px solid rgba(148, 208, 236, .28);
     z-index: 1099;
+    max-height: calc(100dvh - var(--rb-header-h));
+    overflow-y: auto;              /* scroll menu, not page */
+    overscroll-behavior: contain;  /* avoid body scroll chaining */
   }
   .header__nav.header__nav--active {
     display: flex;
   }
 }
 
-/* ---- Desktop spacing when sidebar is visible ---- */
+/* ---- Desktop spacing when sidebar rail is visible ---- */
 @media (min-width: 1200px) {
   .header__container {
+    /* pushes content so it doesn't sit under the fixed sidebar rail */
     padding-left: calc(1rem + var(--rb-sidebar-w));
+  }
+}
+
+/* ---- Focus outlines for keyboard users ---- */
+.header :where(a, button):focus-visible {
+  outline: 2px solid #94d0ec;
+  outline-offset: 2px;
+  border-radius: .5rem;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .header * {
+    transition: none !important;
+    animation: none !important;
   }
 }
