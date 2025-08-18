@@ -1,72 +1,131 @@
-/* ===================== RB Stores — Header (STRICTLY SCOPED) ===================== */
-/* Matches the sidebar’s sky/dark blue theme and glassy gradient look */
+/* ===================== RB Stores — Header (STRICTLY SCOPED) =====================
+   File: /assets/css/header.css
+   - Matches sidebar theme; blur is OFF by default (clean, sharp header)
+   - Enable subtle glass by setting: [data-rb-scope="header"]{ --rb-enable-blur:1; }
+   - No horizontal scroll / no white gap; safe-area friendly; a11y-focused
+================================================================================ */
 
+/* ---------- Scope root & tokens ---------- */
 [data-rb-scope="header"]{
-  /* Tokens & fallbacks */
+  /* Layout tokens (override via :root or inline if needed) */
   --rb-header-h: var(--rb-header-h, 68px);
+
+  /* Brand theme */
   --rb-blue-800: #0f172a;
   --rb-blue-700: #1e3a8a;
   --rb-blue-600: #2563eb;
   --rb-sky-400:  #38bdf8;
 
-  --rb-bg: var(--rb-bg, var(--rb-blue-800));
-  --rb-card: var(--rb-card, #111827);
-  --rb-text: var(--rb-text, #e5e7eb);
-  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
-  --rb-border: var(--rb-border, #23324a);
+  /* Semantic tokens */
+  --rb-bg:          var(--rb-bg, var(--rb-blue-800));
+  --rb-card:        var(--rb-card, #111827);
+  --rb-text:        var(--rb-text, #e5e7eb);
+  --rb-text-dim:    var(--rb-text-dim, #a3b4c7);
+  --rb-border:      var(--rb-border, #23324a);
+  --rb-shadow:      0 14px 28px rgba(0,0,0,.25);
+
+  /* Effect toggles */
+  --rb-enable-blur: 0;              /* 0 = off (default), 1 = on */
+  --rb-blur-amt:    3px;            /* used only if blur enabled */
+  --rb-glass-top:   rgba(56,189,248,.10);
+  --rb-glass-bot:   rgba(37,99,235,.08);
 
   position: sticky;
   top: 0;
-  z-index: 10000; /* ensure header always above rail */
-  color: var(--rb-text);
+  z-index: 10000;                   /* keep over sidebar rail */
   height: var(--rb-header-h);
+  color: var(--rb-text);
 
-  /* Subtle glass gradient like sidebar */
+  /* SOLID base to prevent haze/patchiness */
   background:
-    linear-gradient(180deg, rgba(56,189,248,.10), rgba(37,99,235,.08)),
-    linear-gradient(180deg, var(--rb-bg), #0c1428);
+    linear-gradient(180deg, rgba(0,0,0,.00), rgba(0,0,0,.00)),
+    var(--rb-bg);
+
+  /* Border & crisp separation */
   border-bottom: 1px solid var(--rb-border);
-  backdrop-filter: saturate(1.1) blur(6px);
+
+  /* Avoid accidental page width expansion */
+  max-width: 100%;
+  overflow: visible;
+
+  /* Typographic rendering improvements */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  /* Respect display cutouts / iOS notch */
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
 }
 
-/* Inner layout */
+/* Optional glass: enable via --rb-enable-blur:1 (kept off by default) */
+@supports (backdrop-filter: blur(1px)) {
+  :root :where([data-rb-scope="header"]){
+    background:
+      /* subtle sheen layer when blur is on, else transparent */
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--rb-glass-top) calc(var(--rb-enable-blur)*100%), rgba(0,0,0,0)),
+        color-mix(in srgb, var(--rb-glass-bot) calc(var(--rb-enable-blur)*100%), rgba(0,0,0,0))
+      ),
+      var(--rb-bg);
+    backdrop-filter: saturate(calc(1 + .05 * var(--rb-enable-blur))) blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)));
+    -webkit-backdrop-filter: saturate(calc(1 + .05 * var(--rb-enable-blur))) blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)));
+  }
+}
+
+/* ---------- Inner layout ---------- */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
-  grid-template-columns: auto minmax(0, 560px) auto;
+  grid-template-columns: auto minmax(0, 560px) auto; /* menu+brand | search | actions */
   align-items: center;
   gap: 12px;
   padding: 0 16px;
+  box-sizing: border-box;            /* prevent layout overflow */
 }
 
-/* Brand */
+/* ---------- Brand ---------- */
 .rb-header__brand{
-  display: inline-flex; align-items: center; gap: 10px;
-  text-decoration: none; color: var(--rb-text);
-  font-weight: 700; letter-spacing: .3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--rb-text);
+  font-weight: 700;
+  letter-spacing: .3px;
   transition: color .18s ease, transform .18s ease;
+  min-width: 0;                      /* avoid overflow with long titles */
 }
-.rb-header__brand:hover{ color: var(--rb-sky-400); transform: translateY(-1px); }
+.rb-header__brand:hover{
+  color: var(--rb-sky-400);
+  transform: translateY(-1px);
+}
 .rb-logo{ font-size: 20px; color: var(--rb-sky-400); }
-.rb-title{ font-size: 16px; }
+.rb-title{ font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Menu button (left) */
+/* ---------- Menu button (left) ---------- */
 .rb-header__menu{ justify-self: start; }
 
-/* Search (center) */
+/* ---------- Search (center) ---------- */
 .rb-header__search{
   justify-self: center;
-  width: 100%; max-width: 560px;
-  display: none;
+  width: 100%;
+  max-width: 560px;
+  display: none;                     /* hidden on very small screens */
 }
-@media (min-width: 640px){ .rb-header__search{ display: block; } }
-
+@media (min-width: 640px){
+  .rb-header__search{ display: block; }
+}
 .rb-input{
-  width: 100%; height: 38px; border-radius: 12px;
-  background: var(--rb-card); color: var(--rb-text);
+  width: 100%;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--rb-card);
+  color: var(--rb-text);
   border: 1px solid var(--rb-border);
-  padding: 0 12px; outline: none;
+  padding: 0 12px;
+  outline: none;
   transition: box-shadow .18s ease, border-color .18s ease, transform .12s ease;
+  box-sizing: border-box;
 }
 .rb-input::placeholder{ color: var(--rb-text-dim); }
 .rb-input:hover{ border-color: rgba(56,189,248,.35); }
@@ -76,93 +135,123 @@
   transform: translateY(-1px);
 }
 
-/* Actions (right) */
+/* ---------- Actions (right) ---------- */
 .rb-header__actions{
-  justify-self: end; display: inline-flex; align-items: center; gap: 8px;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-/* Icon button */
-.rb-icon-btn{
-  height: 36px; width: 36px; border-radius: 12px;
-  display: inline-grid; place-items: center;
+/* ---------- Buttons ---------- */
+.rb-icon-btn, .rb-chip, .rb-user__btn{
   border: 1px solid var(--rb-border);
-  background: var(--rb-card); color: var(--rb-text);
-  cursor: pointer;
-  transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
-}
-.rb-icon-btn:hover{
-  transform: translateY(-1px);
-  border-color: rgba(56,189,248,.35);
-  box-shadow: 0 8px 20px rgba(56,189,248,.12);
-  color: var(--rb-sky-400);
-}
-
-/* Chip button */
-.rb-chip{
-  height: 36px; display:inline-flex; align-items:center; gap:8px;
-  padding: 0 12px; border-radius: 12px;
-  border:1px solid var(--rb-border); background: var(--rb-card);
-  color: var(--rb-text); text-decoration:none; font-weight:600;
-  transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
-}
-.rb-chip:hover{
-  transform: translateY(-1px);
-  border-color: rgba(56,189,248,.35);
-  color: var(--rb-sky-400);
-  box-shadow: 0 8px 20px rgba(56,189,248,.12);
-}
-
-/* User menu */
-.rb-user{ position: relative; }
-.rb-user__btn{
-  display: inline-flex; align-items: center; gap: 8px;
   background: var(--rb-card);
-  border:1px solid var(--rb-border);
   color: var(--rb-text);
-  height: 36px; padding: 0 10px; border-radius: 12px;
+  border-radius: 12px;
+  transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
   cursor: pointer;
-  transition: transform .12s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease;
+  text-decoration: none;
+  will-change: transform;
 }
+
+.rb-icon-btn{
+  height: 36px; width: 36px;
+  display: inline-grid; place-items: center;
+}
+.rb-chip{
+  height: 36px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0 12px; font-weight: 600;
+}
+.rb-user__btn{
+  height: 36px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0 10px;
+}
+
+/* Hover */
+.rb-icon-btn:hover,
+.rb-chip:hover,
 .rb-user__btn:hover{
   transform: translateY(-1px);
   border-color: rgba(56,189,248,.35);
   box-shadow: 0 8px 20px rgba(56,189,248,.12);
   color: var(--rb-sky-400);
 }
-.rb-avatar{ width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-.rb-user__name{ display:none; color: var(--rb-text-dim); }
-@media (min-width: 920px){ .rb-user__name{ display: inline; } }
 
+/* Focus-visible for accessibility */
+.rb-icon-btn:focus-visible,
+.rb-chip:focus-visible,
+.rb-user__btn:focus-visible,
+.rb-input:focus-visible,
+.rb-menu a:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(56,189,248,.30);
+  border-color: rgba(56,189,248,.55);
+}
+
+/* ---------- User/avatar ---------- */
+.rb-avatar{
+  width: 22px; height: 22px; border-radius: 50%; object-fit: cover;
+}
+.rb-user{ position: relative; }
+.rb-user__name{ display: none; color: var(--rb-text-dim); }
+@media (min-width: 920px){
+  .rb-user__name{ display: inline; }
+}
+
+/* Dropdown menu */
 .rb-menu{
-  position: absolute; right: 0; top: calc(100% + 8px);
-  width: 200px; background: var(--rb-card);
-  border:1px solid var(--rb-border);
-  border-radius: 12px; padding: 6px;
-  box-shadow: 0 14px 40px rgba(0,0,0,.45);
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 200px;
+  background: var(--rb-card);
+  border: 1px solid var(--rb-border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: var(--rb-shadow);
   z-index: 10;
 }
 .rb-menu a{
-  display: block; padding: 10px; border-radius: 8px;
-  text-decoration: none; color: var(--rb-text);
+  display: block;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--rb-text);
   transition: background .15s ease, color .15s ease;
 }
 .rb-menu a:hover{
   background: rgba(56,189,248,.10);
   color: var(--rb-sky-400);
 }
-.rb-menu hr{ border:0; height:1px; background: var(--rb-border); margin:6px 0; }
+.rb-menu hr{
+  border: 0; height: 1px; background: var(--rb-border); margin: 6px 0;
+}
 
-/* Active link tint (if used on header items) */
+/* ---------- Active link tint (if used on header items) ---------- */
 .is-active{ color: var(--rb-blue-600) !important; }
 
-/* Utilities */
-.rb-no-scroll{ overflow: hidden; }
+/* ---------- Utilities ---------- */
+.rb-no-scroll{ overflow: hidden; } /* used if you ever lock scroll on open menus */
 
-/* Light mode */
+/* ---------- Light theme ---------- */
 :root[data-theme="light"] [data-rb-scope="header"]{
   --rb-bg: #ffffff;
   --rb-card: #f4f6fb;
   --rb-text: #0b1222;
   --rb-text-dim: #4b5563;
-  --rb-border: #d1d5db; /* slightly softer border than #e5e7eb */
+  --rb-border: #d1d5db;
+  --rb-shadow: 0 12px 26px rgba(0,0,0,.12);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  [data-rb-scope="header"] *,
+  [data-rb-scope="header"] ::before,
+  [data-rb-scope="header"] ::after{
+    transition: none !important;
+  }
 }
