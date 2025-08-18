@@ -1,36 +1,29 @@
 /* app.css — master cascade layer order (single entry point) */
 @layer bootstrap, tokens, header, sidebar, main, footer, pages, overrides;
 
-/* ───────────────── 1) Vendor (optional) ───────────────── */
-/* Uncomment if you actually ship Bootstrap locally
+/* 1) Vendor (optional) — only if you host it locally under /assets/vendor/ */
 @import url("../vendor/bootstrap.min.css") layer(bootstrap);
-*/
 
-/* ───────────────── 2) Design tokens (variables only) ───────────────── */
+/* 2) Design tokens (variables only) */
 @import url("./tokens.css") layer(tokens);
 
-/* ───────────────── 3) Shell pieces (strictly scoped) ───────────────── */
-@import url("./header.css")  layer(header);
-/* app.css — fix import path for sidebar.css */
-@import url("../../assets/css/sidebar.css") layer(sidebar);
-@import url("./footer.css")  layer(footer);
+/* 3) Shell pieces (strictly scoped) */
+@import url("./header.css")   layer(header);
+@import url("./sidebar.css")  layer(sidebar);
+@import url("./footer.css")   layer(footer);
 
-/* ───────────────── 4) Generic main (safe defaults inside <main>) ───────────────── */
-@import url("./main.css")    layer(main);
+/* 4) Generic main */
+@import url("./main.css")     layer(main);
 
-/* ───────────────── 5) Page-specific (scoped to [data-rb-scope="main"]) ───────────────── */
-@import url("./dashboard.css")       layer(pages);
-@import url("./billing.css")         layer(pages);
-@import url("./invoice.css")         layer(pages);
-@import url("./customer.css")        layer(pages);
-@import url("./employee.css")        layer(pages);
-@import url("./inventory.css")       layer(pages);
-@import url("./add_inventory.css")   layer(pages);
-@import url("./edit_inventory.css")  layer(pages);
-/* …add other page files here… */
+/* 5) Page-specific */
+@import url("./dashboard.css")      layer(pages);
+@import url("./billing.css")        layer(pages);
+@import url("./invoice.css")        layer(pages);
+@import url("./customer.css")       layer(pages);
+@import url("./employee.css")       layer(pages);
+@import url("./inventory.css")      layer(pages);
+@import url("./add_inventory.css")  layer(pages);
+@import url("./edit_inventory.css") layer(pages);
 
-/* ───────────────── 6) Final overrides (use sparingly) ───────────────── */
-@layer overrides {
-  /* Keep almost empty; for tiny hotfixes only */
-  /* .hidden { display: none !important; } */
-}
+/* 6) Final overrides */
+@layer overrides { /* tiny hotfixes only */ }
