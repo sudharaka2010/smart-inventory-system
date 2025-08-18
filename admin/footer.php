@@ -7,13 +7,10 @@ $href = function(string $path) use ($APP_BASE){
   return ($APP_BASE === '') ? $path : $APP_BASE . $path;
 };
 
-// Load CSS once
-if (!defined('RB_FOOTER_CSS')) {
-  echo '<link rel="stylesheet" href="'.$href('/assets/css/footer.css').'">' . PHP_EOL;
-  define('RB_FOOTER_CSS', 1);
-}
+
 ?>
 
+<link rel="stylesheet" href="/assets/css/footer.css">
 <footer class="rb-footer" data-rb-scope="footer" role="contentinfo">
   <div class="rb-footer__inner">
     <div class="rb-foot-left">

@@ -21,11 +21,10 @@ function navActive($files, $return = 'class'){
 }
 
 // Load CSS once
-if (!defined('RB_HEADER_CSS')) {
-  echo '<link rel="stylesheet" href="'.$href('/assets/css/header.css').'">' . PHP_EOL;
-  define('RB_HEADER_CSS', 1);
-}
+
 ?>
+
+<link rel="stylesheet" href="/assets/css/header.css">
 
 <header class="rb-header" data-rb-scope="header">
   <div class="rb-header__inner">

@@ -11,14 +11,13 @@ $href = function(string $path) use ($APP_BASE){
 };
 
 // Load CSS once
-if (!defined('RB_SIDEBAR_CSS')) {
-  echo '<link rel="stylesheet" href="'.$href('/assets/css/sidebar.css').'">' . PHP_EOL;
-  define('RB_SIDEBAR_CSS', 1);
-}
+
 
 // Ensure body has the helper class to reserve rail space on desktop
 echo '<script>document.body.classList.add("has-rail");</script>';
 ?>
+
+<link rel="stylesheet" href="/assets/css/sidebar.css">
 
 <aside id="rbSidebar" class="rb-sidebar" data-rb-scope="sidebar" data-open="false" aria-label="Primary">
   <div class="rb-sidebar__overlay" aria-hidden="true"></div>
