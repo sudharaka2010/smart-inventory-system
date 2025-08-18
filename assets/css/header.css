@@ -1,29 +1,31 @@
 /* ===================== RB Stores — Header (STRICTLY SCOPED) =====================
-   Fixes:
-   • Always-dark bar (matches sidebar)
-   • Taller bar (70px) so controls never spill into page
-   • Background “safety layer” to avoid any white seam
-   • Responsive inner width for large/ultrawide screens
+   - Always dark (matches sidebar) — even if the site theme is light
+   - 4-column grid: [menu][brand][search][actions] (prevents wrapping)
+   - Taller bar (70px) so controls never spill below
+   - Safety background layer removes any white seam
+   - Centered “rectangle” that scales on ultrawide screens
 ================================================================================ */
 
-/* Screen-reader helper */
+/* Screen-reader helper (used for brand text) */
 .sr-only{
   position:absolute!important; width:1px!important; height:1px!important;
   padding:0!important; margin:-1px!important; overflow:hidden!important;
   clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
 }
 
-/* ---------- Scope & theme tokens (locked to dark) ---------- */
+/* ---------- Scope & tokens (locked to dark) ---------- */
 [data-rb-scope="header"]{
-  --rb-header-h: 70px;     /* ↑ was 64px; gives breathing room */
-  /* Sidebar gradient tokens (match your rail) */
-  --rb-sb-top:  #0d1426;
+  --rb-header-h: 70px;     /* breathing room for buttons */
+
+  /* Match the sidebar gradient */
+  --rb-sb-top:  #0d1426;   /* very dark navy */
   --rb-sb-mid:  #0f172a;   /* slate-900 */
-  --rb-sb-bot:  #0b1222;
+  --rb-sb-bot:  #0b1222;   /* deeper base */
 
   --rb-primary: #2563eb;   /* blue-600 */
   --rb-accent:  #38bdf8;   /* sky-400 */
 
+  /* Dark, fixed tokens */
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;  /* control surfaces */
   --rb-text:     #e5e7eb;
@@ -36,69 +38,72 @@
   height: var(--rb-header-h);
   color: var(--rb-text);
 
-  /* Base gradient (full width, no white) */
+  /* Full-width dark gradient like the rail (no white) */
   background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
   border-bottom: 1px solid var(--rb-border);
 
-  /* prevent sub-pixel seams and ensure the header paints above page */
-  isolation: isolate;
+  isolation: isolate; /* avoid sub-pixel blending with page */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+
   padding-left: max(0px, env(safe-area-inset-left));
   padding-right: max(0px, env(safe-area-inset-right));
 }
 
-/* Safety layer: extends the dark bar so nothing ever shows white under controls */
-[data-rb-scope="header"]::before{
-  content:"";
-  position: absolute;
-  inset: 0;
-  height: var(--rb-header-h);
-  background: inherit;           /* same gradient */
-  z-index: -1;                   /* sits behind inner content */
-}
-
-/* Keep header dark even if site root toggles to light */
+/* Keep header dark even when site toggles to light theme */
 :root[data-theme="light"] [data-rb-scope="header"]{
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
   --rb-text:     #e5e7eb;
   --rb-text-dim: #a3b4c7;
   --rb-border:   #1e2a44;
+  background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
 }
 
-/* ---------- Centered “rectangle” container (responsive widths) ---------- */
+/* Safety layer: ensures no white gap shows under the bar */
+[data-rb-scope="header"]::before{
+  content:"";
+  position:absolute; inset:0;
+  height: var(--rb-header-h);
+  background: inherit;       /* same gradient */
+  z-index:-1;
+}
+
+/* ---------- Centered “rectangle” container (4 columns) ---------- */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
-  grid-template-columns: auto minmax(0, 640px) auto;   /* brand | search | actions */
+
+  /* 4 columns so nothing wraps:
+     [menu][brand][search grows][actions] */
+  grid-template-columns: auto auto minmax(0, 640px) auto;
   align-items: center;
   gap: 12px;
 
-  max-width: 1240px;         /* laptop */
+  max-width: 1240px;     /* laptop */
   margin: 0 auto;
   padding: 0 16px;
   box-sizing: border-box;
 }
 
-/* Scale nicely on larger screens */
+/* Scale the inner rectangle & search on wider screens */
 @media (min-width: 1360px){
   .rb-header__inner{ max-width: 1320px; }
 }
-@media (min-width: 1536px){           /* ~2K */
+@media (min-width: 1536px){  /* ~2K */
   .rb-header__inner{
     max-width: 1440px;
-    grid-template-columns: auto minmax(0, 720px) auto; /* give search more room */
+    grid-template-columns: auto auto minmax(0, 720px) auto;
   }
 }
-@media (min-width: 1920px){           /* FHD/Ultrawide */
+@media (min-width: 1920px){  /* FHD/Ultrawide */
   .rb-header__inner{
     max-width: 1560px;
-    grid-template-columns: auto minmax(0, 820px) auto;
+    grid-template-columns: auto auto minmax(0, 820px) auto;
   }
 }
 
-/* Ensure all three zones vertically center inside the bar */
+/* Keep all zones neatly centered within the bar */
 .rb-header__brand,
 .rb-header__search,
 .rb-header__actions{ align-self: center; }
@@ -113,10 +118,10 @@
 .rb-header__brand:hover{ transform: translateY(-1px); opacity: .95; }
 .rb-brand-img{ display:block; height: 24px; width: auto; }
 
-/* If you only use one logo file, just keep .rb-brand-dark visible */
+/* If you only have one logo, keep .rb-brand-dark visible and ignore .rb-brand-light */
 .rb-brand-dark{ display: block; }
 .rb-brand-light{ display: none; }
-/* Optional: enable light variant ONLY if you truly have a light-logo asset
+/* If you later add a light variant, you can enable this:
 :root[data-theme="light"] .rb-brand-dark{ display: none; }
 :root[data-theme="light"] .rb-brand-light{ display: block; }
 */
@@ -128,7 +133,8 @@
 .rb-header__search{
   justify-self: center;
   width: 100%;
-  display: none;                 /* hide on very small screens */
+  max-width: none;             /* grid’s minmax controls width */
+  display: none;               /* hidden on very small screens */
 }
 @media (min-width: 640px){ .rb-header__search{ display: block; } }
 
@@ -140,7 +146,9 @@
   transition: box-shadow .18s ease, border-color .18s ease, transform .12s ease;
 }
 .rb-input::placeholder{ color: var(--rb-text-dim); }
-.rb-input:hover{ border-color: color-mix(in srgb, var(--rb-accent) 35%, var(--rb-border)); }
+.rb-input:hover{
+  border-color: color-mix(in srgb, var(--rb-accent) 35%, var(--rb-border));
+}
 .rb-input:focus{
   border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
   box-shadow: 0 6px 18px rgba(56,189,248,.12), 0 0 0 3px rgba(56,189,248,.20);
@@ -149,8 +157,9 @@
 
 /* ---------- Actions (right) ---------- */
 .rb-header__actions{
-  justify-self: end; display: inline-flex; align-items: center; gap: 8px;
-  min-width: 0;
+  justify-self: end;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-width: fit-content;
 }
 
 /* Buttons (icon/chip/user) */
