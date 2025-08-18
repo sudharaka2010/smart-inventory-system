@@ -1,36 +1,61 @@
 /* assets/css/dashboard.css */
 @layer pages {
-  /* ───────── Root scope: ONLY the dashboard page ───────── */
+  /* ════════════════════════════════════════════════════════════════════════
+     RB Stores — Dashboard page styles
+     Scope: ONLY inside <main data-rb-scope="main" data-page="dashboard">
+     Assumes tokens and base theme are defined in /assets/css/app.css
+     ════════════════════════════════════════════════════════════════════════ */
+
+  /* ---------- Page root scope ---------- */
   [data-rb-scope="main"][data-page="dashboard"]{
-    --dash-gap: var(--rb-space-4);
-    --dash-card-pad: var(--rb-space-4);
+    /* Local page vars (safe fallbacks if not in app.css) */
+    --dash-gap: var(--rb-space-4, 16px);
+    --dash-card-pad: var(--rb-space-4, 16px);
     --dash-kpi-icon-size: 36px;
+
+    /* Fallbacks for tokens if app.css missing them */
+    --rb-card: var(--rb-card, #0f172a);
+    --rb-card-soft: var(--rb-card-soft, #111827);
+    --rb-bg: var(--rb-bg, #0b1222);
+    --rb-bg-soft: var(--rb-bg-soft, #0b1222);
+    --rb-text: var(--rb-text, #e5e7eb);
+    --rb-text-dim: var(--rb-text-dim, #a3b4c7);
+    --rb-border: var(--rb-border, #24324a);
+    --rb-table-stripe: var(--rb-table-stripe, rgba(255,255,255,.03));
+    --rb-radius: var(--rb-radius, 12px);
+    --rb-shadow-sm: var(--rb-shadow-sm, 0 1px 2px rgba(0,0,0,.25));
+    --rb-shadow: var(--rb-shadow, 0 12px 30px rgba(0,0,0,.35));
+    --rb-speed-fast: var(--rb-speed-fast, .15s);
+    --rb-speed: var(--rb-speed, .25s);
+    --rb-ease: var(--rb-ease, ease-in-out);
   }
 
-  /* ───────── Page header / hero ───────── */
+  /* ---------- Page header / hero ---------- */
   [data-rb-scope="main"][data-page="dashboard"] .hero h1{
     font-weight: 600;
     letter-spacing: .2px;
+    margin: 0;
   }
   [data-rb-scope="main"][data-page="dashboard"] .hero .small{
     color: var(--rb-text-dim);
   }
 
-  /* ───────── Utilities (local to dashboard) ───────── */
+  /* ---------- Utilities (local) ---------- */
   [data-rb-scope="main"][data-page="dashboard"] .minw-150{ min-width:150px; }
   [data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width:220px; }
   [data-rb-scope="main"][data-page="dashboard"] .btn-action{
     height: 38px; border-radius: 10px;
   }
 
-  /* ───────── KPI area ───────── */
+  /* ---------- KPI Grid ---------- */
   [data-rb-scope="main"][data-page="dashboard"] .kpi .card{
     background: var(--rb-card);
     border: 1px solid var(--rb-border);
     border-radius: var(--rb-radius);
     padding: 0;
     box-shadow: var(--rb-shadow-sm);
-    transition: transform var(--rb-speed-fast) var(--rb-ease), box-shadow var(--rb-speed) var(--rb-ease);
+    transition: transform var(--rb-speed-fast) var(--rb-ease),
+                box-shadow var(--rb-speed) var(--rb-ease);
   }
   [data-rb-scope="main"][data-page="dashboard"] .kpi .card:hover{
     transform: translateY(-2px);
@@ -46,20 +71,21 @@
     border-radius: 12px;
     background: color-mix(in oklab, var(--rb-bg-soft) 80%, #fff 20%);
     font-size: 18px;
+    flex: 0 0 auto;
   }
-  /* Ensure links wrapping KPI cards look like cards */
   [data-rb-scope="main"][data-page="dashboard"] .kpi a.text-decoration-none{
     color: inherit;
   }
 
-  /* ───────── Section headings ───────── */
+  /* ---------- Section headings ---------- */
   [data-rb-scope="main"][data-page="dashboard"] h3.h6{
     color: var(--rb-text-dim);
     text-transform: uppercase;
     letter-spacing: .08em;
+    margin: 0 0 8px 0;
   }
 
-  /* ───────── Tables (Recent Orders / Top Items / Low Stock) ───────── */
+  /* ---------- Cards & Tables ---------- */
   [data-rb-scope="main"][data-page="dashboard"] .card{
     background: var(--rb-card);
     border: 1px solid var(--rb-border);
@@ -74,45 +100,53 @@
     color: var(--rb-text-dim);
   }
 
-  /* Make table header stick inside card; guard horizontal overflow */
+  /* Table container: prevent horizontal overflow in cards */
   [data-rb-scope="main"][data-page="dashboard"] .table-responsive{
     border-radius: var(--rb-radius);
-    overflow: auto; /* enables sticky header behavior within */
+    overflow: auto; /* enables sticky thead within container */
+    -webkit-overflow-scrolling: touch;
   }
+
   [data-rb-scope="main"][data-page="dashboard"] table{
     color: var(--rb-text);
     background: var(--rb-card);
     border-color: var(--rb-border);
     width: 100%;
+    margin: 0;
   }
+
   [data-rb-scope="main"][data-page="dashboard"] thead.table-light th{
     background: var(--rb-bg-soft);
     color: var(--rb-text);
     border-bottom: 1px solid var(--rb-border);
     position: sticky; top: 0; z-index: 1;
   }
+
   [data-rb-scope="main"][data-page="dashboard"] .table-soft tbody tr:nth-child(odd){
     background: var(--rb-table-stripe);
   }
+
   [data-rb-scope="main"][data-page="dashboard"] .table > :not(caption) > * > *{
     padding: 10px 12px;
     background-clip: padding-box;
   }
+
   [data-rb-scope="main"][data-page="dashboard"] .table-hover tbody tr:hover{
     background: color-mix(in oklab, var(--rb-table-stripe), #fff 2%);
   }
+
   [data-rb-scope="main"][data-page="dashboard"] .recent-orders td.text-end,
   [data-rb-scope="main"][data-page="dashboard"] .top-items   td.text-end,
   [data-rb-scope="main"][data-page="dashboard"] .low-stock   td.text-end{
     text-align: right;
   }
 
-  /* Status badge spacing on legend (card footer) */
+  /* Legend badges spacing */
   [data-rb-scope="main"][data-page="dashboard"] .card-footer .badge{
     margin-right: 8px;
   }
 
-  /* ───────── Filters row (dropdowns / search) ───────── */
+  /* ---------- Filters / Inputs ---------- */
   [data-rb-scope="main"][data-page="dashboard"] .form-select,
   [data-rb-scope="main"][data-page="dashboard"] .form-control{
     background: var(--rb-bg-soft);
@@ -121,11 +155,11 @@
   }
   [data-rb-scope="main"][data-page="dashboard"] .form-select:focus,
   [data-rb-scope="main"][data-page="dashboard"] .form-control:focus{
-    border-color: color-mix(in oklab, var(--rb-border), var(--rb-primary-600));
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--rb-primary-600), transparent 70%);
+    border-color: color-mix(in oklab, var(--rb-border), var(--rb-primary-600, #5a63ff));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--rb-primary-600, #5a63ff), transparent 70%);
   }
 
-  /* ───────── Links styled to match theme (e.g., “View all”) ───────── */
+  /* “View all” buttons to match theme */
   [data-rb-scope="main"][data-page="dashboard"] a.btn-outline-light{
     color: var(--rb-text); border-color: var(--rb-border);
     background: transparent;
@@ -134,16 +168,23 @@
     background: color-mix(in oklab, var(--rb-bg-soft) 85%, #fff 15%);
   }
 
-  /* ───────── Responsive tweaks ───────── */
+  /* ---------- Minor layout guards ---------- */
+  /* Keep main content from causing horizontal scrollbar due to tables/cards */
+  [data-rb-scope="main"][data-page="dashboard"]{
+    overflow-x: clip; /* modern browsers; prevents accidental tiny overflow */
+  }
+
+  /* ---------- Responsive tweaks ---------- */
   @media (max-width: 1199px){
     [data-rb-scope="main"][data-page="dashboard"]{
-      --dash-card-pad: var(--rb-space-3);
+      --dash-card-pad: var(--rb-space-3, 12px);
     }
     [data-rb-scope="main"][data-page="dashboard"] .kpi .icon{
       --dash-kpi-icon-size: 32px;
       font-size: 16px;
     }
   }
+
   @media (max-width: 767px){
     [data-rb-scope="main"][data-page="dashboard"] .hero .w-md-auto{
       width: 100% !important;
@@ -151,11 +192,12 @@
     [data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width: 100%; }
   }
 
-  /* ───────── Print (only dashboard content) ───────── */
+  /* ---------- Print (only content; hide controls) ---------- */
   @media print{
     [data-rb-scope="main"][data-page="dashboard"] .btn,
     [data-rb-scope="main"][data-page="dashboard"] select,
-    [data-rb-scope="main"][data-page="dashboard"] input{
+    [data-rb-scope="main"][data-page="dashboard"] input,
+    [data-rb-scope="main"][data-page="dashboard"] .card-footer {
       display: none !important;
     }
     [data-rb-scope="main"][data-page="dashboard"] .card,
