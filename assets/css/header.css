@@ -1,37 +1,34 @@
 /* ===================== RB Stores — Header (STRICTLY SCOPED) =====================
-   - Always dark (matches sidebar), regardless of site theme
-   - Compact height; centered inner "rectangle" that scales with screen size
-   - No white bands; no blur by default
+   Fixes:
+   • Always-dark bar (matches sidebar)
+   • Taller bar (70px) so controls never spill into page
+   • Background “safety layer” to avoid any white seam
+   • Responsive inner width for large/ultrawide screens
 ================================================================================ */
 
-/* Visually hidden utility for screen-readers */
+/* Screen-reader helper */
 .sr-only{
   position:absolute!important; width:1px!important; height:1px!important;
   padding:0!important; margin:-1px!important; overflow:hidden!important;
   clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
 }
 
-/* ---------- Scope & tokens (DARK, locked to match sidebar) ---------- */
+/* ---------- Scope & theme tokens (locked to dark) ---------- */
 [data-rb-scope="header"]{
-  --rb-header-h: 64px;
-
+  --rb-header-h: 70px;     /* ↑ was 64px; gives breathing room */
   /* Sidebar gradient tokens (match your rail) */
-  --rb-sb-top:  #0d1426;  /* very dark navy */
-  --rb-sb-mid:  #0f172a;  /* slate-900 */
-  --rb-sb-bot:  #0b1222;  /* deeper base */
-  --rb-primary: #2563eb;  /* blue-600 */
-  --rb-accent:  #38bdf8;  /* sky-400 */
+  --rb-sb-top:  #0d1426;
+  --rb-sb-mid:  #0f172a;   /* slate-900 */
+  --rb-sb-bot:  #0b1222;
 
-  /* Semantic tokens (DARK, fixed) */
-  --rb-bg:       var(--rb-sb-mid);     /* header background base */
-  --rb-card:     #0b1222;              /* control bg */
+  --rb-primary: #2563eb;   /* blue-600 */
+  --rb-accent:  #38bdf8;   /* sky-400 */
+
+  --rb-bg:       var(--rb-sb-mid);
+  --rb-card:     #0b1222;  /* control surfaces */
   --rb-text:     #e5e7eb;
   --rb-text-dim: #a3b4c7;
   --rb-border:   #1e2a44;
-
-  /* Optional blur (kept OFF) */
-  --rb-enable-blur: 0;
-  --rb-blur-amt: 2px;
 
   position: sticky;
   top: 0;
@@ -39,88 +36,87 @@
   height: var(--rb-header-h);
   color: var(--rb-text);
 
-  /* Full-width dark gradient like sidebar (no white) */
-  background:
-    linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
+  /* Base gradient (full width, no white) */
+  background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
   border-bottom: 1px solid var(--rb-border);
 
-  max-width: 100%;
-  overflow: visible;
-
+  /* prevent sub-pixel seams and ensure the header paints above page */
+  isolation: isolate;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-
   padding-left: max(0px, env(safe-area-inset-left));
   padding-right: max(0px, env(safe-area-inset-right));
 }
 
-/* Keep it dark EVEN IF the root is in light mode */
+/* Safety layer: extends the dark bar so nothing ever shows white under controls */
+[data-rb-scope="header"]::before{
+  content:"";
+  position: absolute;
+  inset: 0;
+  height: var(--rb-header-h);
+  background: inherit;           /* same gradient */
+  z-index: -1;                   /* sits behind inner content */
+}
+
+/* Keep header dark even if site root toggles to light */
 :root[data-theme="light"] [data-rb-scope="header"]{
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
   --rb-text:     #e5e7eb;
   --rb-text-dim: #a3b4c7;
   --rb-border:   #1e2a44;
-  background:
-    linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
 }
 
-/* Optional subtle glass, toggle with --rb-enable-blur:1 */
-@supports (backdrop-filter: blur(1px)){
-  :root :where([data-rb-scope="header"]){
-    backdrop-filter: blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)))
-                    saturate(calc(1 + .05 * var(--rb-enable-blur)));
-    -webkit-backdrop-filter: blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)))
-                             saturate(calc(1 + .05 * var(--rb-enable-blur)));
-  }
-}
-
-/* ---------- Centered "rectangle" container with responsive widths ---------- */
+/* ---------- Centered “rectangle” container (responsive widths) ---------- */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
-  grid-template-columns: auto minmax(0, 560px) auto; /* brand | search | actions */
+  grid-template-columns: auto minmax(0, 640px) auto;   /* brand | search | actions */
   align-items: center;
   gap: 12px;
 
-  /* Base width (laptop) */
-  max-width: 1240px;
+  max-width: 1240px;         /* laptop */
   margin: 0 auto;
   padding: 0 16px;
   box-sizing: border-box;
 }
 
-/* Scale the inner rectangle smoothly on wider screens */
+/* Scale nicely on larger screens */
 @media (min-width: 1360px){
   .rb-header__inner{ max-width: 1320px; }
 }
-@media (min-width: 1536px){ /* ~2K */
+@media (min-width: 1536px){           /* ~2K */
   .rb-header__inner{
-    max-width: 1420px;
-    grid-template-columns: auto minmax(0, 640px) auto; /* give search more room */
+    max-width: 1440px;
+    grid-template-columns: auto minmax(0, 720px) auto; /* give search more room */
   }
 }
-@media (min-width: 1920px){ /* Full HD+ / Ultrawide */
+@media (min-width: 1920px){           /* FHD/Ultrawide */
   .rb-header__inner{
     max-width: 1560px;
-    grid-template-columns: auto minmax(0, 720px) auto;
+    grid-template-columns: auto minmax(0, 820px) auto;
   }
 }
+
+/* Ensure all three zones vertically center inside the bar */
+.rb-header__brand,
+.rb-header__search,
+.rb-header__actions{ align-self: center; }
 
 /* ---------- Brand (image logo) ---------- */
 .rb-header__brand{
   display: inline-flex; align-items: center; gap: 10px;
   text-decoration: none; color: var(--rb-text);
-  transition: transform .15s ease, opacity .15s ease;
   min-width: 0;
+  transition: transform .15s ease, opacity .15s ease;
 }
 .rb-header__brand:hover{ transform: translateY(-1px); opacity: .95; }
 .rb-brand-img{ display:block; height: 24px; width: auto; }
 
-/* Show dark logo by default; you can keep both or a single file */
+/* If you only use one logo file, just keep .rb-brand-dark visible */
 .rb-brand-dark{ display: block; }
 .rb-brand-light{ display: none; }
-/* If you want a special light-version logo ONLY when site is light, enable below:
+/* Optional: enable light variant ONLY if you truly have a light-logo asset
 :root[data-theme="light"] .rb-brand-dark{ display: none; }
 :root[data-theme="light"] .rb-brand-light{ display: block; }
 */
@@ -132,8 +128,7 @@
 .rb-header__search{
   justify-self: center;
   width: 100%;
-  max-width: 560px;
-  display: none; /* smaller screens hide */
+  display: none;                 /* hide on very small screens */
 }
 @media (min-width: 640px){ .rb-header__search{ display: block; } }
 
