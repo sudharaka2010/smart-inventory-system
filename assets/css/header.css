@@ -1,9 +1,8 @@
 /* ===================== RB Stores — Header (STRICTLY SCOPED) =====================
-   - Compact bar (64px)
-   - Centered inner width to look like a neat "rectangle"
-   - Sidebar-matching colors; blur OFF by default
-   - Auto logo swap for dark/light
-=============================================================================== */
+   - Always dark (matches sidebar), regardless of site theme
+   - Compact height; centered inner "rectangle" that scales with screen size
+   - No white bands; no blur by default
+================================================================================ */
 
 /* Visually hidden utility for screen-readers */
 .sr-only{
@@ -12,33 +11,37 @@
   clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
 }
 
-/* ---------- Scope & tokens ---------- */
+/* ---------- Scope & tokens (DARK, locked to match sidebar) ---------- */
 [data-rb-scope="header"]{
   --rb-header-h: 64px;
 
-  /* Sidebar-matching palette */
-  --rb-blue-900: #0b1222;
-  --rb-blue-800: #0f172a;
-  --rb-blue-700: #1e3a8a;
-  --rb-blue-600: #2563eb;
-  --rb-sky-400:  #38bdf8;
+  /* Sidebar gradient tokens (match your rail) */
+  --rb-sb-top:  #0d1426;  /* very dark navy */
+  --rb-sb-mid:  #0f172a;  /* slate-900 */
+  --rb-sb-bot:  #0b1222;  /* deeper base */
+  --rb-primary: #2563eb;  /* blue-600 */
+  --rb-accent:  #38bdf8;  /* sky-400 */
 
-  --rb-bg:       var(--rb-bg, var(--rb-blue-800));  /* header bg */
-  --rb-card:     var(--rb-card, #0b1222);           /* controls bg */
-  --rb-text:     var(--rb-text, #e5e7eb);
-  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
-  --rb-border:   var(--rb-border, #1e2a44);
+  /* Semantic tokens (DARK, fixed) */
+  --rb-bg:       var(--rb-sb-mid);     /* header background base */
+  --rb-card:     #0b1222;              /* control bg */
+  --rb-text:     #e5e7eb;
+  --rb-text-dim: #a3b4c7;
+  --rb-border:   #1e2a44;
 
-  /* optional glass toggle */
-  --rb-enable-blur: 0;   /* 0=off, 1=on */
-  --rb-blur-amt: 3px;
+  /* Optional blur (kept OFF) */
+  --rb-enable-blur: 0;
+  --rb-blur-amt: 2px;
 
   position: sticky;
   top: 0;
   z-index: 10000;
   height: var(--rb-header-h);
   color: var(--rb-text);
-  background: var(--rb-bg);
+
+  /* Full-width dark gradient like sidebar (no white) */
+  background:
+    linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
   border-bottom: 1px solid var(--rb-border);
 
   max-width: 100%;
@@ -51,23 +54,28 @@
   padding-right: max(0px, env(safe-area-inset-right));
 }
 
-/* Optional subtle glass (kept OFF) */
+/* Keep it dark EVEN IF the root is in light mode */
+:root[data-theme="light"] [data-rb-scope="header"]{
+  --rb-bg:       var(--rb-sb-mid);
+  --rb-card:     #0b1222;
+  --rb-text:     #e5e7eb;
+  --rb-text-dim: #a3b4c7;
+  --rb-border:   #1e2a44;
+  background:
+    linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
+}
+
+/* Optional subtle glass, toggle with --rb-enable-blur:1 */
 @supports (backdrop-filter: blur(1px)){
   :root :where([data-rb-scope="header"]){
     backdrop-filter: blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)))
                     saturate(calc(1 + .05 * var(--rb-enable-blur)));
     -webkit-backdrop-filter: blur(calc(var(--rb-enable-blur) * var(--rb-blur-amt)))
                              saturate(calc(1 + .05 * var(--rb-enable-blur)));
-    background:
-      linear-gradient(180deg,
-        rgba(56,189,248, calc(.10 * var(--rb-enable-blur))),
-        rgba(37,99,235, calc(.08 * var(--rb-enable-blur)))
-      ),
-      var(--rb-bg);
   }
 }
 
-/* ---------- Centered "rectangle" container ---------- */
+/* ---------- Centered "rectangle" container with responsive widths ---------- */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
@@ -75,36 +83,47 @@
   align-items: center;
   gap: 12px;
 
-  /* This creates the neat inner rectangle feel */
-  max-width: 1240px;       /* <- tweak to your taste (1180–1320 work well) */
+  /* Base width (laptop) */
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 16px;
   box-sizing: border-box;
 }
 
+/* Scale the inner rectangle smoothly on wider screens */
+@media (min-width: 1360px){
+  .rb-header__inner{ max-width: 1320px; }
+}
+@media (min-width: 1536px){ /* ~2K */
+  .rb-header__inner{
+    max-width: 1420px;
+    grid-template-columns: auto minmax(0, 640px) auto; /* give search more room */
+  }
+}
+@media (min-width: 1920px){ /* Full HD+ / Ultrawide */
+  .rb-header__inner{
+    max-width: 1560px;
+    grid-template-columns: auto minmax(0, 720px) auto;
+  }
+}
+
 /* ---------- Brand (image logo) ---------- */
 .rb-header__brand{
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: var(--rb-text);
+  display: inline-flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--rb-text);
   transition: transform .15s ease, opacity .15s ease;
   min-width: 0;
 }
 .rb-header__brand:hover{ transform: translateY(-1px); opacity: .95; }
+.rb-brand-img{ display:block; height: 24px; width: auto; }
 
-.rb-brand-img{
-  display:block;
-  height: 24px;            /* consistent with a compact bar */
-  width: auto;
-}
-
-/* Only one logo should show for current theme */
+/* Show dark logo by default; you can keep both or a single file */
 .rb-brand-dark{ display: block; }
 .rb-brand-light{ display: none; }
+/* If you want a special light-version logo ONLY when site is light, enable below:
 :root[data-theme="light"] .rb-brand-dark{ display: none; }
 :root[data-theme="light"] .rb-brand-light{ display: block; }
+*/
 
 /* ---------- Menu button (left) ---------- */
 .rb-header__menu{ justify-self: start; }
@@ -114,60 +133,49 @@
   justify-self: center;
   width: 100%;
   max-width: 560px;
-  display: none;
+  display: none; /* smaller screens hide */
 }
 @media (min-width: 640px){ .rb-header__search{ display: block; } }
 
 .rb-input{
-  width: 100%;
-  height: 38px;
-  border-radius: 12px;
-  background: var(--rb-card);
-  color: var(--rb-text);
+  width: 100%; height: 38px; border-radius: 12px;
+  background: var(--rb-card); color: var(--rb-text);
   border: 1px solid var(--rb-border);
-  padding: 0 12px;
-  outline: none;
+  padding: 0 12px; outline: none; box-sizing: border-box;
   transition: box-shadow .18s ease, border-color .18s ease, transform .12s ease;
-  box-sizing: border-box;
 }
 .rb-input::placeholder{ color: var(--rb-text-dim); }
-.rb-input:hover{ border-color: rgba(56,189,248,.35); }
+.rb-input:hover{ border-color: color-mix(in srgb, var(--rb-accent) 35%, var(--rb-border)); }
 .rb-input:focus{
-  border-color: rgba(56,189,248,.55);
+  border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
   box-shadow: 0 6px 18px rgba(56,189,248,.12), 0 0 0 3px rgba(56,189,248,.20);
   transform: translateY(-1px);
 }
 
 /* ---------- Actions (right) ---------- */
 .rb-header__actions{
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  justify-self: end; display: inline-flex; align-items: center; gap: 8px;
   min-width: 0;
 }
 
-/* ---------- Buttons ---------- */
+/* Buttons (icon/chip/user) */
 .rb-icon-btn, .rb-chip, .rb-user__btn{
   border: 1px solid var(--rb-border);
   background: var(--rb-card);
   color: var(--rb-text);
   border-radius: 12px;
   transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
-  cursor: pointer;
-  text-decoration: none;
+  cursor: pointer; text-decoration: none;
 }
-
 .rb-icon-btn{ height: 36px; width: 36px; display:grid; place-items:center; }
 .rb-chip{ height: 36px; display:inline-flex; align-items:center; gap:8px; padding: 0 12px; font-weight:600; }
 .rb-user__btn{ height: 36px; display:inline-flex; align-items:center; gap:8px; padding: 0 10px; }
 
-/* Hover */
 .rb-icon-btn:hover, .rb-chip:hover, .rb-user__btn:hover{
   transform: translateY(-1px);
-  border-color: rgba(56,189,248,.35);
+  border-color: color-mix(in srgb, var(--rb-accent) 35%, var(--rb-border));
   box-shadow: 0 8px 20px rgba(56,189,248,.12);
-  color: var(--rb-sky-400);
+  color: var(--rb-accent);
 }
 
 /* Focus-visible (a11y) */
@@ -178,7 +186,7 @@
 .rb-menu a:focus-visible{
   outline: none;
   box-shadow: 0 0 0 3px rgba(56,189,248,.30);
-  border-color: rgba(56,189,248,.55);
+  border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
 }
 
 /* ---------- User menu ---------- */
@@ -191,27 +199,17 @@
   position: absolute; right: 0; top: calc(100% + 8px);
   width: 200px; background: var(--rb-card);
   border:1px solid var(--rb-border); border-radius:12px; padding:6px;
-  box-shadow: 0 14px 40px rgba(0,0,0,.45);
-  z-index: 10;
+  box-shadow: 0 14px 40px rgba(0,0,0,.45); z-index: 10;
 }
 .rb-menu a{
   display:block; padding:10px; border-radius:8px; text-decoration:none; color:var(--rb-text);
   transition: background .15s ease, color .15s ease;
 }
-.rb-menu a:hover{ background: rgba(56,189,248,.10); color: var(--rb-sky-400); }
+.rb-menu a:hover{ background: rgba(56,189,248,.10); color: var(--rb-accent); }
 .rb-menu hr{ border:0; height:1px; background: var(--rb-border); margin:6px 0; }
 
-/* ---------- Active tint ---------- */
-.is-active{ color: var(--rb-blue-600) !important; }
-
-/* ---------- Light theme ---------- */
-:root[data-theme="light"] [data-rb-scope="header"]{
-  --rb-bg: #ffffff;
-  --rb-card: #f4f6fb;
-  --rb-text: #0b1222;
-  --rb-text-dim: #4b5563;
-  --rb-border: #d1d5db;
-}
+/* ---------- Active tint (if applied) ---------- */
+.is-active{ color: var(--rb-primary) !important; }
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce){
