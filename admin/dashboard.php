@@ -113,6 +113,7 @@ $headerFile=__DIR__.'/header.php'; $sidebarFile=__DIR__.'/sidebar.php'; $footerF
 
   <!-- App bundle (tokens, header, sidebar, main, dashboard, …) -->
   <link rel="stylesheet" href="/assets/css/app.css?v=2025-08-16">
+  <link rel="stylesheet" href="/assets/css/dashboard.css?v=2025-08-16">
 
 
 
