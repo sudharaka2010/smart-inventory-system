@@ -65,7 +65,7 @@ if (!function_exists('navActive')) {
 
     <!-- Actions (right) -->
     <div class="rb-header__actions">
-      <a class="rb-chip" href="<?= $href('/admin/billing.php'); ?>" title="New Bill"<?= navActive(['billing.php'], 'aria'); ?>>
+      <a class="rb-chip" href="<?= $href('./billing.php'); ?>" title="New Bill"<?= navActive(['billing.php'], 'aria'); ?>>
         <i class="bi bi-plus-lg" aria-hidden="true"></i>
         <span>New Bill</span>
       </a>
