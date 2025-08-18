@@ -1,107 +1,160 @@
 /* ===================== RB Stores — Header (STRICTLY SCOPED) ===================== */
+/* Matches the sidebar’s sky/dark blue theme and glassy gradient look */
+
 [data-rb-scope="header"]{
-  /* Tokens (fallbacks if tokens.css not loaded) */
+  /* Tokens & fallbacks */
   --rb-header-h: var(--rb-header-h, 68px);
-  --rb-bg: var(--rb-bg, #0f172a);
+  --rb-blue-800: #0f172a;
+  --rb-blue-700: #1e3a8a;
+  --rb-blue-600: #2563eb;
+  --rb-sky-400:  #38bdf8;
+
+  --rb-bg: var(--rb-bg, var(--rb-blue-800));
   --rb-card: var(--rb-card, #111827);
   --rb-text: var(--rb-text, #e5e7eb);
   --rb-text-dim: var(--rb-text-dim, #a3b4c7);
-  --rb-border: var(--rb-border, #24324a);
-  --rb-primary-600: var(--rb-primary-600, #5a63ff);
+  --rb-border: var(--rb-border, #23324a);
 
-  position: sticky; top: 0; z-index: 1000;
-  background: var(--rb-bg);
-  border-bottom: 1px solid var(--rb-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   color: var(--rb-text);
   height: var(--rb-header-h);
+
+  /* Subtle glass gradient like sidebar */
+  background:
+    linear-gradient(180deg, rgba(56,189,248,.10), rgba(37,99,235,.08)),
+    linear-gradient(180deg, var(--rb-bg), #0c1428);
+  border-bottom: 1px solid var(--rb-border);
+  backdrop-filter: saturate(1.1) blur(6px);
 }
 
+/* Inner layout */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
-  grid-template-columns: auto max(520px, 25%) auto;
+  grid-template-columns: auto minmax(0, 560px) auto;
   align-items: center;
   gap: 12px;
   padding: 0 16px;
 }
 
+/* Brand */
 .rb-header__brand{
   display: inline-flex; align-items: center; gap: 10px;
   text-decoration: none; color: var(--rb-text);
   font-weight: 700; letter-spacing: .3px;
 }
-.rb-logo{ font-size: 20px; }
+.rb-logo{ font-size: 20px; color: var(--rb-sky-400); }
 .rb-title{ font-size: 16px; }
 
+/* Menu button (left) */
 .rb-header__menu{ justify-self: start; }
 
+/* Search (center, hidden on very small screens) */
 .rb-header__search{
-  justify-self: center; width: 100%; max-width: 560px;
+  justify-self: center;
+  width: 100%; max-width: 560px;
   display: none;
 }
 @media (min-width: 640px){ .rb-header__search{ display: block; } }
-
 .rb-input{
-  width: 100%; height: 38px; border-radius: 10px;
+  width: 100%; height: 38px; border-radius: 12px;
   background: var(--rb-card); color: var(--rb-text);
   border: 1px solid var(--rb-border);
   padding: 0 12px; outline: none;
+  transition: box-shadow .18s ease, border-color .18s ease, transform .12s ease;
 }
 .rb-input::placeholder{ color: var(--rb-text-dim); }
-.rb-input:focus{ border-color: var(--rb-primary-600); box-shadow: 0 0 0 3px rgba(90,99,255,.2); }
+.rb-input:focus{
+  border-color: rgba(56,189,248,.55);
+  box-shadow: 0 6px 18px rgba(56,189,248,.12), 0 0 0 3px rgba(56,189,248,.20);
+  transform: translateY(-1px);
+}
 
+/* Actions (right) */
 .rb-header__actions{
   justify-self: end; display: inline-flex; align-items: center; gap: 8px;
 }
 
+/* Icon button */
 .rb-icon-btn{
-  height: 36px; width: 36px; border-radius: 10px;
+  height: 36px; width: 36px; border-radius: 12px;
   display: inline-grid; place-items: center;
   border: 1px solid var(--rb-border);
   background: var(--rb-card); color: var(--rb-text);
   cursor: pointer;
+  transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
 }
-.rb-icon-btn:hover{ transform: translateY(-1px); }
+.rb-icon-btn:hover{
+  transform: translateY(-1px);
+  border-color: rgba(56,189,248,.35);
+  box-shadow: 0 8px 20px rgba(56,189,248,.12);
+  color: var(--rb-sky-400);
+}
 
+/* Chip button */
 .rb-chip{
   height: 36px; display:inline-flex; align-items:center; gap:8px;
   padding: 0 12px; border-radius: 12px;
   border:1px solid var(--rb-border); background: var(--rb-card);
   color: var(--rb-text); text-decoration:none; font-weight:600;
+  transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
 }
-.rb-chip:hover{ border-color: var(--rb-primary-600); color: var(--rb-primary-600); }
+.rb-chip:hover{
+  transform: translateY(-1px);
+  border-color: rgba(56,189,248,.35);
+  color: var(--rb-sky-400);
+  box-shadow: 0 8px 20px rgba(56,189,248,.12);
+}
 
+/* User menu */
 .rb-user{ position: relative; }
 .rb-user__btn{
   display: inline-flex; align-items: center; gap: 8px;
-  background: var(--rb-card); border:1px solid var(--rb-border);
-  color: var(--rb-text); height: 36px; padding: 0 10px; border-radius: 12px;
+  background: var(--rb-card);
+  border:1px solid var(--rb-border);
+  color: var(--rb-text);
+  height: 36px; padding: 0 10px; border-radius: 12px;
   cursor: pointer;
+  transition: transform .12s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease;
+}
+.rb-user__btn:hover{
+  transform: translateY(-1px);
+  border-color: rgba(56,189,248,.35);
+  box-shadow: 0 8px 20px rgba(56,189,248,.12);
+  color: var(--rb-sky-400);
 }
 .rb-avatar{ width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-.rb-user__name{ display:none; }
-@media (min-width: 920px){ .rb-user__name{ display: inline; color: var(--rb-text-dim); } }
+.rb-user__name{ display:none; color: var(--rb-text-dim); }
+@media (min-width: 920px){ .rb-user__name{ display: inline; } }
 
 .rb-menu{
   position: absolute; right: 0; top: calc(100% + 8px);
-  width: 200px; background: var(--rb-card); border:1px solid var(--rb-border);
-  border-radius: 12px; padding: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  width: 200px; background: var(--rb-card);
+  border:1px solid var(--rb-border);
+  border-radius: 12px; padding: 6px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.45);
+  z-index: 10;
 }
 .rb-menu a{
   display: block; padding: 10px; border-radius: 8px;
   text-decoration: none; color: var(--rb-text);
+  transition: background .15s ease, color .15s ease;
 }
-.rb-menu a:hover{ background: rgba(255,255,255,.04); }
+.rb-menu a:hover{
+  background: rgba(56,189,248,.10);
+  color: var(--rb-sky-400);
+}
 .rb-menu hr{ border:0; height:1px; background: var(--rb-border); margin:6px 0; }
 
-.is-active{ color: var(--rb-primary-600) !important; }
+/* Active link tint (if used on header items) */
+.is-active{ color: var(--rb-blue-600) !important; }
 
-/* Utility */
+/* Utilities */
 .rb-no-scroll{ overflow: hidden; }
 
-.rb-header .rb-icon-btn, .rb-header .rb-user__btn, .rb-header .rb-chip { transition: all .18s ease; }
-
-/* Light mode support via [data-theme="light"] if you ever need it */
+/* Light mode */
 :root[data-theme="light"] [data-rb-scope="header"]{
   --rb-bg: #ffffff;
   --rb-card: #f4f6fb;

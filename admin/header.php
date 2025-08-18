@@ -1,7 +1,6 @@
 <?php
 // ========================== RB Stores — Header (include) ===========================
-// Drop this file anywhere and include it from your pages.
-// Set $APP_BASE (e.g., '/admin') BEFORE including if you deploy under a subfolder.
+// Include this at the top of pages (after setting $APP_BASE if needed)
 
 $APP_BASE = rtrim($APP_BASE ?? '', '/');
 $href = function(string $path) use ($APP_BASE){
@@ -9,32 +8,33 @@ $href = function(string $path) use ($APP_BASE){
   return ($APP_BASE === '') ? $path : $APP_BASE . $path;
 };
 
-// Safe "active" detection (works with subfolders & query strings)
+// Active detection (works with subfolders & query strings)
 $uri     = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 $current = basename($uri ?: ($_SERVER['SCRIPT_NAME'] ?? '') ?: 'index.php');
-function navActive($files, $return = 'class'){
-  global $current;
-  $files  = (array)$files;
-  $active = in_array($current, $files, true);
-  if ($return === 'aria') return $active ? ' aria-current="page"' : '';
-  return $active ? ' is-active' : '';
+if (!function_exists('navActive')) {
+  function navActive($files, $return = 'class'){
+    global $current;
+    $files  = (array)$files;
+    $active = in_array($current, $files, true);
+    if ($return === 'aria') return $active ? ' aria-current="page"' : '';
+    return $active ? ' is-active' : '';
+  }
 }
-
-// Load CSS once
-
 ?>
-
+<!-- Icons (Bootstrap Icons CDN) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<!-- Header CSS -->
 <link rel="stylesheet" href="/assets/css/header.css">
 
 <header class="rb-header" data-rb-scope="header">
   <div class="rb-header__inner">
-    <button class="rb-icon-btn rb-header__menu" id="rbMenuBtn" aria-controls="rbSidebar" aria-expanded="false" aria-label="Toggle sidebar">
-      <!-- hamburger -->
-      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <!-- SAME toggle API as sidebar: data-sidebar-toggle -->
+    <button class="rb-icon-btn rb-header__menu" data-sidebar-toggle aria-controls="rbSidebar" aria-expanded="false" aria-label="Toggle sidebar">
+      <i class="bi bi-list" aria-hidden="true"></i>
     </button>
 
     <a class="rb-header__brand" href="<?= $href('/dashboard.php'); ?>">
-      <span class="rb-logo" aria-hidden="true">🛒</span>
+      <i class="bi bi-bag-check rb-logo" aria-hidden="true"></i>
       <span class="rb-title">RB Stores</span>
     </a>
 
@@ -44,19 +44,19 @@ function navActive($files, $return = 'class'){
 
     <div class="rb-header__actions">
       <a class="rb-chip" href="<?= $href('/billing.php'); ?>" title="New Bill">
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
         <span>New Bill</span>
       </a>
 
       <button class="rb-icon-btn" id="rbThemeBtn" aria-label="Toggle theme">
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.5 0-1-.1-1.5A7.5 7.5 0 0 1 12 3Z" fill="currentColor"/></svg>
+        <i class="bi bi-brightness-high" aria-hidden="true"></i>
       </button>
 
       <div class="rb-user">
         <button class="rb-user__btn" id="rbUserBtn" aria-expanded="false" aria-haspopup="menu">
           <img src="<?= $href('/assets/img/avatar.png'); ?>" alt="" class="rb-avatar" />
           <span class="rb-user__name">Admin</span>
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <i class="bi bi-caret-down-fill" aria-hidden="true"></i>
         </button>
         <div class="rb-menu" id="rbUserMenu" role="menu" hidden>
           <a role="menuitem" href="<?= $href('/profile.php'); ?>">Profile</a>
@@ -70,46 +70,25 @@ function navActive($files, $return = 'class'){
 </header>
 
 <script>
-(function(){
+/* Header behavior (no sidebar toggling here—sidebar.js handles [data-sidebar-toggle]) */
+(() => {
   const $ = (s, r=document)=>r.querySelector(s);
-  const menuBtn  = $("#rbMenuBtn");
-  const sidebar  = $("#rbSidebar");
   const userBtn  = $("#rbUserBtn");
   const userMenu = $("#rbUserMenu");
   const themeBtn = $("#rbThemeBtn");
 
-  // Sidebar toggle
-  if (menuBtn && sidebar){
-    menuBtn.addEventListener("click", () => {
-      const open = sidebar.getAttribute("data-open") === "true";
-      sidebar.setAttribute("data-open", String(!open));
-      menuBtn.setAttribute("aria-expanded", String(!open));
-      document.body.classList.toggle("rb-no-scroll", !open);
-    });
-  }
-
-  // Close sidebar on overlay click
-  document.addEventListener("click", (e)=>{
-    if (!sidebar) return;
-    if (e.target && e.target.classList && e.target.classList.contains("rb-sidebar__overlay")){
-      sidebar.setAttribute("data-open","false");
-      document.body.classList.remove("rb-no-scroll");
-      $("#rbMenuBtn")?.setAttribute("aria-expanded","false");
-    }
-  });
-
-  // User menu
+  // User menu (click outside to close)
   if (userBtn && userMenu){
     userBtn.addEventListener("click", (e)=>{
       e.stopPropagation();
-      const open = userMenu.hasAttribute("hidden") ? false : true;
+      const open = !userMenu.hasAttribute("hidden");
       userMenu.toggleAttribute("hidden", open);
       userBtn.setAttribute("aria-expanded", String(!open));
     });
     document.addEventListener("click", () => userMenu.setAttribute("hidden",""));
   }
 
-  // Theme toggle (dark <-> light). Default = dark if no tokens.
+  // Theme toggle (dark <-> light)
   if (themeBtn){
     themeBtn.addEventListener("click", ()=>{
       const root = document.documentElement;
@@ -117,7 +96,6 @@ function navActive($files, $return = 'class'){
       root.setAttribute("data-theme", next);
       try { localStorage.setItem("rb-theme", next); } catch(e){}
     });
-    // boot
     try {
       const saved = localStorage.getItem("rb-theme");
       if (saved) document.documentElement.setAttribute("data-theme", saved);
