@@ -22,7 +22,7 @@ $href = function(string $path) use ($APP_BASE){
   <div class="container-fluid d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
     <!-- Left: Brand & Copy -->
     <div class="d-flex align-items-center gap-2 text-truncate">
-      <img src="<?= htmlspecialchars($href('assets/images/rb.png'), ENT_QUOTES) ?>"
+      <img src="<?= htmlspecialchars($href('/assets/images/rb.png'), ENT_QUOTES) ?>"
            alt=""
            class="rb-footer__logo">
       <strong class="text-truncate"><?= htmlspecialchars($APP_NAME) ?></strong>
