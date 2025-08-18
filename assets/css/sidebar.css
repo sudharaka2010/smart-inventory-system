@@ -1,33 +1,64 @@
-/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) ===================== */
+/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) =====================
+   Scope: ONLY inside [data-rb-scope="sidebar"] and #rbSidebar
+   - Offcanvas on mobile, fixed rail on desktop (≥1200px)
+   - Sky blue / dark blue professional theme
+   - Smooth hover/active with subtle glass/gradient
+================================================================================== */
+
 [data-rb-scope="sidebar"]{
-  --rb-sb-w: var(--rb-sb-w, 280px);
-  --rb-header-h: var(--rb-header-h, 68px);
-  --rb-bg: var(--rb-sb-bg, var(--rb-bg, #0f172a));
-  --rb-bg-soft: var(--rb-sb-bg-soft, var(--rb-bg-soft, #0b1222));
-  --rb-card: var(--rb-card, #111827);
-  --rb-text: var(--rb-text, #e5e7eb);
-  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
-  --rb-border: var(--rb-border, #24324a);
-  --rb-primary-600: var(--rb-primary-600, #5a63ff);
+  /* Layout tokens */
+  --rb-sb-w: 280px;                /* rail width */
+  --rb-header-h: 68px;             /* fixed header height (match header.php) */
+
+  /* Blues (dark + sky) */
+  --rb-blue-900: #0b1222;          /* deep navy backdrop */
+  --rb-blue-800: #0f172a;          /* slate/indigo blend */
+  --rb-blue-700: #1e3a8a;          /* dark blue */
+  --rb-blue-600: #2563eb;          /* brand blue */
+  --rb-sky-400:  #38bdf8;          /* sky accent */
+  --rb-sky-300:  #7dd3fc;          /* lighter sky */
+
+  /* Base surface */
+  --rb-bg: var(--rb-blue-800);
+  --rb-bg-soft: #0c1428;
+  --rb-card: #111827;
+
+  /* Text & borders */
+  --rb-text: #e5e7eb;
+  --rb-text-dim: #a3b4c7;
+  --rb-border: #23324a;
+
+  /* Effects */
+  --rb-hover-glass: 12px;
   --rb-rail-breakpoint: 1200px;
 }
+
 /* Offcanvas container */
 .rb-sidebar{
-  position: fixed; inset: 0; pointer-events: none; z-index: 999;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
 }
 .rb-sidebar[data-open="true"]{ pointer-events: auto; }
 
 /* Overlay */
 .rb-sidebar__overlay{
-  position: absolute; inset: 0; background: rgba(0,0,0,.4);
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
   opacity: 0; transition: opacity .2s ease;
 }
 .rb-sidebar[data-open="true"] .rb-sidebar__overlay{ opacity: 1; }
 
 /* Panel */
 .rb-sidebar__panel{
-  position: absolute; top: 0; left: 0; height: 100dvh; width: min(88vw, var(--rb-sb-w));
-  background: var(--rb-bg); color: var(--rb-text);
+  position: absolute; top: 0; left: 0;
+  height: 100dvh; width: min(88vw, var(--rb-sb-w));
+  background:
+    linear-gradient(180deg, rgba(30,58,138,.22), transparent 40%),
+    linear-gradient(180deg, var(--rb-bg), var(--rb-bg-soft));
+  color: var(--rb-text);
   border-right: 1px solid var(--rb-border);
   transform: translateX(-100%);
   transition: transform .22s ease;
@@ -47,46 +78,81 @@
     width: var(--rb-sb-w);
     top: 0; padding-top: var(--rb-header-h);
   }
-  body.has-rail{
-    padding-left: var(--rb-sb-w); /* push the layout to make space for rail */
-  }
+  body.has-rail{ padding-left: var(--rb-sb-w); }
 }
 
 /* Brand */
 .rb-sidebar__brand{
   position: sticky; top: 0;
   display: flex; align-items: center; gap: 10px;
-  padding: 14px 14px; margin-bottom: 4px;
-  background: linear-gradient(to bottom, var(--rb-bg), transparent);
-  border-bottom: 1px solid rgba(255,255,255,.04);
+  padding: 14px 16px; margin: 2px 10px 8px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(56,189,248,.12), rgba(37,99,235,.10));
+  border: 1px solid rgba(125,211,252,.22);
+  box-shadow: 0 8px 24px rgba(37,99,235,.15);
 }
-.rb-sidebar__brand .rb-logo{ font-size: 18px; }
+.rb-sidebar__brand .rb-logo{ font-size: 18px; line-height: 1; color: var(--rb-sky-400); }
 .rb-sidebar__brand .rb-name{ font-weight: 700; letter-spacing: .3px; }
 
 /* Nav */
-.rb-nav{ list-style: none; margin: 6px 0 20px; padding: 0 8px; }
+.rb-nav{ list-style: none; margin: 6px 0 20px; padding: 0 10px; }
+
 .rb-section{
   font-size: 12px; color: var(--rb-text-dim);
-  padding: 12px 10px 6px; text-transform: uppercase; letter-spacing: .08em;
+  padding: 14px 10px 6px; text-transform: uppercase; letter-spacing: .08em;
 }
+
+/* Links */
 .rb-link{
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 12px;
   color: var(--rb-text); text-decoration: none;
-  padding: 10px 10px; border-radius: 10px;
+  padding: 11px 12px; border-radius: 12px;
   border: 1px solid transparent;
+  position: relative;
+  transition: background .18s ease, border-color .18s ease, transform .12s ease;
 }
-.rb-link .i{ width: 22px; display: grid; place-items: center; color: var(--rb-text-dim); }
-.rb-link:hover{ background: rgba(255,255,255,.04); border-color: var(--rb-border); }
-.rb-link.is-active{ background: linear-gradient(180deg, rgba(90,99,255,.18), rgba(90,99,255,.06));
-  color: var(--rb-text); border-color: rgba(90,99,255,.32);
+.rb-link .i{
+  width: 22px; display: grid; place-items: center;
+  color: var(--rb-text-dim);
+  font-size: 18px;
 }
-.rb-link.is-active .i{ color: var(--rb-primary-600); }
+
+/* Hover: subtle sky glow + lift */
+.rb-link:hover{
+  background:
+    linear-gradient(180deg, rgba(56,189,248,.16), rgba(37,99,235,.08));
+  border-color: rgba(56,189,248,.25);
+  box-shadow: 0 6px 18px rgba(56,189,248,.12);
+  transform: translateY(-1px);
+}
+.rb-link:hover .i{ color: var(--rb-sky-400); }
+
+/* Active (current page) */
+.rb-link.is-active{
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(125,211,252,.18), transparent 60%),
+    linear-gradient(180deg, rgba(37,99,235,.22), rgba(37,99,235,.09));
+  color: var(--rb-text);
+  border-color: rgba(37,99,235,.38);
+  box-shadow: 0 10px 28px rgba(37,99,235,.18);
+}
+.rb-link.is-active .i{ color: var(--rb-blue-600); }
+
+/* Reduce icon/text shimmer on tap */
+.rb-link:active{ transform: translateY(0); }
 
 /* Make sure no accidental horizontal scrollbars anywhere */
 html, body{ overflow-x: hidden; }
 .rb-sidebar__panel{ max-width: 100%; }
 
-/* Light mode support */
+/* Focus visible for a11y */
+.rb-link:focus-visible{
+  outline: 2px solid var(--rb-sky-300);
+  outline-offset: 2px;
+}
+
+/* Light mode (optional) */
 :root[data-theme="light"] [data-rb-scope="sidebar"]{
   --rb-bg: #ffffff;
   --rb-bg-soft: #f6f7fb;
@@ -94,4 +160,6 @@ html, body{ overflow-x: hidden; }
   --rb-text: #0b1222;
   --rb-text-dim: #4b5563;
   --rb-border: #e5e7eb;
+  --rb-blue-600: #2563eb;
+  --rb-sky-400: #0ea5e9;
 }
