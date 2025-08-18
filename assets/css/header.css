@@ -1,205 +1,111 @@
-/* ================= RB Stores — Responsive Header (STRICTLY SCOPED) =================
-   Scope: targets only the header include (.header and children)
-   Works with: header.php (your PHP include), sidebar.php, footer.php
-   Notes:
-   - No globals except the three CSS variables (kept in :root to share with sidebar/main)
-   - Mobile menu uses .header__nav--active (toggled by header.php JS)
-   - Avoids 100vw to prevent horizontal scrollbars on some browsers
-==================================================================================== */
+/* ===================== RB Stores — Header (STRICTLY SCOPED) ===================== */
+[data-rb-scope="header"]{
+  /* Tokens (fallbacks if tokens.css not loaded) */
+  --rb-header-h: var(--rb-header-h, 68px);
+  --rb-bg: var(--rb-bg, #0f172a);
+  --rb-card: var(--rb-card, #111827);
+  --rb-text: var(--rb-text, #e5e7eb);
+  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
+  --rb-border: var(--rb-border, #24324a);
+  --rb-primary-600: var(--rb-primary-600, #5a63ff);
 
-/* ---- Shared layout tokens (keep in sync with sidebar.css / footer.css) ---- */
-:root {
-  --rb-header-h: clamp(56px, 9vh, 68px); /* sticky header height */
-  --rb-footer-h: 56px;                   /* footer height */
-  --rb-sidebar-w: 280px;                 /* desktop sidebar width */
+  position: sticky; top: 0; z-index: 1000;
+  background: var(--rb-bg);
+  border-bottom: 1px solid var(--rb-border);
+  color: var(--rb-text);
+  height: var(--rb-header-h);
 }
 
-/* ---- Header shell ---- */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 1100;
-  background: linear-gradient(180deg, #0f172a, #111827); /* slate-900 -> slate-800 */
-  color: #e5e7eb; /* gray-200 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .25);
-  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  min-height: var(--rb-header-h);
-  box-sizing: border-box;
-  width: 100%;                /* avoid layout jitter */
-  overflow: visible;          /* allow dropdowns/tooltips if any */
-}
-
-/* Prevent accidental horizontal scroll caused by inner flex gaps/padding */
-.header * {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-/* ---- Skip link (accessibility) ---- */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
-.skip-link:focus {
-  position: fixed;
-  left: 1rem;
-  top: 1rem;
-  z-index: 1200;
-  padding: .5rem .75rem;
-  background: #111827;
-  color: #fff;
-  border-radius: .5rem;
-  outline: 2px solid #94d0ec;
-  outline-offset: 2px;
-}
-
-/* ---- Inner container ---- */
-.header__container {
-  display: flex;
+.rb-header__inner{
+  height: var(--rb-header-h);
+  display: grid;
+  grid-template-columns: auto max(520px, 25%) auto;
   align-items: center;
-  gap: 1rem;
-  padding: .5rem 1rem;
-  min-height: var(--rb-header-h);
+  gap: 12px;
+  padding: 0 16px;
 }
 
-/* ---- Brand ---- */
-.header__logo {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  text-decoration: none;
+.rb-header__brand{
+  display: inline-flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--rb-text);
+  font-weight: 700; letter-spacing: .3px;
+}
+.rb-logo{ font-size: 20px; }
+.rb-title{ font-size: 16px; }
+
+.rb-header__menu{ justify-self: start; }
+
+.rb-header__search{
+  justify-self: center; width: 100%; max-width: 560px;
+  display: none;
+}
+@media (min-width: 640px){ .rb-header__search{ display: block; } }
+
+.rb-input{
+  width: 100%; height: 38px; border-radius: 10px;
+  background: var(--rb-card); color: var(--rb-text);
+  border: 1px solid var(--rb-border);
+  padding: 0 12px; outline: none;
+}
+.rb-input::placeholder{ color: var(--rb-text-dim); }
+.rb-input:focus{ border-color: var(--rb-primary-600); box-shadow: 0 0 0 3px rgba(90,99,255,.2); }
+
+.rb-header__actions{
+  justify-self: end; display: inline-flex; align-items: center; gap: 8px;
+}
+
+.rb-icon-btn{
+  height: 36px; width: 36px; border-radius: 10px;
+  display: inline-grid; place-items: center;
+  border: 1px solid var(--rb-border);
+  background: var(--rb-card); color: var(--rb-text);
   cursor: pointer;
 }
-.header__logo-img {
-  height: 36px;
-  width: auto;
-  flex: 0 0 auto;
-}
-.header__logo-text {
-  font-weight: 700;
-  color: #e5e7eb;
-  white-space: nowrap;
-}
+.rb-icon-btn:hover{ transform: translateY(-1px); }
 
-/* ---- Mobile toggle ---- */
-.header__toggle {
-  background: none;
-  border: 0;
-  color: #e5e7eb;
-  font-size: 1.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  padding: .25rem;
-  border-radius: .5rem;
+.rb-chip{
+  height: 36px; display:inline-flex; align-items:center; gap:8px;
+  padding: 0 12px; border-radius: 12px;
+  border:1px solid var(--rb-border); background: var(--rb-card);
+  color: var(--rb-text); text-decoration:none; font-weight:600;
 }
-.header__toggle:hover,
-.header__toggle:focus {
-  color: #ffffff;
-  background: rgba(255,255,255,.08);
-  outline: none;
-}
+.rb-chip:hover{ border-color: var(--rb-primary-600); color: var(--rb-primary-600); }
 
-/* Hide the burger on large screens (nav is inline) */
-@media (min-width: 992px) {
-  .header__toggle { display: none; }
+.rb-user{ position: relative; }
+.rb-user__btn{
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--rb-card); border:1px solid var(--rb-border);
+  color: var(--rb-text); height: 36px; padding: 0 10px; border-radius: 12px;
+  cursor: pointer;
 }
+.rb-avatar{ width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+.rb-user__name{ display:none; }
+@media (min-width: 920px){ .rb-user__name{ display: inline; color: var(--rb-text-dim); } }
 
-/* ---- Primary nav ---- */
-.header__nav {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
+.rb-menu{
+  position: absolute; right: 0; top: calc(100% + 8px);
+  width: 200px; background: var(--rb-card); border:1px solid var(--rb-border);
+  border-radius: 12px; padding: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.35);
 }
+.rb-menu a{
+  display: block; padding: 10px; border-radius: 8px;
+  text-decoration: none; color: var(--rb-text);
+}
+.rb-menu a:hover{ background: rgba(255,255,255,.04); }
+.rb-menu hr{ border:0; height:1px; background: var(--rb-border); margin:6px 0; }
 
-/* Nav links */
-.header__link {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .5rem .75rem;
-  border-radius: .5rem;
-  text-decoration: none;
-  color: #e5e7eb;
-  font-weight: 500;
-  white-space: nowrap;
-  line-height: 1.2;
-}
-.header__link:hover,
-.header__link:focus {
-  background: rgba(255, 255, 255, .06);
-  color: #ffffff;
-  outline: none;
-}
-.header__link.is-active,
-.header__link[aria-current="page"] {
-  background: rgba(99, 117, 255, .16); /* primary tint */
-}
+.is-active{ color: var(--rb-primary-600) !important; }
 
-.header__link--logout {
-  color: #f87171; /* red-400 */
-}
-.header__link--logout:hover,
-.header__link--logout:focus {
-  background: rgba(248, 113, 113, .15);
-  color: #fecaca; /* red-200 */
-}
+/* Utility */
+.rb-no-scroll{ overflow: hidden; }
 
-/* Icon sizing in links (Font Awesome) */
-.header__link i {
-  font-size: 1rem;
-  line-height: 1;
-}
+.rb-header .rb-icon-btn, .rb-header .rb-user__btn, .rb-header .rb-chip { transition: all .18s ease; }
 
-/* ---- Mobile menu (off-canvas dropdown below header) ---- */
-@media (max-width: 991.98px) {
-  .header__nav {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: var(--rb-header-h);
-    display: none;                 /* closed by default */
-    flex-direction: column;
-    gap: .25rem;
-    padding: .75rem;
-    background: #0f172a;
-    border-bottom: 1px solid rgba(148, 208, 236, .28);
-    z-index: 1099;
-    max-height: calc(100dvh - var(--rb-header-h));
-    overflow-y: auto;              /* scroll menu, not page */
-    overscroll-behavior: contain;  /* avoid body scroll chaining */
-  }
-  .header__nav.header__nav--active {
-    display: flex;
-  }
-}
-
-/* ---- Desktop spacing when sidebar rail is visible ---- */
-@media (min-width: 1200px) {
-  .header__container {
-    /* pushes content so it doesn't sit under the fixed sidebar rail */
-    padding-left: calc(1rem + var(--rb-sidebar-w));
-  }
-}
-
-/* ---- Focus outlines for keyboard users ---- */
-.header :where(a, button):focus-visible {
-  outline: 2px solid #94d0ec;
-  outline-offset: 2px;
-  border-radius: .5rem;
-}
-
-/* ---- Reduced motion ---- */
-@media (prefers-reduced-motion: reduce) {
-  .header,
-  .header * {
-    transition: none !important;
-    animation: none !important;
-  }
+/* Light mode support via [data-theme="light"] if you ever need it */
+:root[data-theme="light"] [data-rb-scope="header"]{
+  --rb-bg: #ffffff;
+  --rb-card: #f4f6fb;
+  --rb-text: #0b1222;
+  --rb-text-dim: #4b5563;
+  --rb-border: #e5e7eb;
 }

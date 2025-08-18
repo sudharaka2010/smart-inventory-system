@@ -1,119 +1,31 @@
-/* ============================ RB Stores — Footer (SCOPED) ============================
-   Scope: only affects <footer data-rb-scope="footer"> and its children.
-   No globals. Safe with Bootstrap utilities.
-====================================================================================== */
-
-:where([data-rb-scope="footer"]) {
-  --rb-footer-h: 56px;
-
-  /* Theme (adjust if you prefer light) */
-  --rb-footer-bg: #0f172a; /* slate-900 */
-  --rb-footer-fg: #cbd5e1; /* slate-300 */
-  --rb-footer-dim:#94a3b8; /* slate-400 */
-  --rb-footer-border: rgba(255,255,255,.10);
-  --rb-footer-link: #e5e7eb; /* slate-200 */
-  --rb-footer-link-hover: #ffffff;
-
-  background: var(--rb-footer-bg);
-  color: var(--rb-footer-fg);
+/* ===================== RB Stores — Footer (STRICTLY SCOPED) ===================== */
+[data-rb-scope="footer"]{
+  --rb-footer-h: var(--rb-footer-h, 56px);
+  --rb-bg: var(--rb-bg, #0f172a);
+  --rb-card: var(--rb-card, #111827);
+  --rb-text: var(--rb-text, #e5e7eb);
+  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
+  --rb-border: var(--rb-border, #24324a);
+  position: sticky; bottom: 0; z-index: 500;
+  background: var(--rb-bg);
+  border-top: 1px solid var(--rb-border);
+  color: var(--rb-text);
+}
+.rb-footer__inner{
   min-height: var(--rb-footer-h);
-
-  /* Ensure the Bootstrap utilities inside don’t cause weird growth */
-  display: block;
-  border-top: 1px solid var(--rb-footer-border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 16px;
 }
+.rb-foot-left, .rb-foot-right{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rb-footer a{ color: var(--rb-text-dim); text-decoration: none; }
+.rb-footer a:hover{ color: var(--rb-text); text-decoration: underline; }
+.rb-dot{ opacity: .5; }
 
-/* Layout container: trust your .container-fluid from Bootstrap,
-   but clamp spacing so it never overflows. */
-:where([data-rb-scope="footer"] .container-fluid){
-  padding-left: .75rem;
-  padding-right: .75rem;
-  max-width: 100%;
-}
-
-/* Typographic safety: un-opinionated reset INSIDE the footer only */
-:where([data-rb-scope="footer"] *){
-  font: inherit;
-  line-height: inherit;
-  color: inherit;
-}
-
-/* Brand block */
-:where([data-rb-scope="footer"] strong){
-  font-weight: 600;
-  letter-spacing: .2px;
-  white-space: nowrap;
-}
-
-/* Muted text (your © + range) */
-:where([data-rb-scope="footer"] .text-muted){
-  color: var(--rb-footer-dim) !important; /* keep consistent on dark bg */
-}
-
-/* Logo */
-:where([data-rb-scope="footer"] .rb-footer__logo){
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  display: inline-block;
-  border-radius: 4px;
-}
-
-/* Links */
-:where([data-rb-scope="footer"] .rb-footer__link){
-  text-decoration: none;
-  color: var(--rb-footer-link);
-  transition: color .15s ease, opacity .15s ease;
-  opacity: .95;
-}
-
-:where([data-rb-scope="footer"] .rb-footer__link:hover){
-  color: var(--rb-footer-link-hover);
-  opacity: 1;
-}
-
-:where([data-rb-scope="footer"] .rb-footer__link:focus-visible){
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-
-/* UL reset (scoped) */
-:where([data-rb-scope="footer"] ul){
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* Make sure long app names don’t cause horizontal scrolling */
-:where([data-rb-scope="footer"] .text-truncate){
-  min-width: 0;
-}
-
-/* Small screens: stack neatly (your HTML already uses flex utilities) */
-@media (max-width: 575.98px){
-  :where([data-rb-scope="footer"]){
-    --rb-footer-h: auto; /* allow comfortable wrap on 1 line height floors */
-  }
-}
-
-/* Print: keep it subtle or hide if you prefer */
-@media print{
-  :where([data-rb-scope="footer"]){
-    background: #fff;
-    color: #333;
-    border-top: 1px solid #ddd;
-  }
-}
-
-/* Optional: light theme support using OS preference */
-@media (prefers-color-scheme: light){
-  :where([data-rb-scope="footer"]){
-    --rb-footer-bg: #f8fafc;
-    --rb-footer-fg: #334155;
-    --rb-footer-dim:#64748b;
-    --rb-footer-border: rgba(2,6,23,.08);
-    --rb-footer-link: #0f172a;
-    --rb-footer-link-hover: #000000;
-  }
+/* Light mode */
+:root[data-theme="light"] [data-rb-scope="footer"]{
+  --rb-bg: #ffffff;
+  --rb-card: #f4f6fb;
+  --rb-text: #0b1222;
+  --rb-text-dim: #4b5563;
+  --rb-border: #e5e7eb;
 }

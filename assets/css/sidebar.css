@@ -1,177 +1,97 @@
-/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) =====================
-   Targets ONLY inside [data-rb-scope="sidebar"] and #rbSidebar.
-   - Mobile: Bootstrap offcanvas
-   - Desktop (≥1200px): fixed left rail (CSS-only push via :has, JS not required)
-   - No impact on header.php / footer.php / main content
-================================================================================== */
-
-/* ---------- Scope base & tokens ---------- */
+/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) ===================== */
 [data-rb-scope="sidebar"]{
-  /* Layout tokens */
-  --rb-sb-w: 280px;                 /* rail width on xl+ */
-  --rb-header-h: 68px;              /* fixed header height (override inline if needed) */
-  --rb-footer-h: 0px;               /* fixed footer height if you have one */
+  --rb-sb-w: var(--rb-sb-w, 280px);
+  --rb-header-h: var(--rb-header-h, 68px);
+  --rb-bg: var(--rb-sb-bg, var(--rb-bg, #0f172a));
+  --rb-bg-soft: var(--rb-sb-bg-soft, var(--rb-bg-soft, #0b1222));
+  --rb-card: var(--rb-card, #111827);
+  --rb-text: var(--rb-text, #e5e7eb);
+  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
+  --rb-border: var(--rb-border, #24324a);
+  --rb-primary-600: var(--rb-primary-600, #5a63ff);
+  --rb-rail-breakpoint: 1200px;
+}
+/* Offcanvas container */
+.rb-sidebar{
+  position: fixed; inset: 0; pointer-events: none; z-index: 999;
+}
+.rb-sidebar[data-open="true"]{ pointer-events: auto; }
 
-  /* Theme tokens */
-  --rb-sb-bg: #0f172a;              /* slate-900 */
-  --rb-sb-bg-soft: #0b1222;         /* deeper */
-  --rb-sb-text: #cbd5e1;            /* slate-300 */
-  --rb-sb-text-dim: #96a6c6;        /* slate-400/500 */
-  --rb-sb-brand: #e5e7eb;           /* headings/brand */
-  --rb-sb-border: rgba(148,208,236,.18);
-  --rb-sb-hover: rgba(255,255,255,.06);
-  --rb-sb-active: #1f2a44;          /* active row bg */
-  --rb-sb-focus: rgba(99,117,255,.38);
+/* Overlay */
+.rb-sidebar__overlay{
+  position: absolute; inset: 0; background: rgba(0,0,0,.4);
+  opacity: 0; transition: opacity .2s ease;
+}
+.rb-sidebar[data-open="true"] .rb-sidebar__overlay{ opacity: 1; }
 
-  --rb-sb-shadow: 0 10px 30px rgba(0,0,0,.35);
+/* Panel */
+.rb-sidebar__panel{
+  position: absolute; top: 0; left: 0; height: 100dvh; width: min(88vw, var(--rb-sb-w));
+  background: var(--rb-bg); color: var(--rb-text);
+  border-right: 1px solid var(--rb-border);
+  transform: translateX(-100%);
+  transition: transform .22s ease;
+  display: flex; flex-direction: column;
+  padding-top: var(--rb-header-h);
+  overflow-y: auto; overscroll-behavior: contain;
+  will-change: transform;
 }
+.rb-sidebar[data-open="true"] .rb-sidebar__panel{ transform: translateX(0); }
 
-/* Box model safety just inside the scope */
-[data-rb-scope="sidebar"],
-[data-rb-scope="sidebar"] *{ box-sizing: border-box; }
-
-/* ---------- Mobile top bar (hamburger) ---------- */
-[data-rb-scope="sidebar"] .rb-sb-topbar{
-  display:flex; align-items:center; gap:.4rem;
-  position: sticky; top: 0; z-index: 1030;
-  padding: .6rem .8rem;
-  background: var(--rb-sb-bg);
-  color: var(--rb-sb-text);
-  border-bottom: 1px solid var(--rb-sb-border);
-  box-shadow: var(--rb-sb-shadow);
-}
-[data-rb-scope="sidebar"] .rb-sb-topbar-btn{ color: var(--rb-sb-text); }
-
-/* ---------- Base offcanvas panel ---------- */
-#rbSidebar.rb-sb.offcanvas{
-  background: var(--rb-sb-bg);
-  color: var(--rb-sb-text);
-  width: min(100vw, var(--rb-sb-w));
-  border-right: 1px solid var(--rb-sb-border);
-  box-shadow: var(--rb-sb-shadow);
-  background-clip: padding-box; /* avoids white rim on some devices */
-}
-#rbSidebar .offcanvas-header{
-  border-bottom: 1px solid var(--rb-sb-border);
-  color: var(--rb-sb-brand);
-}
-#rbSidebar .offcanvas-title{ font-weight: 600; }
-
-/* ---------- Accordion groups ---------- */
-[data-rb-scope="sidebar"] .rb-sb-acc-item{
-  background: none;
-  border: none;
-  border-bottom: 1px solid rgba(255,255,255,.05);
-}
-[data-rb-scope="sidebar"] .rb-sb-acc-btn{
-  background: none;
-  color: var(--rb-sb-text);
-  padding: .9rem 1rem;
-  border-radius: 0;
-  box-shadow: none;
-}
-[data-rb-scope="sidebar"] .rb-sb-acc-btn:not(.collapsed){
-  background-color: var(--rb-sb-bg-soft);
-  color: var(--rb-sb-brand);
-}
-[data-rb-scope="sidebar"] .rb-sb-acc-btn:focus{
-  box-shadow: 0 0 0 .18rem var(--rb-sb-focus);
-}
-/* Keep parent section tinted when open */
-[data-rb-scope="sidebar"] .rb-sb-acc-item.show > .accordion-header .rb-sb-acc-btn{
-  background: var(--rb-sb-bg-soft);
-  color: var(--rb-sb-brand);
-}
-
-/* ---------- Menu links ---------- */
-[data-rb-scope="sidebar"] .rb-sb-menu > li{ display:block; }
-[data-rb-scope="sidebar"] .rb-sb-link{
-  display:flex; align-items:center; gap:.5rem;
-  padding: .65rem 1rem;
-  color: var(--rb-sb-text);
-  text-decoration: none;
-  border-left: 3px solid transparent;
-  outline: none;
-}
-[data-rb-scope="sidebar"] .rb-sb-link:hover{
-  background: var(--rb-sb-hover);
-}
-[data-rb-scope="sidebar"] .rb-sb-link:focus-visible{
-  outline: 2px solid var(--rb-sb-focus);
-  outline-offset: -2px;
-}
-[data-rb-scope="sidebar"] .rb-sb-link.active,
-[data-rb-scope="sidebar"] .rb-sb-link[aria-current="page"]{
-  background: var(--rb-sb-active);
-  color: #fff;
-  border-left-color: var(--rb-sb-focus);
-  font-weight: 500;
-}
-
-/* ---------- Footer area inside the sidebar ---------- */
-[data-rb-scope="sidebar"] .rb-sb-footer{
-  border-top: 1px solid var(--rb-sb-border);
-  margin-top: auto;
-  background: var(--rb-sb-bg-soft);
-}
-[data-rb-scope="sidebar"] .rb-sb-footer .rb-sb-link{
-  padding: .6rem .8rem;
-}
-
-/* ---------- Icons & indicators ---------- */
-#rbSidebar .accordion-button::after{ filter: invert(1) opacity(.75); }
-#rbSidebar .bi{ opacity: .92; }
-
-/* ================== Desktop rail (xl and up) ================== */
-@media (min-width:1200px){
-  /* Hide the mobile top bar on desktop */
-  [data-rb-scope="sidebar"] .rb-sb-topbar{ display:none; }
-
-  /* Turn the offcanvas into a fixed left rail */
-  #rbSidebar.offcanvas{
-    position: fixed !important;
+/* Fixed rail on desktop */
+@media (min-width: 1200px){
+  .rb-sidebar{ pointer-events: none; }
+  .rb-sidebar__overlay{ display: none; }
+  .rb-sidebar__panel{
     transform: none !important;
-    visibility: visible !important;
-    inset: var(--rb-header-h) auto auto 0; /* top/right/bottom/left */
     width: var(--rb-sb-w);
-    height: calc(100vh - var(--rb-header-h) - var(--rb-footer-h));
-    border-right: 1px solid var(--rb-sb-border);
-    z-index: 1030; /* keep below a fixed header if header uses >1030 */
+    top: 0; padding-top: var(--rb-header-h);
   }
-
-  /* No backdrop on desktop */
-  .offcanvas-backdrop{ display:none !important; }
-}
-
-/* ---------- CSS-only content push when the rail exists ---------- */
-/* Removes dependency on JS/body.has-rail. Works in modern browsers. */
-@media (min-width:1200px){
-  body:has(#rbSidebar.offcanvas){
-    overflow-x: hidden; /* prevents horizontal scrollbar */
-  }
-  body:has(#rbSidebar.offcanvas) main,
-  body:has(#rbSidebar.offcanvas) [data-rb-content]{
-    margin-left: var(--rb-sb-w);
-    max-width: calc(100% - var(--rb-sb-w));
+  body.has-rail{
+    padding-left: var(--rb-sb-w); /* push the layout to make space for rail */
   }
 }
 
-/* ---------- Optional fallback: if you keep the JS that toggles body.has-rail ---------- */
-@media (min-width:1200px){
-  body.has-rail{ overflow-x:hidden; }
-  body.has-rail main,
-  body.has-rail [data-rb-content]{ margin-left:var(--rb-sb-w); max-width:calc(100% - var(--rb-sb-w)); }
+/* Brand */
+.rb-sidebar__brand{
+  position: sticky; top: 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 14px; margin-bottom: 4px;
+  background: linear-gradient(to bottom, var(--rb-bg), transparent);
+  border-bottom: 1px solid rgba(255,255,255,.04);
 }
+.rb-sidebar__brand .rb-logo{ font-size: 18px; }
+.rb-sidebar__brand .rb-name{ font-weight: 700; letter-spacing: .3px; }
 
-/* ---------- Motion polish ---------- */
-@media (prefers-reduced-motion: no-preference){
-  #rbSidebar{ will-change: transform; }
+/* Nav */
+.rb-nav{ list-style: none; margin: 6px 0 20px; padding: 0 8px; }
+.rb-section{
+  font-size: 12px; color: var(--rb-text-dim);
+  padding: 12px 10px 6px; text-transform: uppercase; letter-spacing: .08em;
 }
+.rb-link{
+  display: flex; align-items: center; gap: 10px;
+  color: var(--rb-text); text-decoration: none;
+  padding: 10px 10px; border-radius: 10px;
+  border: 1px solid transparent;
+}
+.rb-link .i{ width: 22px; display: grid; place-items: center; color: var(--rb-text-dim); }
+.rb-link:hover{ background: rgba(255,255,255,.04); border-color: var(--rb-border); }
+.rb-link.is-active{ background: linear-gradient(180deg, rgba(90,99,255,.18), rgba(90,99,255,.06));
+  color: var(--rb-text); border-color: rgba(90,99,255,.32);
+}
+.rb-link.is-active .i{ color: var(--rb-primary-600); }
 
-/* ---------- Edge-case guards ---------- */
-#rbSidebar .offcanvas-body{
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+/* Make sure no accidental horizontal scrollbars anywhere */
+html, body{ overflow-x: hidden; }
+.rb-sidebar__panel{ max-width: 100%; }
+
+/* Light mode support */
+:root[data-theme="light"] [data-rb-scope="sidebar"]{
+  --rb-bg: #ffffff;
+  --rb-bg-soft: #f6f7fb;
+  --rb-card: #f4f6fb;
+  --rb-text: #0b1222;
+  --rb-text-dim: #4b5563;
+  --rb-border: #e5e7eb;
 }
-/* Ensure inner lists don’t expand wider than the rail */
-#rbSidebar .rb-sb-menu{ min-width: 0; }

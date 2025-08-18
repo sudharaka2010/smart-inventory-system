@@ -1,47 +1,37 @@
 <?php
-// ============================ RB Stores — Simple Footer ============================
-// Purpose: clean, stable-height, responsive footer (no JS).
-// Main styles in /assets/css/footer.css.
+// ========================== RB Stores — Footer (include) ===========================
 
-$APP_NAME   = $APP_NAME   ?? 'RB Stores';
-$APP_BASE   = $APP_BASE   ?? '';      // e.g. '/admin'
-$COPY_START = $COPY_START ?? 2023;
-$YEAR       = (int)date('Y');
-
+$APP_BASE = rtrim($APP_BASE ?? '', '/');
 $href = function(string $path) use ($APP_BASE){
-  $base = rtrim($APP_BASE, '/');
-  $path = ltrim($path, '/');
-  return ($base === '') ? "/{$path}" : "{$base}/{$path}";
+  $path = '/' . ltrim($path, '/');
+  return ($APP_BASE === '') ? $path : $APP_BASE . $path;
 };
+
+// Load CSS once
+if (!defined('RB_FOOTER_CSS')) {
+  echo '<link rel="stylesheet" href="'.$href('/assets/css/footer.css').'">' . PHP_EOL;
+  define('RB_FOOTER_CSS', 1);
+}
 ?>
-<!-- App bundle (tokens, header, sidebar, main, dashboard, …) -->
-<link rel="stylesheet" href="/assets/css/app.css?v=2025-08-16">
 
-
-<footer class="rb-footer py-3 border-top" role="contentinfo" data-rb-scope="footer">
-  <div class="container-fluid d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-    <!-- Left: Brand & Copy -->
-    <div class="d-flex align-items-center gap-2 text-truncate">
-      <img src="<?= htmlspecialchars($href('/assets/images/rb.png'), ENT_QUOTES) ?>"
-           alt=""
-           class="rb-footer__logo">
-      <strong class="text-truncate"><?= htmlspecialchars($APP_NAME) ?></strong>
-      <span class="text-muted small text-truncate">
-        &copy;
-        <?php
-          echo ($COPY_START && $COPY_START < $YEAR) ? ($COPY_START . '–' . $YEAR) : $YEAR;
-        ?>
-        • All rights reserved.
-      </span>
+<footer class="rb-footer" data-rb-scope="footer" role="contentinfo">
+  <div class="rb-footer__inner">
+    <div class="rb-foot-left">
+      <span>© <span id="rbYear"></span> RB Stores</span>
+      <span class="rb-dot">•</span>
+      <a href="<?= $href('/privacy.php'); ?>">Privacy</a>
+      <span class="rb-dot">•</span>
+      <a href="<?= $href('/terms.php'); ?>">Terms</a>
     </div>
 
-    <!-- Right: Links -->
-    <nav aria-label="Footer">
-      <ul class="list-unstyled d-flex mb-0 gap-3 small">
-        <li><a class="rb-footer__link" href="<?= htmlspecialchars($href('privacy.php'), ENT_QUOTES) ?>">Privacy</a></li>
-        <li><a class="rb-footer__link" href="<?= htmlspecialchars($href('terms.php'),   ENT_QUOTES) ?>">Terms</a></li>
-        <li><a class="rb-footer__link" href="<?= htmlspecialchars($href('support.php'), ENT_QUOTES) ?>">Support</a></li>
-      </ul>
-    </nav>
+    <div class="rb-foot-right">
+      <a href="<?= $href('/help.php'); ?>">Help</a>
+      <a href="<?= $href('/contact.php'); ?>">Contact</a>
+      <a href="<?= $href('/changelog.php'); ?>">Changelog</a>
+    </div>
   </div>
 </footer>
+
+<script>
+  document.getElementById('rbYear').textContent = new Date().getFullYear();
+</script>
