@@ -3,7 +3,7 @@
 
 /* ---- Desktop rail widths (tune to your sidebar) ---- */
 :root{
-  --rb-rail-w: 264px;   /* full rail width */
+  --rb-rail-w: 245px;   /* full rail width */
   --rb-rail-mini: 80px; /* optional mini rail */
 }
 
