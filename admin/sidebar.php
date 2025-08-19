@@ -121,34 +121,28 @@ if (!function_exists('navActive')) {
 </aside>
 
 <script>
-// ============================ RB Sidebar Controller ============================
 (() => {
-  const sidebar = document.getElementById('rbSidebar');
-  if (!sidebar) return;
+  const sb = document.getElementById('rbSidebar');
+  if (!sb) return;
 
   const mq = window.matchMedia('(min-width: 1200px)');
-  const setRailClass = () => {
-    if (mq.matches) document.body.classList.add('has-rail');
-    else document.body.classList.remove('has-rail');
+  const apply = () => {
+    // If developer forces a mode, respect it
+    const forced = sb.getAttribute('data-mode'); // "overlay" | "rail" | null
+    const shouldRail = forced ? (forced === 'rail') : mq.matches;
+
+    document.body.classList.toggle('has-rail', shouldRail);
+    if (shouldRail) {
+      // rail stays open
+      sb.setAttribute('data-open', 'true');
+    } else {
+      // overlay starts closed
+      sb.setAttribute('data-open', 'false');
+    }
   };
-  setRailClass();
-  mq.addEventListener?.('change', setRailClass);
 
-  const open  = () => sidebar.setAttribute('data-open', 'true');
-  const close = () => sidebar.setAttribute('data-open', 'false');
-  const toggle = () => sidebar.getAttribute('data-open') === 'true' ? close() : open();
-
-  document.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-sidebar-toggle]');
-    if (t) { e.preventDefault(); toggle(); }
-    if (e.target.closest('.rb-sidebar__overlay')) close();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !mq.matches) close();
-  });
-
-  // Expose minimal API
-  window.RBSidebar = { open, close, toggle };
+  apply();
+  mq.addEventListener?.('change', apply);
 })();
 </script>
+
