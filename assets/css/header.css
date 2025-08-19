@@ -1,10 +1,10 @@
 /* ===================== RB Stores — HEADER (FULL DROP‑IN) ===================== */
-/* Scope: <header class="rb-header" data-rb-scope="header"> */
+/* Scope element: <header class="rb-header" data-rb-scope="header"> */
 
-/* ---- Set your rail widths ---- */
+/* ---- Desktop rail widths (tune to your sidebar) ---- */
 :root{
-  --rb-rail-w: 280px;   /* ⬅️ set to your docked sidebar width */
-  --rb-rail-mini: 80px; /* optional collapsed width */
+  --rb-rail-w: 264px;   /* full rail width */
+  --rb-rail-mini: 80px; /* optional mini rail */
 }
 
 .sr-only{
@@ -18,11 +18,12 @@
   --rb-header-h: 70px;
 
   --rb-sb-top:  #0d1426;
-  --rb-sb-mid:  #0f172a;
+  --rb-sb-mid:  #0f172a; /* slate‑900 */
   --rb-sb-bot:  #0b1222;
 
-  --rb-primary: #2563eb;
-  --rb-accent:  #38bdf8;
+  --rb-primary: #2563eb; /* blue‑600 */
+  --rb-accent:  #38bdf8; /* sky‑400 */
+  --rb-pink:    #be185d; /* dark pink (optional CTA) */
 
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
@@ -30,15 +31,13 @@
   --rb-text-dim: #a3b4c7;
   --rb-border:   #1e2a44;
 
-  --rb-btn-h: 38px;      /* unified control height */
-  --rb-btn-r: 12px;      /* radius */
-  --rb-gap:   10px;      /* spacing in actions */
+  /* Controls system */
+  --rb-btn-h: 38px;   /* unified height */
+  --rb-btn-r: 12px;   /* radius */
+  --rb-gap:   10px;   /* action gap */
 
-  position: sticky;
-  top: 0;
-  z-index: 20000;
-  height: var(--rb-header-h);
-  color: var(--rb-text);
+  position: sticky; top: 0; z-index: 20000;
+  height: var(--rb-header-h); color: var(--rb-text);
 
   background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
   border-bottom: 1px solid var(--rb-border);
@@ -47,10 +46,11 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 
-  padding-left: 16px;   /* base inner padding */
-  padding-right: 16px;  /* base inner padding */
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
 }
 
+/* Keep header dark even when app theme is light */
 :root[data-theme="light"] [data-rb-scope="header"]{
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
@@ -60,52 +60,38 @@
   background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
 }
 
-/* Prevent tiny seam under the bar */
+/* Safety layer (prevents hairline seam) */
 [data-rb-scope="header"]::before{
   content:""; position:absolute; inset:0; height: var(--rb-header-h);
   background: inherit; z-index:-1;
 }
 
-/* Keep off‑canvas sidebar under the header on mobile */
+/* Sidebar should sit under header when off‑canvas */
 #rbSidebar{ z-index: 15000; }
 
-/* ---------- DESKTOP: move the entire header box (no overlap) ---------- */
+/* ---------- Desktop: offset header by docked rail & hide hamburger ---------- */
 @media (min-width: 1200px){
-  /* rail docked */
-  body.has-rail [data-rb-scope="header"]{
-    margin-left: var(--rb-rail-w);
-    width: calc(100% - var(--rb-rail-w));
-  }
-  /* mini rail */
-  body.has-rail.rail--mini [data-rb-scope="header"]{
-    margin-left: var(--rb-rail-mini);
-    width: calc(100% - var(--rb-rail-mini));
-  }
+  body.has-rail [data-rb-scope="header"]{ padding-left: var(--rb-rail-w); }
+  body.has-rail.rail--mini [data-rb-scope="header"]{ padding-left: var(--rb-rail-mini); }
 
-  /* expand inner container to full width */
   body.has-rail [data-rb-scope="header"] .rb-header__inner{
-    max-width: none; margin: 0; padding: 0 16px;
+    max-width: none; margin: 0; /* align to page grid (no center box) */
   }
 
-  /* hide hamburger on desktop */
   [data-rb-scope="header"] .rb-header__menu{ display: none !important; }
 }
 
-/* Pure‑CSS detection if your sidebar toggles these flags */
+/* Pure‑CSS variant if your sidebar toggles markers */
 @supports(selector(body:has(*))){
   @media (min-width: 1200px){
-    body:has(#rbSidebar.is-docked) [data-rb-scope="header"]{
-      margin-left: var(--rb-rail-w); width: calc(100% - var(--rb-rail-w));
-    }
-    body:has(#rbSidebar.is-docked.is-mini) [data-rb-scope="header"]{
-      margin-left: var(--rb-rail-mini); width: calc(100% - var(--rb-rail-mini));
-    }
+    body:has(#rbSidebar.is-docked) [data-rb-scope="header"]{ padding-left: var(--rb-rail-w); }
+    body:has(#rbSidebar.is-docked.is-mini) [data-rb-scope="header"]{ padding-left: var(--rb-rail-mini); }
+    body:has(#rbSidebar.is-docked) [data-rb-scope="header"] .rb-header__inner{ max-width:none; margin:0; }
     body:has(#rbSidebar.is-docked) [data-rb-scope="header"] .rb-header__menu{ display:none!important; }
-    body:has(#rbSidebar.is-docked) [data-rb-scope="header"] .rb-header__inner{ max-width:none; margin:0; padding:0 16px; }
   }
 }
 
-/* ---------- GRID: [menu][search][actions] ---------- */
+/* ---------- Layout grid (3 columns: [menu][search][actions]) ---------- */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
@@ -114,14 +100,14 @@
   gap: 12px;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 0;              /* outer header handles side padding */
+  padding: 0 16px;
   box-sizing: border-box;
 }
 @media (min-width: 1360px){ .rb-header__inner{ max-width: 1320px; } }
 @media (min-width: 1536px){ .rb-header__inner{ max-width: 1440px; } }
 @media (min-width: 1920px){ .rb-header__inner{ max-width: 1560px; } }
 
-/* Mobile */
+/* Mobile (≤640px): keep all 3, but search can shrink naturally */
 @media (max-width: 639.98px){
   [data-rb-scope="header"] .rb-header__inner{
     grid-template-columns: 40px minmax(0,1fr) auto !important;
@@ -130,7 +116,7 @@
   [data-rb-scope="header"] .rb-header__menu{ width:40px; height:40px; }
 }
 
-/* ---------- SEARCH (size‑locked) ---------- */
+/* ---------- Search (locked sizing, immune to global form CSS) ---------- */
 [data-rb-scope="header"]{ --rb-search-h: 36px; }
 
 [data-rb-scope="header"] .rb-header__search{
@@ -158,7 +144,7 @@
   transform: translateY(-1px);
 }
 
-/* ---------- ACTIONS (perfect button sizes/shapes) ---------- */
+/* ---------- Actions (right) — refined buttons ---------- */
 .rb-header__actions{
   justify-self: end;
   display: inline-flex; align-items: center; gap: var(--rb-gap);
@@ -179,24 +165,34 @@
   transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
 }
 
-/* New Bill (anchor normalization) */
+/* Anchor normalization (New Bill) */
 [data-rb-scope="header"] .rb-chip,
 [data-rb-scope="header"] .rb-chip:link,
 [data-rb-scope="header"] .rb-chip:visited{
   text-decoration: none !important;
   color: var(--rb-text) !important;
-  padding: 0 14px;
+  padding: 0 14px;                 /* balanced CTA padding */
   display: inline-flex; align-items: center; gap: 8px;
 }
 
-/* Icon-only square */
+/* Optional primary CTA: add class="rb-chip is-primary" in HTML if you want it blue */
+[data-rb-scope="header"] .rb-chip.is-primary{
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--rb-primary) 88%, #000 12%),
+    color-mix(in srgb, var(--rb-primary) 64%, #000 36%)
+  );
+  border-color: color-mix(in srgb, var(--rb-primary) 62%, var(--rb-border));
+  color: #fff !important;
+}
+
+/* Icon-only square button (theme) */
 [data-rb-scope="header"] .rb-icon-btn{ width: var(--rb-btn-h); justify-content: center; }
 
 /* User button (icon + name + caret) */
 [data-rb-scope="header"] .rb-user__btn{ padding: 0 12px; }
 [data-rb-scope="header"] .rb-avatar-ico{ font-size: 18px; line-height: 0; }
 
-/* Hover / Focus / Active */
+/* Hover */
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:hover,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:hover,
 [data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:hover{
@@ -205,6 +201,11 @@
   box-shadow: 0 10px 24px rgba(56,189,248,.14);
   color: var(--rb-accent);
 }
+[data-rb-scope="header"] .rb-chip.is-primary:hover{
+  box-shadow: 0 12px 28px rgba(37,99,235,.24);
+}
+
+/* Focus-visible */
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:focus-visible,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:focus-visible,
 [data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:focus-visible{
@@ -212,6 +213,8 @@
   box-shadow: 0 0 0 3px rgba(56,189,248,.30);
   border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
 }
+
+/* Active (pressed) */
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:active,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:active,
 [data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:active{
@@ -226,7 +229,7 @@
   color: var(--rb-accent);
 }
 
-/* ---------- Dropdown (user menu) ---------- */
+/* ---------- User dropdown menu ---------- */
 .rb-user{ position: relative; }
 .rb-menu[hidden]{ display:none !important; }
 .rb-menu{
