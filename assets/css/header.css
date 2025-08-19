@@ -1,4 +1,4 @@
-/* ===================== RB Stores — HEADER (FULL DROP‑IN) ===================== */
+/* ===================== RB Stores — HEADER (FULL DROP-IN) ===================== */
 /* Scope element: <header class="rb-header" data-rb-scope="header"> */
 
 /* ---- Desktop rail widths (tune to your sidebar) ---- */
@@ -18,12 +18,12 @@
   --rb-header-h: 70px;
 
   --rb-sb-top:  #0d1426;
-  --rb-sb-mid:  #0f172a; /* slate‑900 */
+  --rb-sb-mid:  #0f172a; /* slate-900 */
   --rb-sb-bot:  #0b1222;
 
-  --rb-primary: #2563eb; /* blue‑600 */
-  --rb-accent:  #38bdf8; /* sky‑400 */
-  --rb-pink:    #be185d; /* dark pink (optional CTA) */
+  --rb-primary: #2563eb; /* blue-600 */
+  --rb-accent:  #38bdf8; /* sky-400 */
+  --rb-pink:    #be185d; /* optional CTA */
 
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
@@ -48,6 +48,10 @@
 
   padding-left: max(0px, env(safe-area-inset-left));
   padding-right: max(0px, env(safe-area-inset-right));
+
+  /* robustness */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Keep header dark even when app theme is light */
@@ -66,7 +70,7 @@
   background: inherit; z-index:-1;
 }
 
-/* Sidebar should sit under header when off‑canvas */
+/* Sidebar should sit under header when off-canvas */
 #rbSidebar{ z-index: 15000; }
 
 /* ---------- Desktop: offset header by docked rail & hide hamburger ---------- */
@@ -81,7 +85,7 @@
   [data-rb-scope="header"] .rb-header__menu{ display: none !important; }
 }
 
-/* Pure‑CSS variant if your sidebar toggles markers */
+/* Pure-CSS variant if your sidebar toggles markers */
 @supports(selector(body:has(*))){
   @media (min-width: 1200px){
     body:has(#rbSidebar.is-docked) [data-rb-scope="header"]{ padding-left: var(--rb-rail-w); }
@@ -95,7 +99,7 @@
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto; /* middle truly flexible */
   align-items: center;
   gap: 12px;
   max-width: 1240px;
@@ -123,6 +127,7 @@
   background: transparent !important; box-shadow: none !important; border: 0 !important;
   padding: 0 !important; margin: 0 !important; border-radius: 0 !important;
   justify-self: center; width: 100%; max-width: none !important;
+  min-width: 0; /* critical: let grid child shrink & grow */
 }
 [data-rb-scope="header"] .rb-input{
   width: 100%; height: var(--rb-search-h);
@@ -149,6 +154,7 @@
   justify-self: end;
   display: inline-flex; align-items: center; gap: var(--rb-gap);
   min-width: fit-content;
+  flex-wrap: wrap; /* prevent overflow on tight widths */
 }
 
 /* Base surface for New Bill / Theme / User */
@@ -186,10 +192,10 @@
 }
 
 /* Icon-only square button (theme) */
-[data-rb-scope="header"] .rb-icon-btn{ width: var(--rb-btn-h); justify-content: center; }
+[data-rb-scope="header"] .rb-icon-btn{ width: var(--rb-btn-h); justify-content: center; padding: 0 0; }
 
 /* User button (icon + name + caret) */
-[data-rb-scope="header"] .rb-user__btn{ padding: 0 12px; }
+[data-rb-scope="header"] .rb-user__btn{ padding: 0 12px; cursor: pointer; }
 [data-rb-scope="header"] .rb-avatar-ico{ font-size: 18px; line-height: 0; }
 
 /* Hover */
@@ -212,6 +218,16 @@
   outline: none;
   box-shadow: 0 0 0 3px rgba(56,189,248,.30);
   border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
+}
+
+/* Fallback focus ring if color-mix unsupported */
+@supports not (color: color-mix(in srgb, #000 50%, #fff 50%)){
+  [data-rb-scope="header"] .rb-header__actions > .rb-chip:focus-visible,
+  [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:focus-visible,
+  [data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:focus-visible{
+    box-shadow: 0 0 0 3px rgba(59,130,246,.35);
+    border-color: rgba(59,130,246,.65);
+  }
 }
 
 /* Active (pressed) */
@@ -260,5 +276,14 @@
 @media (prefers-reduced-motion: reduce){
   [data-rb-scope="header"] *, [data-rb-scope="header"] ::before, [data-rb-scope="header"] ::after{
     transition: none !important;
+  }
+}
+
+/* ---------- Optional: keep off-canvas sidebar below header on mobile ---------- */
+@media (max-width: 1199.98px){
+  #rbSidebar{
+    /* If your sidebar is fixed, this keeps it from hiding under the header */
+    top: var(--rb-header-h);
+    height: calc(100vh - var(--rb-header-h));
   }
 }
