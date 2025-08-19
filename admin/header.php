@@ -76,18 +76,18 @@ if (!function_exists('navActive')) {
 
       <!-- User menu -->
       <div class="rb-user">
-        <button class="rb-user__btn" id="rbUserBtn" aria-expanded="false" aria-haspopup="menu">
-          <img src="<?= $href('/assets/img/avatar.png'); ?>" alt="" class="rb-avatar" />
-          <span class="rb-user__name">Admin</span>
-          <i class="bi bi-caret-down-fill" aria-hidden="true"></i>
-        </button>
-        <div class="rb-menu" id="rbUserMenu" role="menu" hidden>
-          <a role="menuitem" href="<?= $href('/profile.php'); ?>">Profile</a>
-          <a role="menuitem" href="<?= $href('/settings.php'); ?>">Settings</a>
-          <hr />
-          <a role="menuitem" href="<?= $href('/logout.php'); ?>">Sign out</a>
-        </div>
-      </div>
+    <button class="rb-user__btn" id="rbUserBtn" aria-expanded="false" aria-haspopup="menu">
+    <i class="bi bi-person-circle rb-avatar-ico" aria-hidden="true"></i>
+    <span class="rb-user__name">Admin</span>
+    <i class="bi bi-caret-down-fill" aria-hidden="true"></i>
+    </button>
+    <div class="rb-menu" id="rbUserMenu" role="menu" hidden>
+    <a role="menuitem" href="<?= $href('/profile.php'); ?>">Profile</a>
+    <a role="menuitem" href="<?= $href('/settings.php'); ?>">Settings</a>
+    <hr />
+    <a role="menuitem" href="<?= $href('/logout.php'); ?>">Sign out</a>
+    </div>
+  </div>
     </div>
   </div>
 </header>
