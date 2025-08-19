@@ -1,18 +1,15 @@
 /* ==========================================================================
    RB Stores — Sidebar (STRICTLY SCOPED)
-   - Fixed rail on desktop (≥1200px), off‑canvas on smaller screens
+   - Fixed rail on desktop (≥1200px), off-canvas on smaller screens
+   - Brand/logo stays pinned at top, only menu body scrolls
    - Responsive widths for phone/tablet/laptop/desktop
    - Internal scroll with hidden scrollbar (content always reachable)
-   - Smooth hover/active styles, accessible focus rings
-   - Brand image + graceful fallback icon
    ========================================================================== */
 
 [data-rb-scope="sidebar"]{
-  /* Layout tokens */
-  --rb-sb-w: 280px;          /* default rail width (overridden by media queries) */
-  --rb-header-h: 68px;       /* match your header height */
+  --rb-sb-w: 280px;
+  --rb-header-h: 68px;
 
-  /* Palette */
   --rb-blue-900: #0b1222;
   --rb-blue-800: #0f172a;
   --rb-blue-700: #1e3a8a;
@@ -29,12 +26,12 @@
   --rb-border: #23324a;
 }
 
-/* Root container — lives on its own layer and never scrolls with the page */
+/* Root container */
 .rb-sidebar{
   position: fixed;
   top: 0; left: 0; bottom: 0;
-  width: 0;                       /* panel controls width */
-  pointer-events: none;           /* closed by default on small screens */
+  width: 0;
+  pointer-events: none;
   z-index: 9999;
 }
 .rb-sidebar[data-open="true"]{ pointer-events: auto; }
@@ -49,7 +46,7 @@
 }
 .rb-sidebar[data-open="true"] .rb-sidebar__overlay{ opacity: 1; }
 
-/* Panel (the actual sidebar) */
+/* Panel */
 .rb-sidebar__panel{
   position: fixed;
   top: 0; left: 0;
@@ -62,19 +59,11 @@
   border-right: 1px solid var(--rb-border);
 
   display: flex; flex-direction: column;
-  padding-top: var(--rb-header-h);
   transform: translateX(-100%);
   transition: transform .22s ease;
-
-  /* Always allow internal scroll; we’ll hide scrollbar chrome */
-  overflow-y: auto; overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-
-  /* Hide scrollbars visually but keep scrollability */
-  scrollbar-width: none;                 /* Firefox */
+  overflow: hidden; /* brand stays fixed */
+  padding-top: var(--rb-header-h);
 }
-.rb-sidebar__panel::-webkit-scrollbar{ width: 0; height: 0; }  /* WebKit */
-
 .rb-sidebar[data-open="true"] .rb-sidebar__panel{ transform: translateX(0); }
 
 /* ====================== Desktop rail (≥1200px) ====================== */
@@ -85,31 +74,26 @@
     transform: none !important;
     width: var(--rb-sb-w);
   }
-  /* Push main layout to make space for the rail */
   body.has-rail{ padding-left: var(--rb-sb-w); }
 }
 
 /* ====================== Responsive widths ====================== */
-/* Phones */
 @media (max-width: 575.98px){
-  [data-rb-scope="sidebar"]{ --rb-sb-w: 92vw; } /* nice, readable width */
+  [data-rb-scope="sidebar"]{ --rb-sb-w: 92vw; }
 }
-/* Tablets */
 @media (min-width: 576px) and (max-width: 991.98px){
   [data-rb-scope="sidebar"]{ --rb-sb-w: 360px; }
 }
-/* Laptops */
 @media (min-width: 992px) and (max-width: 1199.98px){
   [data-rb-scope="sidebar"]{ --rb-sb-w: 320px; }
 }
-/* Big desktops */
 @media (min-width: 1400px){
   [data-rb-scope="sidebar"]{ --rb-sb-w: 320px; }
 }
 
 /* ====================== Brand ====================== */
 .rb-sidebar__brand{
-  position: sticky; top: 0; z-index: 1;
+  flex: 0 0 auto;
   display: flex; align-items: center; gap: 10px;
   padding: 14px 16px; margin: 12px 10px 8px;
   border-radius: 14px;
@@ -119,7 +103,6 @@
   box-shadow: 0 8px 24px rgba(37,99,235,.15);
 }
 
-/* RB logo image with graceful fallback to icon */
 .rb-logo-img{
   width: 22px; height: 22px; object-fit: cover;
   border-radius: 6px; display: block;
@@ -129,6 +112,19 @@
 .rb-logo-img:invalid + .rb-logo{ display:inline-block; }
 
 .rb-sidebar__brand .rb-name{ font-weight: 700; letter-spacing: .3px; }
+
+/* ====================== Scrollable Body ====================== */
+.rb-sidebar__body{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;
+
+  scrollbar-width: none; /* Firefox */
+}
+.rb-sidebar__body::-webkit-scrollbar{ width: 0; height: 0; }
 
 /* ====================== Navigation ====================== */
 .rb-nav{ list-style: none; margin: 6px 0 20px; padding: 0 10px; }
@@ -144,15 +140,14 @@
   color: var(--rb-text); text-decoration: none;
   padding: 11px 12px; border-radius: 12px;
   border: 1px solid transparent;
-  position: relative;
-  transition: background .18s ease, border-color .18s ease, transform .12s ease, box-shadow .18s ease;
+  transition: background .18s ease, border-color .18s ease,
+              transform .12s ease, box-shadow .18s ease;
 }
 .rb-link .i{
   width: 22px; display: grid; place-items: center;
   color: var(--rb-text-dim); font-size: 18px;
 }
 
-/* Hover */
 .rb-link:hover{
   background:
     linear-gradient(180deg, rgba(56,189,248,.16), rgba(37,99,235,.08));
@@ -162,7 +157,6 @@
 }
 .rb-link:hover .i{ color: var(--rb-sky-400); }
 
-/* Active */
 .rb-link.is-active{
   background:
     radial-gradient(120% 80% at 0% 0%, rgba(125,211,252,.18), transparent 60%),
@@ -172,22 +166,17 @@
 }
 .rb-link.is-active .i{ color: var(--rb-blue-600); }
 
-/* Tap */
 .rb-link:active{ transform: translateY(0); }
 
-/* ====================== A11y + polish ====================== */
+/* A11y */
 .rb-link:focus-visible{
   outline: 2px solid var(--rb-sky-300);
   outline-offset: 2px;
 }
+
+/* Prevent horizontal scrollbars */
 html, body{ overflow-x: hidden; }
 .rb-sidebar__panel{ max-width: 100%; }
-
-/* Reduce motion preference */
-@media (prefers-reduced-motion: reduce){
-  .rb-sidebar__panel,
-  .rb-link{ transition: none !important; }
-}
 
 /* ====================== Optional Light Theme ====================== */
 :root[data-theme="light"] [data-rb-scope="sidebar"]{

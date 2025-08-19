@@ -26,12 +26,18 @@ if (!function_exists('navActive')) {
 
   <nav class="rb-sidebar__panel" role="navigation" aria-label="Main">
     <div class="rb-sidebar__brand">
-      <!-- RB image (provide your real path) -->
-      <img class="rb-logo-img" src="/assets/img/rb-logo.png" alt="RB Stores logo" loading="lazy" />
-      <!-- Fallback icon if image fails -->
-      <i class="bi bi-bag-check rb-logo" aria-hidden="true"></i>
-      <span class="rb-name">RB Stores</span>
-    </div>
+  <img class="rb-logo-img" src="/assets/images/rb.png" alt="RB Stores logo" />
+  <i class="bi bi-bag-check rb-logo" aria-hidden="true"></i>
+  <span class="rb-name">RB Stores</span>
+</div>
+
+<!-- NEW: only this body scrolls -->
+<div class="rb-sidebar__body">
+  <ul class="rb-nav">
+    <!-- ... your sections and links exactly as they are ... -->
+  </ul>
+</div>
+
 
     <ul class="rb-nav">
       <li>
