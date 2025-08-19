@@ -37,7 +37,12 @@ $href = fn(string $path) => rb_href($path, $APP_BASE);
 <!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <!-- Header CSS -->
-<link rel="stylesheet" href="<?= h($asset('assets/css/header.css')) . '?v=' . $ver; ?>">
+<?php
+$cssFile = $_SERVER['DOCUMENT_ROOT'] . '/assets/css/header.css';
+$ver = @filemtime($cssFile) ?: '1';
+?>
+<link rel="stylesheet" href="<?= h(rb_asset('assets/css/header.css')) . '?v=' . $ver; ?>">
+
 
 
 <!-- (Optional) Prevent theme flash: set data-theme ASAP -->
