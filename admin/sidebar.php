@@ -1,9 +1,5 @@
 <?php
 // ============================ RB Stores — Sidebar (include) ============================
-// - Offcanvas on mobile, fixed rail on desktop (≥ 1200px)
-// - Adds/removes body.has-rail automatically based on viewport
-// - Strictly scoped CSS to avoid clashes
-// - Uses Bootstrap Icons via CDN (no emojis)
 
 $APP_BASE = rtrim($APP_BASE ?? '', '/');
 $href = function(string $path) use ($APP_BASE){
@@ -11,7 +7,6 @@ $href = function(string $path) use ($APP_BASE){
   return ($APP_BASE === '') ? $path : $APP_BASE . $path;
 };
 
-// Optional: navActive helper (include once globally; keep here if not already loaded)
 if (!function_exists('navActive')) {
   function navActive($files, $return = 'class'){
     $uri     = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
@@ -23,9 +18,7 @@ if (!function_exists('navActive')) {
   }
 }
 ?>
-<!-- Icons (Bootstrap Icons) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<!-- Sidebar CSS -->
 <link rel="stylesheet" href="/assets/css/sidebar.css">
 
 <aside id="rbSidebar" class="rb-sidebar" data-rb-scope="sidebar" data-open="false" aria-label="Primary">
@@ -33,6 +26,9 @@ if (!function_exists('navActive')) {
 
   <nav class="rb-sidebar__panel" role="navigation" aria-label="Main">
     <div class="rb-sidebar__brand">
+      <!-- RB image (provide your real path) -->
+      <img class="rb-logo-img" src="/assets/img/rb-logo.png" alt="RB Stores logo" loading="lazy" />
+      <!-- Fallback icon if image fails -->
       <i class="bi bi-bag-check rb-logo" aria-hidden="true"></i>
       <span class="rb-name">RB Stores</span>
     </div>
@@ -126,10 +122,6 @@ if (!function_exists('navActive')) {
 
 <script>
 // ============================ RB Sidebar Controller ============================
-// - Toggle via any element: [data-sidebar-toggle]
-// - Close via overlay or Escape
-// - Adds body.has-rail only on desktop (≥1200px)
-
 (() => {
   const sidebar = document.getElementById('rbSidebar');
   if (!sidebar) return;
@@ -146,22 +138,17 @@ if (!function_exists('navActive')) {
   const close = () => sidebar.setAttribute('data-open', 'false');
   const toggle = () => sidebar.getAttribute('data-open') === 'true' ? close() : open();
 
-  // Global toggle buttons (e.g., a burger in header)
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-sidebar-toggle]');
-    if (t) {
-      e.preventDefault();
-      toggle();
-    }
+    if (t) { e.preventDefault(); toggle(); }
     if (e.target.closest('.rb-sidebar__overlay')) close();
   });
 
-  // Keyboard: Esc closes on mobile (offcanvas)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !mq.matches) close();
   });
 
-  // Expose minimal API if needed
+  // Expose minimal API
   window.RBSidebar = { open, close, toggle };
 })();
 </script>

@@ -1,60 +1,51 @@
-/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) =====================
-   Scope: ONLY inside [data-rb-scope="sidebar"] and #rbSidebar
-   - Offcanvas on mobile, fixed rail on desktop (≥1200px)
-   - Sky blue / dark blue professional theme
-   - Smooth hover/active with subtle glass/gradient
-================================================================================== */
-
+/* ===================== RB Stores — Sidebar (STRICTLY SCOPED) ===================== */
 [data-rb-scope="sidebar"]{
-  /* Layout tokens */
-  --rb-sb-w: 280px;                /* rail width */
-  --rb-header-h: 68px;             /* fixed header height (match header.php) */
+  --rb-sb-w: 280px;
+  --rb-header-h: 68px;
 
-  /* Blues (dark + sky) */
-  --rb-blue-900: #0b1222;          /* deep navy backdrop */
-  --rb-blue-800: #0f172a;          /* slate/indigo blend */
-  --rb-blue-700: #1e3a8a;          /* dark blue */
-  --rb-blue-600: #2563eb;          /* brand blue */
-  --rb-sky-400:  #38bdf8;          /* sky accent */
-  --rb-sky-300:  #7dd3fc;          /* lighter sky */
+  --rb-blue-900: #0b1222;
+  --rb-blue-800: #0f172a;
+  --rb-blue-700: #1e3a8a;
+  --rb-blue-600: #2563eb;
+  --rb-sky-400:  #38bdf8;
+  --rb-sky-300:  #7dd3fc;
 
-  /* Base surface */
   --rb-bg: var(--rb-blue-800);
   --rb-bg-soft: #0c1428;
   --rb-card: #111827;
 
-  /* Text & borders */
   --rb-text: #e5e7eb;
   --rb-text-dim: #a3b4c7;
   --rb-border: #23324a;
 
-  /* Effects */
-  --rb-hover-glass: 12px;
   --rb-rail-breakpoint: 1200px;
 }
 
-/* Offcanvas container */
+/* Root container (fixed layer that never scrolls with page) */
 .rb-sidebar{
-  position: fixed;
-  inset: 0;
-  pointer-events: none;           /* off-canvas CLOSED by default on mobile */
-  z-index: 9999;                  /* sit above main header/content */
+  position: fixed;          /* stays put while page scrolls */
+  inset: 0  auto  0  0;     /* pin to left edge */
+  width: 0;                 /* width handled by panel; keep overlay clickable on mobile */
+  pointer-events: none;
+  z-index: 9999;
 }
-.rb-sidebar[data-open="true"]{ pointer-events: auto; } /* clickable when open */
+.rb-sidebar[data-open="true"]{ pointer-events: auto; }
 
-/* Overlay */
+/* Overlay for mobile off-canvas */
 .rb-sidebar__overlay{
-  position: absolute; inset: 0;
+  position: fixed; inset: 0;
   background: rgba(0,0,0,.45);
   backdrop-filter: blur(2px);
   opacity: 0; transition: opacity .2s ease;
 }
 .rb-sidebar[data-open="true"] .rb-sidebar__overlay{ opacity: 1; }
 
-/* Panel */
+/* Panel (the actual sidebar) */
 .rb-sidebar__panel{
-  position: absolute; top: 0; left: 0;
-  height: 100dvh; width: min(88vw, var(--rb-sb-w));
+  position: fixed;          /* key change: fixed, not absolute */
+  top: 0; left: 0;
+  height: 100dvh;
+  width: min(88vw, var(--rb-sb-w));
   background:
     linear-gradient(180deg, rgba(30,58,138,.22), transparent 40%),
     linear-gradient(180deg, var(--rb-bg), var(--rb-bg-soft));
@@ -63,32 +54,27 @@
   transform: translateX(-100%);
   transition: transform .22s ease;
   display: flex; flex-direction: column;
-  padding-top: var(--rb-header-h);
+
+  /* MOBILE: allow internal scroll when off-canvas is open */
   overflow-y: auto; overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  will-change: transform;
-  pointer-events: auto;           /* panel itself should always accept clicks */
+  padding-top: var(--rb-header-h);
+  pointer-events: auto;
 }
 .rb-sidebar[data-open="true"] .rb-sidebar__panel{ transform: translateX(0); }
 
-/* Fixed rail on desktop */
+/* DESKTOP (≥1200px): fixed rail, no internal scrollbar */
 @media (min-width: 1200px){
-  /* IMPORTANT: allow clicks on the sidebar on desktop */
-  .rb-sidebar{ pointer-events: auto; }     /* <-- FIXED */
-
-  /* No dim overlay on desktop */
+  .rb-sidebar{ pointer-events: auto; }
   .rb-sidebar__overlay{ display: none; }
 
-  /* Show panel as a fixed rail */
   .rb-sidebar__panel{
     transform: none !important;
     width: var(--rb-sb-w);
-    top: 0;
-    padding-top: var(--rb-header-h);
-    pointer-events: auto;                 /* paranoia: keep clickable */
+    overflow: hidden;         /* remove sidebar scrollbar on desktop */
   }
 
-  /* Push layout to make room for the rail */
+  /* push main layout to the right of the rail */
   body.has-rail{ padding-left: var(--rb-sb-w); }
 }
 
@@ -96,14 +82,23 @@
 .rb-sidebar__brand{
   position: sticky; top: 0;
   display: flex; align-items: center; gap: 10px;
-  padding: 14px 16px; margin: 2px 10px 8px;
+  padding: 14px 16px; margin: 12px 10px 8px;
   border-radius: 14px;
   background:
     linear-gradient(180deg, rgba(56,189,248,.12), rgba(37,99,235,.10));
   border: 1px solid rgba(125,211,252,.22);
   box-shadow: 0 8px 24px rgba(37,99,235,.15);
 }
-.rb-sidebar__brand .rb-logo{ font-size: 18px; line-height: 1; color: var(--rb-sky-400); }
+
+/* RB image + fallback icon */
+.rb-logo-img{
+  width: 22px; height: 22px; object-fit: cover;
+  border-radius: 6px; display: block;
+}
+.rb-logo{ font-size: 18px; line-height: 1; color: var(--rb-sky-400); display: none; }
+.rb-logo-img[src=""], .rb-logo-img:not([src]){ display:none; } /* hide empty img */
+.rb-logo-img:invalid + .rb-logo{ display:inline-block; }       /* show icon if image fails */
+
 .rb-sidebar__brand .rb-name{ font-weight: 700; letter-spacing: .3px; }
 
 /* Nav */
@@ -123,13 +118,9 @@
   position: relative;
   transition: background .18s ease, border-color .18s ease, transform .12s ease, box-shadow .18s ease;
 }
-.rb-link .i{
-  width: 22px; display: grid; place-items: center;
-  color: var(--rb-text-dim);
-  font-size: 18px;
-}
+.rb-link .i{ width: 22px; display: grid; place-items: center; color: var(--rb-text-dim); font-size: 18px; }
 
-/* Hover: subtle sky glow + lift */
+/* Hover */
 .rb-link:hover{
   background:
     linear-gradient(180deg, rgba(56,189,248,.16), rgba(37,99,235,.08));
@@ -139,7 +130,7 @@
 }
 .rb-link:hover .i{ color: var(--rb-sky-400); }
 
-/* Active (current page) */
+/* Active */
 .rb-link.is-active{
   background:
     radial-gradient(120% 80% at 0% 0%, rgba(125,211,252,.18), transparent 60%),
@@ -150,20 +141,20 @@
 }
 .rb-link.is-active .i{ color: var(--rb-blue-600); }
 
-/* Reduce icon/text shimmer on tap */
+/* Tap */
 .rb-link:active{ transform: translateY(0); }
 
-/* Make sure no accidental horizontal scrollbars anywhere */
+/* Prevent horizontal jiggle */
 html, body{ overflow-x: hidden; }
 .rb-sidebar__panel{ max-width: 100%; }
 
-/* Focus visible for a11y */
+/* Focus */
 .rb-link:focus-visible{
   outline: 2px solid var(--rb-sky-300);
   outline-offset: 2px;
 }
 
-/* Light mode (optional) */
+/* Optional light theme */
 :root[data-theme="light"] [data-rb-scope="sidebar"]{
   --rb-bg: #ffffff;
   --rb-bg-soft: #f6f7fb;
