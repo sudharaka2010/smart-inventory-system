@@ -33,13 +33,7 @@ if (!function_exists('navActive')) {
 
 <!-- NEW: only this body scrolls -->
 <div class="rb-sidebar__body">
-  <ul class="rb-nav">
-    <!-- ... your sections and links exactly as they are ... -->
-  </ul>
-</div>
-
-
-    <ul class="rb-nav">
+   <ul class="rb-nav">
       <li>
         <a class="rb-link<?= navActive(['index.php','dashboard.php']); ?>" href="<?= $href('/dashboard.php'); ?>" <?= navActive(['index.php','dashboard.php'], 'aria'); ?>>
           <span class="i"><i class="bi bi-house-door"></i></span><span>Dashboard</span>
@@ -123,6 +117,10 @@ if (!function_exists('navActive')) {
         </a>
       </li>
     </ul>
+</div>
+
+
+   
   </nav>
 </aside>
 
