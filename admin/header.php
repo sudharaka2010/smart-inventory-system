@@ -34,29 +34,7 @@ if (!function_exists('navActive')) {
     </button>
 
     <!-- Brand: image logo (auto swaps for dark/light theme) -->
-    <a class="rb-header__brand" href="<?= $href('/dashboard.php'); ?>" aria-label="RB Stores home">
-      <!-- Dark-mode logo (shown when data-theme!="light") -->
-      <img
-        src="<?= $href('/assets/img/logo-rbstores-dark.svg'); ?>"
-        alt=""
-        class="rb-brand-img rb-brand-dark"
-        height="24"
-        width="auto"
-        decoding="async"
-        loading="eager"
-      />
-      <!-- Light-mode logo (shown when :root[data-theme="light"]) -->
-      <img
-        src="<?= $href('/assets/img/logo-rbstores-light.svg'); ?>"
-        alt=""
-        class="rb-brand-img rb-brand-light"
-        height="24"
-        width="auto"
-        decoding="async"
-        loading="eager"
-      />
-      <span class="sr-only">RB Stores</span>
-    </a>
+  
 
     <!-- Center search (hidden <640px) -->
     <form class="rb-header__search" action="<?= $href('/search.php'); ?>" method="get" role="search">
