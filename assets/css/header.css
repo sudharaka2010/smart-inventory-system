@@ -1,49 +1,40 @@
-/* ===================== RB Stores — HEADER (STRICTLY SCOPED) =====================
-   ✅ Always dark (matches sidebar) — even if site theme is light
-   ✅ 4-column grid: [menu][brand][search][actions] (prevents wrapping)
-   ✅ Mobile: 3-column grid (search hidden) to avoid overlap
-   ✅ No white seams (safety layer + stacking)
-   ✅ Search size controlled; ignores global `form{}` rules
-   ✅ Buttons (New Bill / theme / Admin) consistent & immune to global link CSS
-   ============================================================================== */
+/* ===================== RB Stores — HEADER (STRICT SCOPE) ===================== */
+/* Scope with: <header class="rb-header" data-rb-scope="header"> */
 
-/* Screen-reader helper used by brand text */
 .sr-only{
   position:absolute!important; width:1px!important; height:1px!important;
   padding:0!important; margin:-1px!important; overflow:hidden!important;
   clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
 }
 
-/* ---------- Scope & tokens (locked to dark / sidebar-matching) ---------- */
+/* ---------- Tokens (match sidebar) ---------- */
 [data-rb-scope="header"]{
-  --rb-header-h: 70px;         /* gives breathing room for controls */
+  --rb-header-h: 70px;
 
-  /* Sidebar gradient tokens (adjust if your rail uses different hexes) */
-  --rb-sb-top:  #0d1426;       /* very dark navy */
-  --rb-sb-mid:  #0f172a;       /* slate-900 */
-  --rb-sb-bot:  #0b1222;       /* deep base */
+  --rb-sb-top:  #0d1426;   /* deep navy top */
+  --rb-sb-mid:  #0f172a;   /* slate-900 */
+  --rb-sb-bot:  #0b1222;   /* base */
 
-  --rb-primary: #2563eb;       /* blue-600 */
-  --rb-accent:  #38bdf8;       /* sky-400 */
+  --rb-primary: #2563eb;   /* blue-600 */
+  --rb-accent:  #38bdf8;   /* sky-400 */
+  --rb-pink:    #be185d;   /* dark pink accent available */
 
-  /* Surfaces & text */
   --rb-bg:       var(--rb-sb-mid);
-  --rb-card:     #0b1222;      /* header controls background */
+  --rb-card:     #0b1222;
   --rb-text:     #e5e7eb;
   --rb-text-dim: #a3b4c7;
   --rb-border:   #1e2a44;
 
   position: sticky;
   top: 0;
-  z-index: 20000;              /* above sidebar rail */
+  z-index: 20000;
   height: var(--rb-header-h);
   color: var(--rb-text);
 
-  /* Full-width gradient bar (no white) */
   background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
   border-bottom: 1px solid var(--rb-border);
 
-  isolation: isolate;          /* avoid sub-pixel blending with page */
+  isolation: isolate;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 
@@ -51,7 +42,7 @@
   padding-right: max(0px, env(safe-area-inset-right));
 }
 
-/* Keep header dark even when site toggles to light theme */
+/* Keep header dark even if site theme toggles to light */
 :root[data-theme="light"] [data-rb-scope="header"]{
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
@@ -61,114 +52,86 @@
   background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
 }
 
-/* Safety layer so no tiny gap shows under the bar */
+/* Safety layer so no hairline gap appears at the top */
 [data-rb-scope="header"]::before{
-  content:"";
-  position:absolute; inset:0;
-  height: var(--rb-header-h);
-  background: inherit;  /* same gradient */
-  z-index:-1;
+  content:""; position:absolute; inset:0; height: var(--rb-header-h);
+  background: inherit; z-index:-1;
 }
 
-/* If your sidebar id is #rbSidebar, keep it under the header on small screens */
+/* Sidebar should sit under header on mobile offcanvas */
 #rbSidebar{ z-index: 15000; }
-@media (max-width: 991.98px){
-  #rbSidebar{ border-top:0 !important; box-shadow:none !important; }
-}
 
-/* ---------- Centered “rectangle” container (4 columns) ---------- */
+/* ---------- Grid layout (no wrapping) ---------- */
 .rb-header__inner{
   height: var(--rb-header-h);
   display: grid;
-
-  /* 4 columns so nothing wraps:
-     [menu][brand][search grows][actions] */
-  grid-template-columns: auto auto minmax(0, 640px) auto;
+  grid-template-columns: auto auto minmax(0, 640px) auto; /* [menu][brand][search][actions] */
   align-items: center;
   gap: 12px;
-
-  max-width: 1240px;      /* laptop */
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 16px;
   box-sizing: border-box;
 }
 
-/* Scale the inner rectangle & search on wider screens */
+/* Wider screens: gracefully grow the search column */
 @media (min-width: 1360px){
   .rb-header__inner{ max-width: 1320px; }
 }
-@media (min-width: 1536px){      /* ~2K */
+@media (min-width: 1536px){
   .rb-header__inner{
     max-width: 1440px;
     grid-template-columns: auto auto minmax(0, 720px) auto;
   }
 }
-@media (min-width: 1920px){      /* FHD/Ultrawide */
+@media (min-width: 1920px){
   .rb-header__inner{
     max-width: 1560px;
     grid-template-columns: auto auto minmax(0, 820px) auto;
   }
 }
 
-/* Mobile: collapse to 3 columns (search hidden) to avoid overlap */
+/* Mobile (≤640px): hide search to prevent overlaps */
 @media (max-width: 639.98px){
   [data-rb-scope="header"] .rb-header__inner{
     grid-template-columns: 40px 1fr auto !important; /* [menu][brand][actions] */
     gap: 10px;
   }
   [data-rb-scope="header"] .rb-header__menu{ width: 40px; height: 40px; }
-  [data-rb-scope="header"] .rb-header__actions{ gap: 6px; min-width: fit-content; }
   [data-rb-scope="header"] .rb-header__search{ display: none !important; }
 }
 
-/* ---------- Brand (image logo) ---------- */
+/* Desktop (≥1200px): HIDE the hamburger */
+@media (min-width: 1200px){
+  [data-rb-scope="header"] .rb-header__menu{ display: none !important; }
+}
+
+/* ---------- Brand (logo) ---------- */
 .rb-header__brand{
-  display: inline-flex; align-items: center; gap: 10px;
-  text-decoration: none; color: var(--rb-text);
-  min-width: 0;
+  display:inline-flex; align-items:center; gap:10px;
+  min-width:0; color:var(--rb-text); text-decoration:none;
   transition: transform .15s ease, opacity .15s ease;
 }
-.rb-header__brand:hover{ transform: translateY(-1px); opacity: .95; }
-.rb-brand-img{ display:block; height: 24px; width: auto; }
+.rb-header__brand:hover{ transform: translateY(-1px); opacity:.95; }
+.rb-brand-img{ display:block; height:24px; width:auto; }
 
-/* If you only have one logo, keep .rb-brand-dark and ignore .rb-brand-light */
+/* If you add a light logo later, toggle these with data-theme if desired */
 .rb-brand-dark{ display:block; }
 .rb-brand-light{ display:none; }
-/* If you later add a light variant, you may enable:
-:root[data-theme="light"] .rb-brand-dark{ display:none; }
-:root[data-theme="light"] .rb-brand-light{ display:block; }
-*/
 
-/* ---------- Search (center) — reset globals + sizing ---------- */
-/* Kill global form styles that were inflating the header search */
+/* ---------- Search (locked sizing, immune to global CSS) ---------- */
+[data-rb-scope="header"]{ --rb-search-h: 36px; }
+
 [data-rb-scope="header"] .rb-header__search{
-  background: transparent !important;
-  box-shadow: none !important;
-  border: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  max-width: none !important;
-  border-radius: 0 !important;
-  justify-self: center;
-  width: 100%;
-  max-width: none; /* grid's minmax controls width */
-}
-
-/* Search input size control */
-[data-rb-scope="header"]{
-  --rb-search-height: 36px;
+  background: transparent !important; box-shadow: none !important; border: 0 !important;
+  padding: 0 !important; margin: 0 !important; max-width: none !important; border-radius: 0 !important;
+  justify-self: center; width: 100%;
 }
 [data-rb-scope="header"] .rb-input{
-  width: 100%;
-  height: var(--rb-search-height);
-  border-radius: 12px;
-  background: var(--rb-card);
-  color: var(--rb-text);
-  border: 1px solid var(--rb-border);
-  padding: 0 12px;
-  outline: none;
-  box-sizing: border-box;
-  transition: box-shadow .18s ease, border-color .18s ease, transform .12s ease;
+  width: 100%; height: var(--rb-search-h);
+  border-radius: 12px; background: var(--rb-card); color: var(--rb-text);
+  border: 1px solid var(--rb-border); padding: 0 12px; outline: none; box-sizing: border-box;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .12s ease;
 }
 [data-rb-scope="header"] .rb-input::placeholder{ color: var(--rb-text-dim); }
 [data-rb-scope="header"] .rb-input:hover{
@@ -180,78 +143,84 @@
   transform: translateY(-1px);
 }
 
-/* ---------- Actions (right) — perfect buttons ---------- */
+/* ---------- Actions (right) — consistent button system ---------- */
 .rb-header__actions{
   justify-self: end;
   display: inline-flex; align-items: center; gap: 8px;
   min-width: fit-content;
 }
 
-/* Normalize sizes/surfaces for all three buttons */
+/* Base surface for all header controls */
 [data-rb-scope="header"] .rb-header__actions > .rb-chip,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn,
-[data-rb-scope="header"] .rb-header__actions > .rb-user__btn{
-  height: 36px;
-  border-radius: 12px;
+[data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn{
+  height: 36px; border-radius: 12px;
   border: 1px solid var(--rb-border);
-  background: var(--rb-card);
-  color: var(--rb-text);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  background: var(--rb-card); color: var(--rb-text);
+  display:inline-flex; align-items:center; gap:8px;
   transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
 }
 
-/* Kill global link styles on the “New Bill” anchor */
-[data-rb-scope="header"] .rb-header__actions > .rb-chip,
-[data-rb-scope="header"] .rb-header__actions > .rb-chip:link,
-[data-rb-scope="header"] .rb-header__actions > .rb-chip:visited{
-  text-decoration: none !important;
-  color: var(--rb-text) !important;  /* beats a, .link-primary { color: ... !important } */
+/* Anchor normalization (e.g., “New Bill”) */
+[data-rb-scope="header"] .rb-chip,
+[data-rb-scope="header"] .rb-chip:link,
+[data-rb-scope="header"] .rb-chip:visited{
+  text-decoration: none !important; color: var(--rb-text) !important;
 }
 
-/* Icon sizes */
-[data-rb-scope="header"] .rb-header__actions i{ font-size: 14px; line-height: 1; }
+/* Sizes */
+[data-rb-scope="header"] .rb-chip{ padding: 0 12px; font-weight: 600; }
+[data-rb-scope="header"] .rb-icon-btn{ width:36px; justify-content:center; }
+[data-rb-scope="header"] .rb-user__btn{ padding: 0 10px; }
+[data-rb-scope="header"] .rb-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; }
+[data-rb-scope="header"] .rb-header__actions i{ font-size:14px; line-height:1; }
 
-/* Hover / Active */
+/* Primary variant for CTA (optional: apply class "is-primary" on .rb-chip) */
+[data-rb-scope="header"] .rb-chip.is-primary{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--rb-primary) 88%, #000 12%), #0b1222);
+  border-color: color-mix(in srgb, var(--rb-primary) 55%, var(--rb-border));
+}
+
+/* Hover/Active */
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:hover,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:hover,
-[data-rb-scope="header"] .rb-header__actions > .rb-user__btn:hover{
+[data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:hover{
   transform: translateY(-1px);
   border-color: color-mix(in srgb, var(--rb-accent) 35%, var(--rb-border));
   box-shadow: 0 8px 20px rgba(56,189,248,.12);
   color: var(--rb-accent);
 }
+[data-rb-scope="header"] .rb-chip.is-primary:hover{
+  color: #fff;
+  border-color: color-mix(in srgb, var(--rb-primary) 70%, var(--rb-border));
+  box-shadow: 0 10px 26px rgba(37,99,235,.20);
+}
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:active,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:active,
-[data-rb-scope="header"] .rb-header__actions > .rb-user__btn:active{
+[data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:active{
   transform: translateY(0);
   box-shadow: inset 0 0 0 999px rgba(255,255,255,.02);
 }
 
-/* Focus-visible (accessible, no ugly default outline) */
+/* Focus-visible */
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:focus,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:focus,
-[data-rb-scope="header"] .rb-header__actions > .rb-user__btn:focus{ outline: none; }
+[data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:focus{ outline:none; }
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:focus-visible,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:focus-visible,
-[data-rb-scope="header"] .rb-header__actions > .rb-user__btn:focus-visible{
+[data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:focus-visible{
   box-shadow: 0 0 0 3px rgba(56,189,248,.30);
   border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
 }
 
-/* Per-control tweaks */
-[data-rb-scope="header"] .rb-header__actions > .rb-chip{ padding: 0 12px; font-weight: 600; }
-[data-rb-scope="header"] .rb-header__actions > .rb-icon-btn{ width: 36px; justify-content: center; }
-[data-rb-scope="header"] .rb-header__actions > .rb-user__btn{ padding: 0 10px; }
-[data-rb-scope="header"] .rb-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; }
+/* Open user menu state */
 [data-rb-scope="header"] .rb-user__btn[aria-expanded="true"]{
   border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
   box-shadow: 0 6px 16px rgba(56,189,248,.12);
   color: var(--rb-accent);
 }
 
-/* ---------- Active tint (if applied to links) ---------- */
+/* ---------- Active nav tint if you reuse .is-active on links ---------- */
 .is-active{ color: var(--rb-primary) !important; }
 
 /* ---------- Reduced motion ---------- */
