@@ -1,9 +1,10 @@
-/* ===================== RB Stores — HEADER (STRICT SCOPE) ===================== */
+/* ===================== RB Stores — HEADER (FULL DROP-IN) ===================== */
 /* Scope element: <header class="rb-header" data-rb-scope="header"> */
 
+/* ---- Global tokens you may tune ---- */
 :root{
-  /* Desktop rail width (set this to your fixed sidebar width) */
-  --rb-rail-w: 264px;
+  --rb-rail-w: 264px;   /* desktop rail width (update if different) */
+  --rb-rail-mini: 80px; /* optional mini/collapsed rail width */
 }
 
 .sr-only{
@@ -12,7 +13,7 @@
   clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
 }
 
-/* ---------- Tokens (match the sidebar palette) ---------- */
+/* ---------- Color tokens (match sidebar) ---------- */
 [data-rb-scope="header"]{
   --rb-header-h: 70px;
 
@@ -22,7 +23,7 @@
 
   --rb-primary: #2563eb;   /* blue-600 */
   --rb-accent:  #38bdf8;   /* sky-400 */
-  --rb-pink:    #be185d;   /* dark pink (optional accent) */
+  --rb-pink:    #be185d;   /* dark pink (for optional CTA variant) */
 
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
@@ -30,13 +31,18 @@
   --rb-text-dim: #a3b4c7;
   --rb-border:   #1e2a44;
 
+  /* Button system */
+  --rb-btn-h: 38px;        /* unified control height (more comfortable) */
+  --rb-btn-r: 12px;        /* pill radius */
+  --rb-gap:  10px;
+
   position: sticky;
   top: 0;
   z-index: 20000;
   height: var(--rb-header-h);
   color: var(--rb-text);
 
-  /* Solid gradient (no blur) */
+  /* Solid gradient (no blur/flicker) */
   background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
   border-bottom: 1px solid var(--rb-border);
 
@@ -48,7 +54,7 @@
   padding-right: max(0px, env(safe-area-inset-right));
 }
 
-/* Keep header dark even when :root[data-theme="light"] is active */
+/* Keep header dark even if site theme toggles to light */
 :root[data-theme="light"] [data-rb-scope="header"]{
   --rb-bg:       var(--rb-sb-mid);
   --rb-card:     #0b1222;
@@ -58,7 +64,7 @@
   background: linear-gradient(180deg, var(--rb-sb-top), var(--rb-sb-mid) 55%, var(--rb-sb-bot));
 }
 
-/* Safety layer so no hairline gap shows */
+/* Safety layer — avoids hairline gaps under the bar */
 [data-rb-scope="header"]::before{
   content:""; position:absolute; inset:0; height: var(--rb-header-h);
   background: inherit; z-index:-1;
@@ -67,14 +73,29 @@
 /* If sidebar is off‑canvas on mobile, keep it under header */
 #rbSidebar{ z-index: 15000; }
 
-/* ---------- Desktop alignment with docked rail ---------- */
+/* ---------- Desktop: align header to the right of the docked rail ---------- */
 @media (min-width: 1200px){
+  /* Add body.has-rail via tiny JS or your sidebar code when rail is docked */
   body.has-rail [data-rb-scope="header"]{ padding-left: var(--rb-rail-w); }
+  body.has-rail.rail--mini [data-rb-scope="header"]{ padding-left: var(--rb-rail-mini); }
+
+  /* Make header content span full width (not center-boxed) for clean alignment */
   body.has-rail [data-rb-scope="header"] .rb-header__inner{
-    max-width: none; margin: 0;  /* header spans full width */
+    max-width: none; margin: 0;
   }
-  /* Hide hamburger on large screens */
+
+  /* Hide hamburger on desktop */
   [data-rb-scope="header"] .rb-header__menu{ display: none !important; }
+}
+
+/* Bonus: pure-CSS detection if your sidebar toggles these markers */
+@supports(selector(body:has(*))){
+  @media (min-width: 1200px){
+    body:has(#rbSidebar.is-docked) [data-rb-scope="header"]{ padding-left: var(--rb-rail-w); }
+    body:has(#rbSidebar.is-docked.is-mini) [data-rb-scope="header"]{ padding-left: var(--rb-rail-mini); }
+    body:has(#rbSidebar.is-docked) [data-rb-scope="header"] .rb-header__inner{ max-width:none; margin:0; }
+    body:has(#rbSidebar.is-docked) [data-rb-scope="header"] .rb-header__menu{ display:none!important; }
+  }
 }
 
 /* ---------- Grid (no wrapping) ---------- */
@@ -134,7 +155,7 @@
 }
 [data-rb-scope="header"] .rb-input{
   width: 100%; height: var(--rb-search-h);
-  border-radius: 12px; background: var(--rb-card); color: var(--rb-text);
+  border-radius: var(--rb-btn-r); background: var(--rb-card); color: var(--rb-text);
   border: 1px solid var(--rb-border); padding: 0 12px; outline: none; box-sizing: border-box;
   transition: border-color .18s ease, box-shadow .18s ease, transform .12s ease;
 }
@@ -148,10 +169,10 @@
   transform: translateY(-1px);
 }
 
-/* ---------- Actions (right) — consistent buttons ---------- */
+/* ---------- Actions (right) — refined buttons (size/shape perfect) ---------- */
 .rb-header__actions{
   justify-self: end;
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; gap: var(--rb-gap);
   min-width: fit-content;
 }
 
@@ -159,14 +180,15 @@
 [data-rb-scope="header"] .rb-header__actions > .rb-chip,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn,
 [data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn{
-  height: 36px;
-  border-radius: 12px;
+  height: var(--rb-btn-h);
+  border-radius: var(--rb-btn-r);
   border: 1px solid var(--rb-border);
-  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.08));
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.12));
   color: var(--rb-text);
   display: inline-flex; align-items: center; gap: 8px;
   font-weight: 600;
   line-height: 1;
+  letter-spacing: .1px;
   transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
 }
 
@@ -176,42 +198,37 @@
 [data-rb-scope="header"] .rb-chip:visited{
   text-decoration: none !important;
   color: var(--rb-text) !important;
-  padding: 0 12px;
+  padding: 0 14px;                 /* balanced CTA padding */
 }
 
-/* Optional primary CTA look for New Bill: add class="rb-chip is-primary" */
+/* Primary CTA variant (optional): add class="rb-chip is-primary" */
 [data-rb-scope="header"] .rb-chip.is-primary{
   background: linear-gradient(180deg,
-    color-mix(in srgb, var(--rb-primary) 86%, #000 14%),
-    color-mix(in srgb, var(--rb-primary) 60%, #000 40%)
+    color-mix(in srgb, var(--rb-primary) 88%, #000 12%),
+    color-mix(in srgb, var(--rb-primary) 64%, #000 36%)
   );
-  border-color: color-mix(in srgb, var(--rb-primary) 60%, var(--rb-border));
+  border-color: color-mix(in srgb, var(--rb-primary) 62%, var(--rb-border));
   color: #fff !important;
 }
 
-/* Icon sizes */
-[data-rb-scope="header"] .rb-header__actions i{ font-size:14px; line-height:1; }
-[data-rb-scope="header"] .rb-icon-btn{ width:36px; justify-content:center; }
-[data-rb-scope="header"] .rb-user__btn{ padding: 0 10px; }
-[data-rb-scope="header"] .rb-avatar-ico{ font-size:18px; line-height:0; }
+/* Icon-only control */
+[data-rb-scope="header"] .rb-icon-btn{ width: var(--rb-btn-h); justify-content: center; }
 
-/* Hover / Active */
+/* User button (icon only avatar + caret) */
+[data-rb-scope="header"] .rb-user__btn{ padding: 0 12px; }
+[data-rb-scope="header"] .rb-avatar-ico{ font-size: 18px; line-height: 0; }
+
+/* Hover */
 [data-rb-scope="header"] .rb-header__actions > .rb-chip:hover,
 [data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:hover,
 [data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:hover{
   transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--rb-accent) 38%, var(--rb-border));
-  box-shadow: 0 8px 20px rgba(56,189,248,.12);
+  border-color: color-mix(in srgb, var(--rb-accent) 40%, var(--rb-border));
+  box-shadow: 0 10px 24px rgba(56,189,248,.14);
   color: var(--rb-accent);
 }
 [data-rb-scope="header"] .rb-chip.is-primary:hover{
-  box-shadow: 0 10px 26px rgba(37,99,235,.20);
-}
-[data-rb-scope="header"] .rb-header__actions > .rb-chip:active,
-[data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:active,
-[data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:active{
-  transform: translateY(0);
-  box-shadow: inset 0 0 0 999px rgba(255,255,255,.02);
+  box-shadow: 0 12px 28px rgba(37,99,235,.24);
 }
 
 /* Focus-visible (keyboard) */
@@ -221,6 +238,14 @@
   outline: none;
   box-shadow: 0 0 0 3px rgba(56,189,248,.30);
   border-color: color-mix(in srgb, var(--rb-accent) 55%, var(--rb-border));
+}
+
+/* Active (pressed) */
+[data-rb-scope="header"] .rb-header__actions > .rb-chip:active,
+[data-rb-scope="header"] .rb-header__actions > .rb-icon-btn:active,
+[data-rb-scope="header"] .rb-header__actions > .rb-user > .rb-user__btn:active{
+  transform: translateY(0);
+  box-shadow: inset 0 0 0 999px rgba(255,255,255,.02);
 }
 
 /* Indicate open user menu */
@@ -235,7 +260,7 @@
 .rb-menu[hidden]{ display:none !important; }
 .rb-menu{
   position:absolute; right:0; top: calc(100% + 8px);
-  min-width: 180px;
+  min-width: 190px;
   background: #0b1222;
   color: var(--rb-text);
   border: 1px solid var(--rb-border);

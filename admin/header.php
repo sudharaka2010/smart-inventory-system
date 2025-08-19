@@ -131,3 +131,19 @@ if (!function_exists('navActive')) {
   }
 })();
 </script>
+<script>
+/* RB Stores — desktop rail detector
+   - Adds body.has-rail when viewport ≥1200px (rail is docked)
+   - Optional: add/remove body.rail--mini if you have a mini/collapsed mode
+*/
+(() => {
+  const mql = window.matchMedia('(min-width: 1200px)');
+  const apply = () => {
+    document.body.classList.toggle('has-rail', mql.matches);
+    // If you support a mini rail, toggle this class from your sidebar code:
+    // document.body.classList.toggle('rail--mini', isMiniRail());
+  };
+  mql.addEventListener ? mql.addEventListener('change', apply) : mql.addListener(apply);
+  apply();
+})();
+</script>
