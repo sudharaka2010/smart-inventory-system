@@ -1,30 +1,30 @@
-/* ================= RB Stores — Header (FULLY UPDATED CSS) ================= */
-/* Scope: <header class="rb-header" data-rb-scope="header">                  */
-/* Goal: Make the SEARCH BOX height/width match the header & look professional */
+/* ================= RB Stores — Header (FINAL, SCOPED & OVERRIDE-SAFE) ================ */
+/* Scope: <header class="rb-header" data-rb-scope="header">                              */
+/* Unifies control sizes, forces search height, removes old white-card wrapper style     */
 
-/* ---- Adjust to match your sidebar (rail) widths ---- */
 :root{
-  --rail-w: 245px;   /* desktop rail width */
-  --rail-mini: 80px; /* mini rail width   */
+  --rail-w: 245px;
+  --rail-mini: 80px;
 }
 
-/* Visually-hidden (for screen-reader-only labels) */
+/* Screen-reader-only text */
 .sr-only{
-  position:absolute!important; width:1px!important; height:1px!important;
-  padding:0!important; margin:-1px!important; overflow:hidden!important;
-  clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
+  position:absolute!important;width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
 }
 
-/* ----- Theme tokens ----- */
+/* Theme tokens */
 [data-rb-scope="header"]{
-  --h: 68px;                      /* header height */
-  --bg: #0f172a;                  /* dark navy */
-  --bg2:#0b1222;                  /* card / input bg */
-  --text: #e5e7eb;                /* text */
-  --text-dim:#a3b4c7;             /* muted */
+  --h: 68px;          /* header height */
+  --ctl-h: 44px;      /* standard control height (search, buttons) */
+  --bg: #0f172a;
+  --bg2:#0b1222;
+  --text:#e5e7eb;
+  --text-dim:#a3b4c7;
   --border:#1f2a44;
-  --primary:#2563eb;              /* blue */
-  --accent:#38bdf8;               /* sky */
+  --primary:#2563eb;
+  --accent:#38bdf8;
 
   position: sticky; top: 0; z-index: 1000;
   height: var(--h);
@@ -35,17 +35,17 @@
   box-sizing: border-box;
 }
 
-/* Keep header dark even in light theme */
+/* Keep header dark in light theme too */
 :root[data-theme="light"] [data-rb-scope="header"]{
   background: var(--bg);
   color: var(--text);
 }
 
-/* ----- 3-column layout: [menu] [search] [actions] ----- */
-.rb-header__inner{
+/* Layout grid */
+[data-rb-scope="header"] .rb-header__inner{
   height: var(--h);
   display: grid;
-  grid-template-columns: auto minmax(0,1fr) auto; /* middle grows */
+  grid-template-columns: auto minmax(0,1fr) auto;
   align-items: center;
   gap: 12px;
   max-width: 1200px;
@@ -54,40 +54,43 @@
   box-sizing: border-box;
 }
 
-/* Desktop: hide burger and offset header by docked rail */
+/* Burger + rail offset */
 @media (min-width: 1200px){
   body.has-rail [data-rb-scope="header"]{ padding-left: var(--rail-w); }
   body.has-rail.rail--mini [data-rb-scope="header"]{ padding-left: var(--rail-mini); }
-  .rb-header__menu{ display: none !important; }
+  [data-rb-scope="header"] .rb-header__menu{ display: none !important; }
 }
-
-/* Small screens: larger burger */
 @media (max-width: 639.98px){
-  .rb-header__inner{
+  [data-rb-scope="header"] .rb-header__inner{
     grid-template-columns: 40px minmax(0,1fr) auto;
     gap: 10px;
   }
-  .rb-header__menu{ width:40px; height:40px; }
+  [data-rb-scope="header"] .rb-header__menu{ width:40px; height:40px; }
 }
 
-/* ================= SEARCH — UPDATED ================= */
-/* Make the search area fill the header height and behave nicely in grid */
-.rb-header__search{
+/* ================= SEARCH — FIXED SIZE & RESET ================= */
+/* Reset any legacy "white card" styles that might be applied globally */
+[data-rb-scope="header"] .rb-header__search{
   width: 100%;
-  min-width: 0;            /* allow shrink/grow inside grid */
-  align-self: stretch;     /* match header height */
-  display: flex;           /* so input can flex */
-  align-items: center;     /* keep input vertically centered */
+  min-width: 0;
+  align-self: stretch;         /* fill header track */
+  display: flex;
+  align-items: center;
+  justify-self: center;
+  max-width: 720px;            /* comfy width on desktop */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
 
-/* Cross‑browser: remove default search decorations */
-.rb-input{
+/* Increase specificity and force height so other .rb-input rules can't shrink it */
+[data-rb-scope="header"] .rb-header__search .rb-input{
   flex: 1 1 auto;
-  /* Height logic:
-     - Follow header height with inner margins
-     - Cap to a professional control size on large headers
-  */
-  height: min(44px, calc(var(--h) - 20px));
+  height: var(--ctl-h) !important;                 /* <- THE FIX */
+  max-height: var(--ctl-h) !important;
   line-height: 1.2;
   background: var(--bg2);
   color: var(--text);
@@ -98,49 +101,47 @@
   outline: none;
   box-sizing: border-box;
   transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-  -webkit-appearance: none;     /* Safari */
-  -moz-appearance: none;
-  appearance: none;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
 }
-.rb-input::placeholder{ color: var(--text-dim); }
-.rb-input:focus{
+[data-rb-scope="header"] .rb-header__search .rb-input::placeholder{ color: var(--text-dim); }
+[data-rb-scope="header"] .rb-header__search .rb-input:focus{
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(56,189,248,.25);
 }
 
-/* Make the search box feel roomy on desktop but shrink gracefully */
-@media (min-width: 1024px){
-  .rb-header__search{ max-width: 720px; justify-self: center; }
-}
+/* Small phones */
 @media (max-width: 480px){
-  .rb-input{ height: 40px; border-radius: 10px; font-size: 14px; }
+  [data-rb-scope="header"] .rb-header__search .rb-input{
+    height: 40px !important;
+    max-height: 40px !important;
+    border-radius: 10px;
+    font-size: 14px;
+  }
 }
 
-/* (Optional) Hide clear X in some browsers for consistent look */
-.rb-input::-ms-clear{ display:none; width:0; height:0; }
-.rb-input::-webkit-search-decoration,
-.rb-input::-webkit-search-cancel-button,
-.rb-input::-webkit-search-results-button,
-.rb-input::-webkit-search-results-decoration{ display:none; }
+/* Hide default clear buttons for consistent look */
+[data-rb-scope="header"] .rb-header__search .rb-input::-ms-clear{ display:none; width:0; height:0; }
+[data-rb-scope="header"] .rb-header__search .rb-input::-webkit-search-decoration,
+[data-rb-scope="header"] .rb-header__search .rb-input::-webkit-search-cancel-button,
+[data-rb-scope="header"] .rb-header__search .rb-input::-webkit-search-results-button,
+[data-rb-scope="header"] .rb-header__search .rb-input::-webkit-search-results-decoration{ display:none; }
 
-/* ================= ACTIONS (RIGHT) ================= */
-.rb-header__actions{
+/* ================= ACTIONS — MATCH CONTROL HEIGHT ================= */
+[data-rb-scope="header"] .rb-header__actions{
   display: inline-flex;
   align-items: center;
   gap: 10px;
   justify-self: end;
   min-width: fit-content;
-  flex-wrap: wrap; /* prevents overflow on tight widths */
+  flex-wrap: wrap;
 }
-
-/* Buttons & links */
-.rb-chip,
-.rb-icon-btn,
-.rb-user__btn{
+[data-rb-scope="header"] .rb-chip,
+[data-rb-scope="header"] .rb-icon-btn,
+[data-rb-scope="header"] .rb-user__btn{
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 40px;                 /* match the search input cap (44→40 on small) */
+  height: var(--ctl-h);
   padding: 0 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -151,22 +152,19 @@
   font-weight: 600;
   box-sizing: border-box;
 }
-.rb-icon-btn{ width: 40px; justify-content: center; padding: 0; }
-
-.rb-chip:hover,
-.rb-icon-btn:hover,
-.rb-user__btn:hover{
+[data-rb-scope="header"] .rb-icon-btn{ width: var(--ctl-h); justify-content: center; padding: 0; }
+[data-rb-scope="header"] .rb-chip:hover,
+[data-rb-scope="header"] .rb-icon-btn:hover,
+[data-rb-scope="header"] .rb-user__btn:hover{
   border-color: #3aa6d9;
   color: var(--accent);
 }
-
-/* Active page hint */
-.is-active{ color: var(--primary) !important; }
+[data-rb-scope="header"] .is-active{ color: var(--primary) !important; }
 
 /* ================= USER DROPDOWN ================= */
-.rb-user{ position: relative; }
-.rb-menu[hidden]{ display:none !important; }
-.rb-menu{
+[data-rb-scope="header"] .rb-user{ position: relative; }
+[data-rb-scope="header"] .rb-menu[hidden]{ display:none !important; }
+[data-rb-scope="header"] .rb-menu{
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
@@ -177,22 +175,22 @@
   padding: 8px;
   box-shadow: 0 14px 32px rgba(0,0,0,.35);
 }
-.rb-menu a{
+[data-rb-scope="header"] .rb-menu a{
   display:block;
   padding:8px 10px;
   border-radius:10px;
   color: var(--text);
   text-decoration:none;
 }
-.rb-menu a:hover{
+[data-rb-scope="header"] .rb-menu a:hover{
   background: rgba(56,189,248,.12);
   color: var(--accent);
 }
-.rb-menu hr{
+[data-rb-scope="header"] .rb-menu hr{
   border:0; height:1px; background: var(--border); margin:8px 0;
 }
 
-/* ================= SIDEBAR & MAIN ALIGNMENT ================= */
+/* ================= SIDEBAR ALIGNMENT ================= */
 @media (max-width: 1199.98px){
   #rbSidebar{ top: var(--h); height: calc(100vh - var(--h)); }
 }
