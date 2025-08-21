@@ -1,10 +1,11 @@
-/* ================= RB Stores — Basic Header CSS ================= */
-/* Scope: <header class="rb-header" data-rb-scope="header">      */
+/* ================= RB Stores — Header (FULLY UPDATED CSS) ================= */
+/* Scope: <header class="rb-header" data-rb-scope="header">                  */
+/* Goal: Make the SEARCH BOX height/width match the header & look professional */
 
 /* ---- Adjust to match your sidebar (rail) widths ---- */
 :root{
-  --rail-w: 245px;  /* desktop rail width */
-  --rail-mini: 80px;
+  --rail-w: 245px;   /* desktop rail width */
+  --rail-mini: 80px; /* mini rail width   */
 }
 
 /* Visually-hidden (for screen-reader-only labels) */
@@ -14,11 +15,11 @@
   clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important;
 }
 
-/* ----- Theme tokens (kept simple) ----- */
+/* ----- Theme tokens ----- */
 [data-rb-scope="header"]{
   --h: 68px;                      /* header height */
   --bg: #0f172a;                  /* dark navy */
-  --bg2:#0b1222;                  /* card */
+  --bg2:#0b1222;                  /* card / input bg */
   --text: #e5e7eb;                /* text */
   --text-dim:#a3b4c7;             /* muted */
   --border:#1f2a44;
@@ -34,17 +35,17 @@
   box-sizing: border-box;
 }
 
-/* When your app/theme is light, keep header dark */
+/* Keep header dark even in light theme */
 :root[data-theme="light"] [data-rb-scope="header"]{
   background: var(--bg);
   color: var(--text);
 }
 
-/* ----- 3-column grid: [menu] [search] [actions] ----- */
+/* ----- 3-column layout: [menu] [search] [actions] ----- */
 .rb-header__inner{
   height: var(--h);
   display: grid;
-  grid-template-columns: auto minmax(0,1fr) auto; /* middle flexible */
+  grid-template-columns: auto minmax(0,1fr) auto; /* middle grows */
   align-items: center;
   gap: 12px;
   max-width: 1200px;
@@ -53,14 +54,14 @@
   box-sizing: border-box;
 }
 
-/* Desktop: hide burger and offset header by rail */
+/* Desktop: hide burger and offset header by docked rail */
 @media (min-width: 1200px){
   body.has-rail [data-rb-scope="header"]{ padding-left: var(--rail-w); }
   body.has-rail.rail--mini [data-rb-scope="header"]{ padding-left: var(--rail-mini); }
   .rb-header__menu{ display: none !important; }
 }
 
-/* Small screens: keep burger larger */
+/* Small screens: larger burger */
 @media (max-width: 639.98px){
   .rb-header__inner{
     grid-template-columns: 40px minmax(0,1fr) auto;
@@ -69,29 +70,60 @@
   .rb-header__menu{ width:40px; height:40px; }
 }
 
-/* ----- Search ----- */
+/* ================= SEARCH — UPDATED ================= */
+/* Make the search area fill the header height and behave nicely in grid */
 .rb-header__search{
   width: 100%;
-  min-width: 0;       /* important: allow shrink/grow inside grid */
+  min-width: 0;            /* allow shrink/grow inside grid */
+  align-self: stretch;     /* match header height */
+  display: flex;           /* so input can flex */
+  align-items: center;     /* keep input vertically centered */
 }
+
+/* Cross‑browser: remove default search decorations */
 .rb-input{
-  width: 100%;
-  height: 36px;
+  flex: 1 1 auto;
+  /* Height logic:
+     - Follow header height with inner margins
+     - Cap to a professional control size on large headers
+  */
+  height: min(44px, calc(var(--h) - 20px));
+  line-height: 1.2;
   background: var(--bg2);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0 12px;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 15px;
   outline: none;
   box-sizing: border-box;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  -webkit-appearance: none;     /* Safari */
+  -moz-appearance: none;
+  appearance: none;
 }
 .rb-input::placeholder{ color: var(--text-dim); }
 .rb-input:focus{
-  border-color: #3aa6d9;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(56,189,248,.25);
 }
 
-/* ----- Actions (right) ----- */
+/* Make the search box feel roomy on desktop but shrink gracefully */
+@media (min-width: 1024px){
+  .rb-header__search{ max-width: 720px; justify-self: center; }
+}
+@media (max-width: 480px){
+  .rb-input{ height: 40px; border-radius: 10px; font-size: 14px; }
+}
+
+/* (Optional) Hide clear X in some browsers for consistent look */
+.rb-input::-ms-clear{ display:none; width:0; height:0; }
+.rb-input::-webkit-search-decoration,
+.rb-input::-webkit-search-cancel-button,
+.rb-input::-webkit-search-results-button,
+.rb-input::-webkit-search-results-decoration{ display:none; }
+
+/* ================= ACTIONS (RIGHT) ================= */
 .rb-header__actions{
   display: inline-flex;
   align-items: center;
@@ -108,17 +140,18 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 36px;
+  height: 40px;                 /* match the search input cap (44→40 on small) */
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: #0e1527;
   color: var(--text);
   text-decoration: none;
   cursor: pointer;
   font-weight: 600;
+  box-sizing: border-box;
 }
-.rb-icon-btn{ width: 36px; justify-content: center; padding: 0; }
+.rb-icon-btn{ width: 40px; justify-content: center; padding: 0; }
 
 .rb-chip:hover,
 .rb-icon-btn:hover,
@@ -130,7 +163,7 @@
 /* Active page hint */
 .is-active{ color: var(--primary) !important; }
 
-/* ----- User dropdown ----- */
+/* ================= USER DROPDOWN ================= */
 .rb-user{ position: relative; }
 .rb-menu[hidden]{ display:none !important; }
 .rb-menu{
@@ -140,14 +173,14 @@
   min-width: 180px;
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 8px;
   box-shadow: 0 14px 32px rgba(0,0,0,.35);
 }
 .rb-menu a{
   display:block;
   padding:8px 10px;
-  border-radius:8px;
+  border-radius:10px;
   color: var(--text);
   text-decoration:none;
 }
@@ -159,15 +192,10 @@
   border:0; height:1px; background: var(--border); margin:8px 0;
 }
 
-/* ----- Optional: keep off-canvas sidebar below header on mobile ----- */
+/* ================= SIDEBAR & MAIN ALIGNMENT ================= */
 @media (max-width: 1199.98px){
-  #rbSidebar{
-    top: var(--h);
-    height: calc(100vh - var(--h));
-  }
+  #rbSidebar{ top: var(--h); height: calc(100vh - var(--h)); }
 }
-
-/* ----- (Optional) Main area alignment with rail ----- */
 @media (min-width: 1200px){
   body.has-rail .rb-main{ padding-left: var(--rail-w); }
   body.has-rail.rail--mini .rb-main{ padding-left: var(--rail-mini); }
