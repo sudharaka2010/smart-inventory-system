@@ -1,288 +1,230 @@
-/* ===================== RB Stores — App Shell (STRICTLY SCOPED) ===================== */
-/* One file to govern header, sidebar, main, footer, tokens, and responsive behavior  */
-/* Works with your existing includes and dashboard.css                                 */
+/* ================= RB Stores — Dashboard (page-only) ================== */
+/* Scope: dashboard.php (header.php + sidebar.php + #rbShell + #rb-main)  */
+/* Goal: main content fills all space between sidebar/header/footer,       */
+/*       stays responsive, no unwanted max-width clamps.                   */
 
-/* ---------- Design tokens (safe fallbacks) ---------- */
+/* ---------- Minimal fallbacks (safe if app.css missing) ---------- */
 :root{
-  --rb-font: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-
-  /* Brand palette (dark blue + ocean + crimson accent) */
-  --rb-blue-900:#0b1324;
-  --rb-blue-800:#0f172a;
-  --rb-blue-700:#1e3a8a;
-  --rb-blue-600:#2563eb;
-  --rb-pink-600:#e11d48;
-
-  /* Surfaces */
+  --rb-text: #e5e7eb;
+  --rb-text-dim: #a3b4c7;
   --rb-bg: #0b1222;
   --rb-bg-soft: #0e162b;
   --rb-card: #111a31;
-  --rb-card-soft:#0f1a2b;
-  --rb-text:#e5e7eb;
-  --rb-text-dim:#a3b4c7;
-  --rb-border:#22324d;
+  --rb-border: #22324d;
   --rb-table-stripe: rgba(255,255,255,.035);
-
-  /* Sizing */
   --rb-radius: 12px;
   --rb-shadow-sm: 0 1px 2px rgba(0,0,0,.25);
   --rb-shadow:    0 12px 30px rgba(0,0,0,.35);
-
-  /* Layout */
-  --rb-header-h: 64px;               /* header height (matches includes) */
-  --rb-rail-w:  280px;               /* desktop sidebar width            */
-  --rb-gap:     16px;
-
-  /* Speeds */
   --rb-speed-fast: .15s;
   --rb-speed: .25s;
-
-  /* Bootstrap sync (so theme switcher in your JS can override nicely) */
-  --bs-body-bg: var(--rb-bg);
-  --bs-body-color: var(--rb-text);
-  --bs-border-color: var(--rb-border);
-  --bs-primary: #0ea5e9;
-  --bs-success: #10b981;
-  --bs-warning: #eab308;
-  --bs-danger:  #ef4444;
-  --bs-info:    #38bdf8;
-  --bs-secondary:#64748b;
+  --rb-ease: ease-in-out;
+  --rb-header-h: 64px;
+  --rb-rail-w: 280px;
+  --rb-space-3: 12px;
+  --rb-space-4: 16px;
 }
 
-/* ---------- Base ---------- */
-html, body { height: 100%; }
-body.bg-body{
-  font-family: var(--rb-font);
-  background: radial-gradient(1200px 1200px at 10% -10%, #17213a 0%, transparent 50%) no-repeat,
-              radial-gradient(1200px 1200px at 110% 10%, #161d31 0%, transparent 52%) no-repeat,
-              var(--rb-bg);
-  color: var(--rb-text);
-  overflow-y: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Utilities */
-.text-dim { color: var(--rb-text-dim) !important; }
-.soft-card { background: var(--rb-card); border:1px solid var(--rb-border); border-radius: var(--rb-radius); }
-.shadow-soft{ box-shadow: var(--rb-shadow-sm); }
-.rounded-12{ border-radius: var(--rb-radius); }
-
-/* LINKS */
-a { color: var(--bs-primary); }
-a:hover { filter: brightness(1.1); }
-
-/* ---------- Header (scoped via data-rb-scope) ---------- */
-[data-rb-scope="header"]{
-  position: sticky; top: 0; z-index: 1050;
-  height: var(--rb-header-h);
-  background:
-    linear-gradient(180deg, #101a31 0%, #0c1426 100%);
-  border-bottom: 1px solid var(--rb-border);
-  backdrop-filter: saturate(120%);
-}
-
-/* Header inner layout hint (common class names from your include) */
-[data-rb-scope="header"] .rb-head{
-  height: 100%;
-  display: grid;
-  grid-template-columns: auto 1fr auto; /* brand | center | right controls */
-  align-items: center;
-  gap: 12px;
-  padding: 0 12px;
-}
-
-/* Brand area — fix “logo scroll/shift” by pinning size */
-[data-rb-scope="header"] .rb-brand{
-  display:flex; align-items:center; gap:10px; min-width:0;
-}
-[data-rb-scope="header"] .rb-brand img{
-  height: 36px; width:auto; object-fit:contain;
-  display:block;
-}
-[data-rb-scope="header"] .rb-brand .rb-title{
-  font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-
-/* Center search — grows but stays balanced */
-[data-rb-scope="header"] .rb-search{
-  min-width: 220px;
-  display:flex; align-items:center; gap:8px;
-}
-[data-rb-scope="header"] .rb-search .form-control{
-  background: var(--rb-bg-soft); color: var(--rb-text);
-  border:1px solid var(--rb-border);
-  height: 38px; border-radius: 10px;
-  width: 100%;
-}
-[data-rb-scope="header"] .rb-search .form-control:focus{
-  border-color: color-mix(in oklab, var(--rb-border), var(--bs-primary));
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--bs-primary), transparent 70%);
-}
-
-/* Right controls */
-[data-rb-scope="header"] .rb-actions{
-  display:flex; align-items:center; gap:8px;
-}
-[data-rb-scope="header"] .rb-actions .btn,
-[data-rb-scope="header"] .rb-actions .form-select{
-  height:36px; border-radius:10px;
-}
-
-/* ---------- Shell: sidebar + main ---------- */
-/* Mobile-first: sidebar stacked, off-canvas behaviour handled by your include JS.
-   We just ensure the base styles and the desktop rail. */
+/* =========================================================================
+   Shell patch (page-local): grid must give the MAIN column full freedom
+   ========================================================================= */
 #rbShell{
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--rb-gap);
-  min-height: calc(100dvh - var(--rb-header-h));
+  grid-template-columns: 1fr; /* mobile */
+  gap: 16px;
+  min-height: calc(100dvh - var(--rb-header-h)); /* sit between header/footer */
 }
 
-/* Sidebar container from your include (ensure predictable box) */
-[data-rb-scope="sidebar"]{
-  background: var(--rb-card-soft);
-  border-right: 1px solid var(--rb-border);
-}
-
-/* Sidebar content should scroll independently on desktop */
-[data-rb-scope="sidebar"] .rb-side-inner{
-  max-height: calc(100dvh - var(--rb-header-h));
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* NAV items */
-[data-rb-scope="sidebar"] .rb-nav .rb-link{
-  display:flex; align-items:center; gap:10px;
-  padding:10px 12px; color: var(--rb-text);
-  border-radius: 10px; text-decoration:none;
-}
-[data-rb-scope="sidebar"] .rb-nav .rb-link:hover{
-  background: color-mix(in oklab, var(--rb-bg-soft) 85%, #fff 15%);
-}
-[data-rb-scope="sidebar"] .rb-nav .rb-link[aria-current="page"],
-[data-rb-scope="sidebar"] .rb-nav .rb-link.active{
-  background: color-mix(in oklab, var(--bs-primary) 12%, transparent);
-  color: var(--bs-primary);
-  border:1px solid color-mix(in oklab, var(--bs-primary) 30%, var(--rb-border));
-}
-
-/* Desktop rail (≥1200px) */
+/* Desktop rail: sidebar + main */
 @media (min-width: 1200px){
   #rbShell{
-    grid-template-columns: var(--rb-rail-w) 1fr;
+    grid-template-columns: minmax(0, var(--rb-rail-w)) minmax(0, 1fr);
     align-items: start;
   }
+  /* Keep the sidebar under the header, scroll independently */
   [data-rb-scope="sidebar"]{
-    position: sticky; top: var(--rb-header-h); /* stops under the header */
+    position: sticky; top: var(--rb-header-h);
     height: calc(100dvh - var(--rb-header-h));
-  }
-  /* Make the main column align with header height */
-  #rb-main{
-    min-height: calc(100dvh - var(--rb-header-h));
+    border-right: 1px solid var(--rb-border);
+    background: var(--rb-card);
   }
 }
 
-/* ---------- Main content ---------- */
-[data-rb-scope="main"]{
-  padding-top: 8px; /* breathing space below header */
+/* MAIN must be allowed to expand to full available width */
+#rb-main{
+  min-width: 0;                 /* critical for grid children */
+  max-width: none !important;   /* defeat accidental clamps   */
+  padding-top: 8px;
 }
-[data-rb-scope="main"] .card{
+
+/* Neutralize any global container max-widths inside MAIN only */
+#rb-main.container,
+#rb-main .container,
+#rb-main.container-fluid,
+#rb-main .container-fluid{
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Optional: keep a little breathing room on the right at large screens */
+@media (min-width: 1200px){
+  #rb-main{ padding-right: 1rem; }
+}
+
+/* =========================================================================
+   Dashboard visual styles (scoped by attributes)
+   ========================================================================= */
+[data-rb-scope="main"][data-page="dashboard"]{
+  --dash-gap: var(--rb-space-4);
+  --dash-card-pad: var(--rb-space-4);
+  --dash-kpi-icon-size: 36px;
+  color: var(--rb-text);
+  overflow-x: clip; /* avoid tiny horizontal scrollbars */
+}
+
+/* Header text inside the page */
+[data-rb-scope="main"][data-page="dashboard"] .hero h1{
+  font-weight: 600; letter-spacing:.2px; margin:0;
+}
+[data-rb-scope="main"][data-page="dashboard"] .hero .small{
+  color: var(--rb-text-dim);
+}
+
+/* Local utilities */
+[data-rb-scope="main"][data-page="dashboard"] .minw-150{ min-width:150px; }
+[data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width:220px; }
+[data-rb-scope="main"][data-page="dashboard"] .btn-action{ height:38px; border-radius:10px; }
+
+/* Cards (shared) */
+[data-rb-scope="main"][data-page="dashboard"] .card{
   background: var(--rb-card);
-  border:1px solid var(--rb-border);
+  border: 1px solid var(--rb-border);
   border-radius: var(--rb-radius);
   box-shadow: var(--rb-shadow-sm);
 }
-[data-rb-scope="main"] .card-header,
-[data-rb-scope="main"] .card-footer{
+[data-rb-scope="main"][data-page="dashboard"] .card-header,
+[data-rb-scope="main"][data-page="dashboard"] .card-footer{
   background: transparent;
   color: var(--rb-text);
   border-color: var(--rb-border);
 }
 
-/* Soft striped tables (shared with dashboard.css variables) */
-[data-rb-scope="main"] .table-soft tbody tr:nth-child(odd){
-  background: var(--rb-table-stripe);
+/* KPI Grid */
+[data-rb-scope="main"][data-page="dashboard"] .kpi .card{
+  transition: transform var(--rb-speed-fast) var(--rb-ease),
+              box-shadow var(--rb-speed) var(--rb-ease);
 }
-[data-rb-scope="main"] .table-responsive{
-  border-radius: var(--rb-radius);
-  overflow: auto;
+[data-rb-scope="main"][data-page="dashboard"] .kpi .card:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--rb-shadow);
+}
+[data-rb-scope="main"][data-page="dashboard"] .kpi .card-body{
+  padding: var(--dash-card-pad);
+}
+[data-rb-scope="main"][data-page="dashboard"] .kpi .icon{
+  width: var(--dash-kpi-icon-size);
+  height: var(--dash-kpi-icon-size);
+  display: grid; place-items: center;
+  border-radius: 12px; font-size: 18px; flex: 0 0 auto;
+  background: color-mix(in oklab, var(--rb-bg-soft) 80%, #fff 20%);
+}
+[data-rb-scope="main"][data-page="dashboard"] .kpi a.text-decoration-none{ color: inherit; }
+
+/* Section heading */
+[data-rb-scope="main"][data-page="dashboard"] h3.h6{
+  color: var(--rb-text-dim);
+  text-transform: uppercase; letter-spacing:.08em; margin:0 0 8px 0;
 }
 
-/* Inputs in main */
-[data-rb-scope="main"] .form-control,
-[data-rb-scope="main"] .form-select{
+/* Tables */
+[data-rb-scope="main"][data-page="dashboard"] .table-responsive{
+  border-radius: var(--rb-radius);
+  overflow: auto; /* sticky header works within */
+  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+}
+[data-rb-scope="main"][data-page="dashboard"] table{
+  color: var(--rb-text);
+  background: var(--rb-card);
+  border-color: var(--rb-border);
+  width: 100%; margin: 0;
+}
+[data-rb-scope="main"][data-page="dashboard"] thead.table-light th{
   background: var(--rb-bg-soft);
   color: var(--rb-text);
-  border:1px solid var(--rb-border);
+  border-bottom: 1px solid var(--rb-border);
+  position: sticky; top: 0; z-index: 1;
 }
-[data-rb-scope="main"] .form-control:focus,
-[data-rb-scope="main"] .form-select:focus{
-  border-color: color-mix(in oklab, var(--rb-border), var(--bs-primary));
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--bs-primary), transparent 70%);
+[data-rb-scope="main"][data-page="dashboard"] .table-soft tbody tr:nth-child(odd){
+  background: var(--rb-table-stripe);
 }
-
-/* Buttons harmonized with brand */
-.btn-primary{
-  --bs-btn-bg: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
-  --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 90%, #000 10%);
-  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
-  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000 20%);
-  border-radius: 10px;
+[data-rb-scope="main"][data-page="dashboard"] .table > :not(caption) > * > *{
+  padding: 10px 12px; background-clip: padding-box;
 }
-.btn-outline-primary{
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-bg: var(--bs-primary);
-  --bs-btn-hover-border-color: var(--bs-primary);
-  border-radius: 10px;
+[data-rb-scope="main"][data-page="dashboard"] .table-hover tbody tr:hover{
+  background: color-mix(in oklab, var(--rb-table-stripe), #fff 2%);
+}
+[data-rb-scope="main"][data-page="dashboard"] .recent-orders td.text-end,
+[data-rb-scope="main"][data-page="dashboard"] .top-items   td.text-end,
+[data-rb-scope="main"][data-page="dashboard"] .low-stock   td.text-end{
+  text-align: right;
 }
 
-/* Accent (dark pink) utility */
-.badge-accent{ background: var(--rb-pink-600); }
-
-/* ---------- Footer ---------- */
-[data-rb-scope="footer"]{
-  background: linear-gradient(180deg, #0c1426 0%, #0a1120 100%);
-  border-top:1px solid var(--rb-border);
-  color: var(--rb-text-dim);
+/* Filters / inputs */
+[data-rb-scope="main"][data-page="dashboard"] .form-select,
+[data-rb-scope="main"][data-page="dashboard"] .form-control{
+  background: var(--rb-bg-soft);
+  color: var(--rb-text);
+  border: 1px solid var(--rb-border);
 }
-[data-rb-scope="footer"] .rb-footer__inner{
-  min-height: 56px;
-  display:flex; align-items:center; justify-content:space-between;
-  gap: 10px; padding: 8px 12px;
+[data-rb-scope="main"][data-page="dashboard"] .form-select:focus,
+[data-rb-scope="main"][data-page="dashboard"] .form-control:focus{
+  border-color: color-mix(in oklab, var(--rb-border), #5a63ff);
+  box-shadow: 0 0 0 3px color-mix(in oklab, #5a63ff, transparent 70%);
 }
-[data-rb-scope="footer"] a{ color: var(--rb-text); text-decoration:none; }
-[data-rb-scope="footer"] a:hover{ text-decoration:underline; }
-[data-rb-scope="footer"] .rb-dot{ padding: 0 6px; opacity:.6; }
 
-/* Make sure footer doesn't overlap */
-body > footer.rb-footer{ position: relative; z-index: 10; }
+/* View-all buttons */
+[data-rb-scope="main"][data-page="dashboard"] a.btn-outline-light{
+  color: var(--rb-text); border-color: var(--rb-border); background: transparent;
+}
+[data-rb-scope="main"][data-page="dashboard"] a.btn-outline-light:hover{
+  background: color-mix(in oklab, var(--rb-bg-soft) 85%, #fff 15%);
+}
 
-/* ---------- Responsive tweaks ---------- */
-/* Header: let the middle search grow, push right controls if needed */
-@media (min-width: 576px){
-  [data-rb-scope="header"] .rb-head{
-    grid-template-columns: auto minmax(260px, 1fr) auto;
-    gap: 14px;
+/* Fix Bootstrap gutters so rows are truly full width in MAIN */
+#rb-main .row{
+  --bs-gutter-x: 1rem;
+  margin-right: calc(var(--bs-gutter-x) * -0.5);
+  margin-left:  calc(var(--bs-gutter-x) * -0.5);
+}
+#rb-main .row > [class*="col-"]{
+  padding-right: calc(var(--bs-gutter-x) * 0.5);
+  padding-left:  calc(var(--bs-gutter-x) * 0.5);
+}
+
+/* Responsive tweaks */
+@media (max-width: 1199px){
+  [data-rb-scope="main"][data-page="dashboard"]{
+    --dash-card-pad: var(--rb-space-3);
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .kpi .icon{
+    --dash-kpi-icon-size: 32px; font-size: 16px;
   }
 }
-@media (max-width: 575.98px){
-  [data-rb-scope="header"] .rb-title{ display:none; } /* save space on tiny screens */
-  [data-rb-scope="header"] .rb-search{ min-width: 0; }
+@media (max-width: 767px){
+  [data-rb-scope="main"][data-page="dashboard"] .hero .w-md-auto{ width: 100% !important; }
+  [data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width: 100%; }
 }
 
-/* Ensure no accidental horizontal scroll */
-[data-rb-scope="main"]{ overflow-x: clip; }
-
-/* ---------- Print ---------- */
+/* Print: hide controls/footers and remove shadows */
 @media print{
-  [data-rb-scope="header"], [data-rb-scope="footer"]{ display:none !important; }
-  #rbShell{ grid-template-columns: 1fr !important; }
-  [data-rb-scope="sidebar"]{ display:none !important; }
-  .btn, select, input{ display:none !important; }
-  .card, table{ box-shadow:none !important; border-color:#bbb !important; }
+  [data-rb-scope="main"][data-page="dashboard"] .btn,
+  [data-rb-scope="main"][data-page="dashboard"] select,
+  [data-rb-scope="main"][data-page="dashboard"] input,
+  [data-rb-scope="main"][data-page="dashboard"] .card-footer{
+    display: none !important;
+  }
+  [data-rb-scope="main"][data-page="dashboard"] .card,
+  [data-rb-scope="main"][data-page="dashboard"] table{
+    box-shadow: none !important; border-color: #bbb !important;
+  }
 }
