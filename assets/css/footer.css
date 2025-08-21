@@ -1,31 +1,164 @@
 /* ===================== RB Stores — Footer (STRICTLY SCOPED) ===================== */
+/* File: /assets/css/footer.css
+   Scope with: <footer class="rb-footer" data-rb-scope="footer">
+   Works with: body.has-rail (fixed desktop sidebar), data-theme="light"
+   Notes:
+   - Uses CSS variables so header/sidebar can share theme tokens.
+   - Rail-aware left padding on >=1200px when body.has-rail is present.
+   - Sticky by default; use .rb-footer--static on the <footer> to opt out.
+*/
+
+/* ---------- Base scope & tokens ---------- */
 [data-rb-scope="footer"]{
-  --rb-footer-h: var(--rb-footer-h, 56px);
-  --rb-bg: var(--rb-bg, #0f172a);
-  --rb-card: var(--rb-card, #111827);
-  --rb-text: var(--rb-text, #e5e7eb);
-  --rb-text-dim: var(--rb-text-dim, #a3b4c7);
-  --rb-border: var(--rb-border, #24324a);
-  position: sticky; bottom: 0; z-index: 500;
+  /* Size & layers */
+  --rb-footer-h: 56px;
+  --rb-z: 500;
+
+  /* Theme tokens (dark as default) */
+  --rb-bg:        #0f172a;  /* slate-900 */
+  --rb-card:      #111827;  /* gray-900 */
+  --rb-text:      #e5e7eb;  /* gray-200 */
+  --rb-text-dim:  #a3b4c7;  /* slate-300-ish */
+  --rb-border:    #24324a;  /* slate-700 */
+
+  /* Layout tokens */
+  --rb-pad-x: 16px;
+  --rb-gap:   10px;
+
+  /* Optional: desktop rail width (must match sidebar) */
+  --rb-rail-w: 280px;
+
+  position: sticky;
+  bottom: 0;
+  z-index: var(--rb-z);
   background: var(--rb-bg);
-  border-top: 1px solid var(--rb-border);
   color: var(--rb-text);
+  border-top: 1px solid var(--rb-border);
+
+  /* Avoid edge-to-edge crowding on devices with notches / home indicators */
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
 }
+
+/* Allow opting-out of sticky when a page needs a normal document footer */
+.rb-footer.rb-footer--static[data-rb-scope="footer"]{
+  position: static;
+}
+
+/* ---------- Inner layout ---------- */
 .rb-footer__inner{
   min-height: var(--rb-footer-h);
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rb-gap);
+  padding: 10px var(--rb-pad-x);
+  /* Constrain content width if your app uses a max container */
+  max-width: 1280px;
+  margin-inline: auto;
 }
-.rb-foot-left, .rb-foot-right{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.rb-footer a{ color: var(--rb-text-dim); text-decoration: none; }
-.rb-footer a:hover{ color: var(--rb-text); text-decoration: underline; }
-.rb-dot{ opacity: .5; }
 
-/* Light mode */
-:root[data-theme="light"] [data-rb-scope="footer"]{
-  --rb-bg: #ffffff;
-  --rb-card: #f4f6fb;
-  --rb-text: #0b1222;
-  --rb-text-dim: #4b5563;
-  --rb-border: #e5e7eb;
+/* Rail-aware: when desktop rail is visible, nudge footer content right */
+@media (min-width: 1200px){
+  body.has-rail .rb-footer__inner{
+    padding-left: calc(var(--rb-pad-x) + var(--rb-rail-w));
+    padding-right: var(--rb-pad-x);
+  }
 }
+
+/* Clusters */
+.rb-foot-left,
+.rb-foot-right{
+  display: flex;
+  align-items: center;
+  gap: var(--rb-gap);
+  flex-wrap: wrap;
+}
+
+/* Links */
+.rb-footer a{
+  color: var(--rb-text-dim);
+  text-decoration: none;
+  transition: color .18s ease, text-decoration-color .18s ease;
+  outline: none;
+}
+.rb-footer a:hover{
+  color: var(--rb-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rb-footer a:focus-visible{
+  color: var(--rb-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--rb-text) 30%, transparent);
+  border-radius: 4px;
+}
+
+/* Divider dot */
+.rb-dot{
+  opacity: .5;
+  user-select: none;
+}
+
+/* ---------- Light mode ---------- */
+:root[data-theme="light"] [data-rb-scope="footer"]{
+  --rb-bg:       #ffffff;
+  --rb-card:     #f4f6fb;
+  --rb-text:     #0b1222;
+  --rb-text-dim: #4b5563;
+  --rb-border:   #e5e7eb;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .rb-footer a{
+    transition: none;
+  }
+}
+
+/* ---------- Compact screens ---------- */
+@media (max-width: 480px){
+  .rb-footer__inner{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px var(--rb-pad-x);
+  }
+  .rb-foot-left,
+  .rb-foot-right{
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .rb-dot{
+    display: none; /* reduce clutter on very small widths */
+  }
+}
+
+/* ---------- Medium screens (stack right group if needed) ---------- */
+@media (max-width: 768px){
+  .rb-foot-right{
+    width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+}
+
+/* ---------- High-contrast tweak ---------- */
+@media (prefers-contrast: more){
+  [data-rb-scope="footer"]{
+    --rb-border: color-mix(in oklab, var(--rb-text) 25%, transparent);
+  }
+  .rb-footer a:focus-visible{
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--rb-text) 45%, transparent);
+  }
+}
+
+/* ---------- Utility: make room for sticky footer (optional) ----------
+   If your pages sometimes scroll under the sticky footer, add the rule below
+   to your global stylesheet instead of here:
+   body{ padding-bottom: var(--rb-footer-h); }
+   Or scope it only when a sticky footer is present:
+   body:has(.rb-footer[data-rb-scope="footer"]:not(.rb-footer--static)){
+     padding-bottom: var(--rb-footer-h);
+   }
+*/
