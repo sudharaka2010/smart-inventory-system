@@ -1,230 +1,97 @@
-/* ================= RB Stores — Dashboard (page-only) ================== */
-/* Scope: dashboard.php (header.php + sidebar.php + #rbShell + #rb-main)  */
-/* Goal: main content fills all space between sidebar/header/footer,       */
-/*       stays responsive, no unwanted max-width clamps.                   */
-
-/* ---------- Minimal fallbacks (safe if app.css missing) ---------- */
+/* =================== RB Stores — App Shell (header/rail-safe) =================== */
+/* Tokens */
 :root{
-  --rb-text: #e5e7eb;
-  --rb-text-dim: #a3b4c7;
-  --rb-bg: #0b1222;
-  --rb-bg-soft: #0e162b;
-  --rb-card: #111a31;
-  --rb-border: #22324d;
-  --rb-table-stripe: rgba(255,255,255,.035);
-  --rb-radius: 12px;
-  --rb-shadow-sm: 0 1px 2px rgba(0,0,0,.25);
-  --rb-shadow:    0 12px 30px rgba(0,0,0,.35);
-  --rb-speed-fast: .15s;
-  --rb-speed: .25s;
-  --rb-ease: ease-in-out;
-  --rb-header-h: 64px;
-  --rb-rail-w: 280px;
-  --rb-space-3: 12px;
-  --rb-space-4: 16px;
+  --rb-header-h: 68px;            /* match your header height */
+  --rb-rail-w:  300px;            /* desktop rail width (sidebar) */
+  --rb-bg-body: #0b1320;          /* page bg when using dark shell */
+  --rb-bg-card: #0f172a;
+  --rb-text:    #e5e7eb;
+  --rb-text-2:  #9fb3c8;
+  --rb-border:  #1f2b3f;
 }
 
-/* =========================================================================
-   Shell patch (page-local): grid must give the MAIN column full freedom
-   ========================================================================= */
-#rbShell{
-  display: grid;
-  grid-template-columns: 1fr; /* mobile */
-  gap: 16px;
-  min-height: calc(100dvh - var(--rb-header-h)); /* sit between header/footer */
+/* Base */
+html,body{height:100%;}
+body.bg-body{background:#0a0f1a; color:var(--rb-text);}
+
+/* Make room for sticky header if your header is sticky */
+[data-rb-scope="header"]{
+  position:sticky; top:0; z-index:1040;
+  min-height:var(--rb-header-h);
 }
 
-/* Desktop rail: sidebar + main */
+/* Shell that wraps sidebar + main (you already have <div id="rbShell">) */
+#rbShell{position:relative}
+
+/* ----- Sidebar rail handling (no changes to PHP includes needed) ----- */
+/* On desktop the sidebar is fixed; we reserve horizontal space for it.   */
+/* The sidebar include sets body.has-rail; we leverage that class safely. */
 @media (min-width: 1200px){
-  #rbShell{
-    grid-template-columns: minmax(0, var(--rb-rail-w)) minmax(0, 1fr);
-    align-items: start;
+  body.has-rail #rbShell{ /* reserve space for the fixed rail */
+    padding-left: var(--rb-rail-w);
   }
-  /* Keep the sidebar under the header, scroll independently */
+  /* Typical sidebar markup from your include uses [data-rb-scope="sidebar"] */
   [data-rb-scope="sidebar"]{
-    position: sticky; top: var(--rb-header-h);
-    height: calc(100dvh - var(--rb-header-h));
-    border-right: 1px solid var(--rb-border);
-    background: var(--rb-card);
+    position: fixed;
+    top: var(--rb-header-h);
+    left: 0;
+    width: var(--rb-rail-w);
+    height: calc(100vh - var(--rb-header-h));
+    overflow: auto;
+    z-index: 1030;               /* below header, above main */
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-/* MAIN must be allowed to expand to full available width */
-#rb-main{
-  min-width: 0;                 /* critical for grid children */
-  max-width: none !important;   /* defeat accidental clamps   */
-  padding-top: 8px;
+/* On mobile/tablet, let sidebar be offcanvas/flow; main should span full width */
+@media (max-width: 1199.98px){
+  #rbShell{padding-left:0;}
+  [data-rb-scope="sidebar"]{
+    position: static; width:100%; height:auto; overflow:visible;
+  }
 }
 
-/* Neutralize any global container max-widths inside MAIN only */
-#rb-main.container,
-#rb-main .container,
-#rb-main.container-fluid,
-#rb-main .container-fluid{
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-/* Optional: keep a little breathing room on the right at large screens */
-@media (min-width: 1200px){
-  #rb-main{ padding-right: 1rem; }
-}
-
-/* =========================================================================
-   Dashboard visual styles (scoped by attributes)
-   ========================================================================= */
-[data-rb-scope="main"][data-page="dashboard"]{
-  --dash-gap: var(--rb-space-4);
-  --dash-card-pad: var(--rb-space-4);
-  --dash-kpi-icon-size: 36px;
-  color: var(--rb-text);
-  overflow-x: clip; /* avoid tiny horizontal scrollbars */
-}
-
-/* Header text inside the page */
-[data-rb-scope="main"][data-page="dashboard"] .hero h1{
-  font-weight: 600; letter-spacing:.2px; margin:0;
-}
-[data-rb-scope="main"][data-page="dashboard"] .hero .small{
-  color: var(--rb-text-dim);
-}
-
-/* Local utilities */
-[data-rb-scope="main"][data-page="dashboard"] .minw-150{ min-width:150px; }
-[data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width:220px; }
-[data-rb-scope="main"][data-page="dashboard"] .btn-action{ height:38px; border-radius:10px; }
-
-/* Cards (shared) */
-[data-rb-scope="main"][data-page="dashboard"] .card{
-  background: var(--rb-card);
-  border: 1px solid var(--rb-border);
-  border-radius: var(--rb-radius);
-  box-shadow: var(--rb-shadow-sm);
-}
-[data-rb-scope="main"][data-page="dashboard"] .card-header,
-[data-rb-scope="main"][data-page="dashboard"] .card-footer{
+/* ----- Main area ----- */
+#rb-main[data-rb-scope="main"]{
+  min-height: calc(100vh - var(--rb-header-h));
+  padding-top: 0.75rem;
+  padding-bottom: 2rem;
   background: transparent;
-  color: var(--rb-text);
+}
+
+/* Utilities for your controls */
+.minw-150{min-width:150px;}
+.minw-220{min-width:220px;}
+.btn-action{min-width:190px}
+
+/* Card + table soft theme (non-invasive; works with Bootstrap) */
+.table-soft tbody tr:nth-child(odd){background: rgba(255,255,255,.02);}
+.card{
+  background: var(--rb-bg-card);
   border-color: var(--rb-border);
-}
-
-/* KPI Grid */
-[data-rb-scope="main"][data-page="dashboard"] .kpi .card{
-  transition: transform var(--rb-speed-fast) var(--rb-ease),
-              box-shadow var(--rb-speed) var(--rb-ease);
-}
-[data-rb-scope="main"][data-page="dashboard"] .kpi .card:hover{
-  transform: translateY(-2px);
-  box-shadow: var(--rb-shadow);
-}
-[data-rb-scope="main"][data-page="dashboard"] .kpi .card-body{
-  padding: var(--dash-card-pad);
-}
-[data-rb-scope="main"][data-page="dashboard"] .kpi .icon{
-  width: var(--dash-kpi-icon-size);
-  height: var(--dash-kpi-icon-size);
-  display: grid; place-items: center;
-  border-radius: 12px; font-size: 18px; flex: 0 0 auto;
-  background: color-mix(in oklab, var(--rb-bg-soft) 80%, #fff 20%);
-}
-[data-rb-scope="main"][data-page="dashboard"] .kpi a.text-decoration-none{ color: inherit; }
-
-/* Section heading */
-[data-rb-scope="main"][data-page="dashboard"] h3.h6{
-  color: var(--rb-text-dim);
-  text-transform: uppercase; letter-spacing:.08em; margin:0 0 8px 0;
-}
-
-/* Tables */
-[data-rb-scope="main"][data-page="dashboard"] .table-responsive{
-  border-radius: var(--rb-radius);
-  overflow: auto; /* sticky header works within */
-  -webkit-overflow-scrolling: touch;
-  min-width: 0;
-}
-[data-rb-scope="main"][data-page="dashboard"] table{
   color: var(--rb-text);
-  background: var(--rb-card);
-  border-color: var(--rb-border);
-  width: 100%; margin: 0;
 }
-[data-rb-scope="main"][data-page="dashboard"] thead.table-light th{
-  background: var(--rb-bg-soft);
+.card .text-secondary{color: var(--rb-text-2)!important;}
+.table{color: var(--rb-text);}
+.table thead.table-light th{
+  background: rgba(255,255,255,.06)!important;
   color: var(--rb-text);
-  border-bottom: 1px solid var(--rb-border);
-  position: sticky; top: 0; z-index: 1;
+  border-bottom-color: var(--rb-border);
 }
-[data-rb-scope="main"][data-page="dashboard"] .table-soft tbody tr:nth-child(odd){
-  background: var(--rb-table-stripe);
-}
-[data-rb-scope="main"][data-page="dashboard"] .table > :not(caption) > * > *{
-  padding: 10px 12px; background-clip: padding-box;
-}
-[data-rb-scope="main"][data-page="dashboard"] .table-hover tbody tr:hover{
-  background: color-mix(in oklab, var(--rb-table-stripe), #fff 2%);
-}
-[data-rb-scope="main"][data-page="dashboard"] .recent-orders td.text-end,
-[data-rb-scope="main"][data-page="dashboard"] .top-items   td.text-end,
-[data-rb-scope="main"][data-page="dashboard"] .low-stock   td.text-end{
-  text-align: right;
+.table td, .table th{border-color: var(--rb-border);}
+
+/* Keep badges readable on dark */
+.badge{border:0}
+
+/* Ensure header never overlaps content shadow-wise */
+[data-rb-scope="header"]{box-shadow: 0 2px 0 rgba(0,0,0,.2)}
+
+/* Scrollbar subtlety for the rail (only where supported) */
+@supports (scrollbar-color: auto){
+  [data-rb-scope="sidebar"]{scrollbar-color: #5b7caa transparent; scrollbar-width: thin;}
 }
 
-/* Filters / inputs */
-[data-rb-scope="main"][data-page="dashboard"] .form-select,
-[data-rb-scope="main"][data-page="dashboard"] .form-control{
-  background: var(--rb-bg-soft);
-  color: var(--rb-text);
-  border: 1px solid var(--rb-border);
-}
-[data-rb-scope="main"][data-page="dashboard"] .form-select:focus,
-[data-rb-scope="main"][data-page="dashboard"] .form-control:focus{
-  border-color: color-mix(in oklab, var(--rb-border), #5a63ff);
-  box-shadow: 0 0 0 3px color-mix(in oklab, #5a63ff, transparent 70%);
-}
-
-/* View-all buttons */
-[data-rb-scope="main"][data-page="dashboard"] a.btn-outline-light{
-  color: var(--rb-text); border-color: var(--rb-border); background: transparent;
-}
-[data-rb-scope="main"][data-page="dashboard"] a.btn-outline-light:hover{
-  background: color-mix(in oklab, var(--rb-bg-soft) 85%, #fff 15%);
-}
-
-/* Fix Bootstrap gutters so rows are truly full width in MAIN */
-#rb-main .row{
-  --bs-gutter-x: 1rem;
-  margin-right: calc(var(--bs-gutter-x) * -0.5);
-  margin-left:  calc(var(--bs-gutter-x) * -0.5);
-}
-#rb-main .row > [class*="col-"]{
-  padding-right: calc(var(--bs-gutter-x) * 0.5);
-  padding-left:  calc(var(--bs-gutter-x) * 0.5);
-}
-
-/* Responsive tweaks */
-@media (max-width: 1199px){
-  [data-rb-scope="main"][data-page="dashboard"]{
-    --dash-card-pad: var(--rb-space-3);
-  }
-  [data-rb-scope="main"][data-page="dashboard"] .kpi .icon{
-    --dash-kpi-icon-size: 32px; font-size: 16px;
-  }
-}
-@media (max-width: 767px){
-  [data-rb-scope="main"][data-page="dashboard"] .hero .w-md-auto{ width: 100% !important; }
-  [data-rb-scope="main"][data-page="dashboard"] .minw-220{ min-width: 100%; }
-}
-
-/* Print: hide controls/footers and remove shadows */
-@media print{
-  [data-rb-scope="main"][data-page="dashboard"] .btn,
-  [data-rb-scope="main"][data-page="dashboard"] select,
-  [data-rb-scope="main"][data-page="dashboard"] input,
-  [data-rb-scope="main"][data-page="dashboard"] .card-footer{
-    display: none !important;
-  }
-  [data-rb-scope="main"][data-page="dashboard"] .card,
-  [data-rb-scope="main"][data-page="dashboard"] table{
-    box-shadow: none !important; border-color: #bbb !important;
-  }
+/* Prevent accidental horizontal scroll on desktop */
+@media (min-width:1200px){
+  html, body{overflow-x:hidden;}
 }
