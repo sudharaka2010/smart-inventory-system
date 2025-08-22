@@ -1,97 +1,158 @@
-/* =================== RB Stores — App Shell (header/rail-safe) =================== */
-/* Tokens */
+/* ================= RB Stores — App Shell (Comfort Dark Theme) ================= */
 :root{
-  --rb-header-h: 68px;            /* match your header height */
-  --rb-rail-w:  300px;            /* desktop rail width (sidebar) */
-  --rb-bg-body: #0b1320;          /* page bg when using dark shell */
-  --rb-bg-card: #0f172a;
-  --rb-text:    #e5e7eb;
-  --rb-text-2:  #9fb3c8;
-  --rb-border:  #1f2b3f;
+  /* Layout */
+  --rb-header-h: 68px;
+  --rb-rail-w: 300px;
+
+  /* Comfort palette (dark, low glare) */
+  --rb-bg-body: #0c1526;     /* page */
+  --rb-surface: #0f1b2f;     /* cards */
+  --rb-surface-2: #12223b;   /* inputs, stripes */
+  --rb-text: #e8eef7;
+  --rb-text-2: #a9bed6;      /* secondary */
+  --rb-text-3: #86a0ba;      /* muted */
+  --rb-border: #213553;
+
+  /* Brand accent (matches your blue theme nicely) */
+  --rb-accent: #3b82f6;
+  --rb-accent-2: #60a5fa;
+  --rb-accent-3: #1e3a8a;
+
+  /* Radii & elevation */
+  --rb-radius: 14px;
+  --rb-shadow: 0 12px 30px rgba(0,0,0,.25);
 }
 
-/* Base */
-html,body{height:100%;}
-body.bg-body{background:#0a0f1a; color:var(--rb-text);}
-
-/* Make room for sticky header if your header is sticky */
-[data-rb-scope="header"]{
-  position:sticky; top:0; z-index:1040;
-  min-height:var(--rb-header-h);
+@media (prefers-color-scheme: dark){
+  :root{ color-scheme: dark; }
 }
 
-/* Shell that wraps sidebar + main (you already have <div id="rbShell">) */
-#rbShell{position:relative}
+/* Typography (eye-comfort) */
+html{ font-size: 15.5px; }                /* ~15–16px base */
+body{
+  font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans",
+               sans-serif, "Apple Color Emoji","Segoe UI Emoji";
+  line-height: 1.55;
+  letter-spacing: .1px;
+  color: var(--rb-text);
+  background: radial-gradient(1200px 800px at 20% -10%, #13223b 0%, #0c1526 55%) fixed,
+              var(--rb-bg-body);
+}
 
-/* ----- Sidebar rail handling (no changes to PHP includes needed) ----- */
-/* On desktop the sidebar is fixed; we reserve horizontal space for it.   */
-/* The sidebar include sets body.has-rail; we leverage that class safely. */
-@media (min-width: 1200px){
-  body.has-rail #rbShell{ /* reserve space for the fixed rail */
-    padding-left: var(--rb-rail-w);
-  }
-  /* Typical sidebar markup from your include uses [data-rb-scope="sidebar"] */
+/* Keep sticky header and rail rules from earlier */
+[data-rb-scope="header"]{ position: sticky; top:0; z-index:1040; min-height:var(--rb-header-h);
+  background: linear-gradient(180deg, #0d1930, #0c1629);
+  box-shadow: 0 1px 0 rgba(0,0,0,.35);
+}
+#rbShell{ position:relative; }
+@media (min-width:1200px){
+  body.has-rail #rbShell{ padding-left: var(--rb-rail-w); }
   [data-rb-scope="sidebar"]{
-    position: fixed;
-    top: var(--rb-header-h);
-    left: 0;
-    width: var(--rb-rail-w);
-    height: calc(100vh - var(--rb-header-h));
-    overflow: auto;
-    z-index: 1030;               /* below header, above main */
-    -webkit-overflow-scrolling: touch;
+    position: fixed; top: var(--rb-header-h); left: 0; width: var(--rb-rail-w);
+    height: calc(100vh - var(--rb-header-h)); overflow:auto; z-index:1030;
   }
 }
-
-/* On mobile/tablet, let sidebar be offcanvas/flow; main should span full width */
-@media (max-width: 1199.98px){
-  #rbShell{padding-left:0;}
-  [data-rb-scope="sidebar"]{
-    position: static; width:100%; height:auto; overflow:visible;
-  }
+@media (max-width:1199.98px){
+  #rbShell{ padding-left:0; }
+  [data-rb-scope="sidebar"]{ position: static; width:100%; height:auto; overflow:visible; }
 }
 
-/* ----- Main area ----- */
+/* Main area: center and breathe */
 #rb-main[data-rb-scope="main"]{
   min-height: calc(100vh - var(--rb-header-h));
-  padding-top: 0.75rem;
-  padding-bottom: 2rem;
-  background: transparent;
+  max-width: 1280px;                 /* prevents ultra-wide lines */
+  margin-inline: auto;
+  padding-top: .75rem; padding-bottom: 2rem;
 }
 
-/* Utilities for your controls */
-.minw-150{min-width:150px;}
-.minw-220{min-width:220px;}
-.btn-action{min-width:190px}
+/* Utilities */
+.minw-150{min-width:150px} .minw-220{min-width:220px} .btn-action{min-width:190px}
 
-/* Card + table soft theme (non-invasive; works with Bootstrap) */
-.table-soft tbody tr:nth-child(odd){background: rgba(255,255,255,.02);}
+/* ---------- Cards (soft, glassy) ---------- */
 .card{
-  background: var(--rb-bg-card);
-  border-color: var(--rb-border);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--rb-surface) 92%, #fff 8%) 0%,
+                                     var(--rb-surface) 100%);
+  border: 1px solid var(--rb-border);
   color: var(--rb-text);
+  border-radius: var(--rb-radius);
+  box-shadow: var(--rb-shadow);
 }
-.card .text-secondary{color: var(--rb-text-2)!important;}
-.table{color: var(--rb-text);}
+.card-header{
+  background: transparent;
+  border-bottom-color: color-mix(in srgb, var(--rb-border) 80%, transparent);
+}
+.card-footer{
+  background: transparent;
+  border-top-color: color-mix(in srgb, var(--rb-border) 80%, transparent);
+}
+.card .text-secondary{ color: var(--rb-text-2) !important; }
+
+/* Subtle hover lift */
+.card.shadow-sm{ transition: transform .12s ease, box-shadow .12s ease; }
+.card.shadow-sm:hover{ transform: translateY(-2px); box-shadow: 0 18px 36px rgba(0,0,0,.28); }
+
+/* ---------- Form controls ---------- */
+.form-control, .form-select{
+  background: var(--rb-surface-2);
+  color: var(--rb-text);
+  border-color: var(--rb-border);
+  border-radius: calc(var(--rb-radius) - 6px);
+}
+.form-control::placeholder{ color: var(--rb-text-3); }
+.form-control:focus, .form-select:focus{
+  border-color: color-mix(in srgb, var(--rb-accent) 70%, #fff 30%);
+  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--rb-accent) 18%, transparent);
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary{
+  --bs-btn-bg: linear-gradient(180deg, color-mix(in srgb, var(--rb-accent-2) 85%, #000 15%),
+                                      var(--rb-accent));
+  --bs-btn-border-color: color-mix(in srgb, var(--rb-accent) 85%, #000 15%);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--rb-accent) 82%, #000 18%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--rb-accent) 82%, #000 18%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--rb-accent) 75%, #000 25%);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--rb-accent) 75%, #000 25%);
+  border-radius: 12px;
+}
+.btn-outline-primary{
+  --bs-btn-color: var(--rb-accent-2);
+  --bs-btn-border-color: var(--rb-accent-2);
+  --bs-btn-hover-bg: var(--rb-accent-2);
+  --bs-btn-hover-border-color: var(--rb-accent-2);
+  border-radius: 12px;
+}
+.btn-outline-light{
+  --bs-btn-color:#cfe0f7; --bs-btn-border-color: var(--rb-border);
+  --bs-btn-hover-bg:#162a49; --bs-btn-hover-border-color:#274067;
+  border-radius:12px;
+}
+
+/* ---------- Tables (calm contrast, sticky head, stripes) ---------- */
+.table{ color: var(--rb-text); border-color: var(--rb-border); }
 .table thead.table-light th{
-  background: rgba(255,255,255,.06)!important;
+  background: linear-gradient(180deg, #172a48, #13243e) !important;
   color: var(--rb-text);
   border-bottom-color: var(--rb-border);
+  position: sticky; top: 0; z-index: 1;
 }
-.table td, .table th{border-color: var(--rb-border);}
+.table-striped>tbody>tr:nth-of-type(odd){ --bs-table-accent-bg: rgba(255,255,255,.03); }
+.table-hover>tbody>tr:hover{ background: rgba(96,165,250,.10); }
+.table td, .table th{
+  border-color: var(--rb-border);
+  vertical-align: middle;
+}
+.table .text-end{ font-variant-numeric: tabular-nums; }
 
-/* Keep badges readable on dark */
-.badge{border:0}
+/* Soft tags */
+.badge{ border:0; }
 
-/* Ensure header never overlaps content shadow-wise */
-[data-rb-scope="header"]{box-shadow: 0 2px 0 rgba(0,0,0,.2)}
-
-/* Scrollbar subtlety for the rail (only where supported) */
-@supports (scrollbar-color: auto){
-  [data-rb-scope="sidebar"]{scrollbar-color: #5b7caa transparent; scrollbar-width: thin;}
+/* Focus outlines (accessible but subtle) */
+:focus-visible{
+  outline: 2px solid color-mix(in srgb, var(--rb-accent) 60%, #fff 40%);
+  outline-offset: 2px;
 }
 
-/* Prevent accidental horizontal scroll on desktop */
-@media (min-width:1200px){
-  html, body{overflow-x:hidden;}
-}
+/* Avoid horizontal scrolling on desktop */
+@media (min-width:1200px){ html,body{ overflow-x: hidden; } }
