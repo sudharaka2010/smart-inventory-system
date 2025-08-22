@@ -1,134 +1,108 @@
-/* ================= RB Stores — Dashboard (final) =================
+/* ================= RB Stores — Dashboard (pro, responsive) =================
    Scope: <main id="rb-main" data-rb-scope="main" data-page="dashboard">
-   Safe: doesn't touch header.php / sidebar.php / footer.php.
-   ---------------------------------------------------------------- */
+   ------------------------------------------------------------------------- */
 
-/* ---------- DESKTOP RAIL RESERVE (stops “crossing” under sidebar) ---------- */
+/* ---------- Stop overlap with fixed sidebar on ≥1200px ---------- */
 @media (min-width:1200px){
-  /* Set this to your real sidebar width (e.g., 320px or 300px) */
+  /* Change this to your real sidebar width if needed */
   body:has(#rb-main[data-page="dashboard"]){ --rb-rail-w: 320px; }
-
-  /* Reserve space for the fixed rail just for the dashboard page */
-  body:has(#rb-main[data-page="dashboard"]) #rbShell{
-    padding-left: var(--rb-rail-w);
-  }
-
-  /* Keep the actual sidebar width in sync (without editing its CSS files) */
+  body:has(#rb-main[data-page="dashboard"]) #rbShell{ padding-left: var(--rb-rail-w); }
   body:has(#rb-main[data-page="dashboard"]) [data-rb-scope="sidebar"]{
     width: var(--rb-rail-w) !important;
   }
 }
 
-/* ---------- LAYOUT / THEME TOKENS (dashboard-scoped) ---------- */
+/* ---------- Theme & layout tokens (dashboard-only) ---------- */
 #rb-main[data-page="dashboard"]{
-  /* Content guardrails */
-  --db-max: 1280px;                           /* max readable width */
-  --db-pad: clamp(12px, 2vw, 24px);           /* side padding */
-  --db-gap: clamp(8px, 1.6vw, 16px);          /* gaps for flex rows */
-
-  /* Comfort-dark palette */
-  --db-surface:   #0f1b2f;                    /* card base */
-  --db-surface-2: #12223b;                    /* inputs / stripes */
+  --db-max: 1280px;                          /* content width cap */
+  --db-pad: clamp(12px, 2vw, 24px);          /* side padding */
+  --db-gap: clamp(10px, 1.6vw, 18px);        /* gaps between blocks */
+  --db-surface:   #0f1b2f;
+  --db-surface-2: #12223b;
   --db-text:      #e8eef7;
   --db-text-2:    #a9bed6;
   --db-text-3:    #86a0ba;
   --db-border:    #213553;
-  --db-accent:    #3b82f6;                    /* brand */
+  --db-accent:    #3b82f6;
   --db-accent-2:  #60a5fa;
-
-  /* Shape & elevation */
   --db-radius: 14px;
   --db-shadow: 0 12px 30px rgba(0,0,0,.25);
 
-  /* Center & constrain the dashboard area */
   max-width: var(--db-max);
   margin-inline: auto;
   padding-inline: var(--db-pad);
-  padding-bottom: 3.5rem;                     /* room above footer */
+  padding-bottom: 3.5rem;
   color: var(--db-text);
-
-  /* Soft header fade (replaces the bright arc) */
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)) 0 0 / 100% 120px no-repeat;
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)) 0 0/100% 108px no-repeat;
 }
 
-/* -------------------- HERO -------------------- */
-#rb-main[data-page="dashboard"] .hero h1{
-  letter-spacing: .2px;
-  color: var(--db-text);
-}
-#rb-main[data-page="dashboard"] .hero .text-secondary{
-  color: var(--db-text-2) !important;
-}
+/* ================= Head/Actions ================= */
+#rb-main[data-page="dashboard"] .hero h1{ letter-spacing:.2px; color:var(--db-text); }
+#rb-main[data-page="dashboard"] .hero .text-secondary{ color:var(--db-text-2)!important; }
 
-/* -------------------- ACTION BAR -------------------- */
-#rb-main[data-page="dashboard"] .btn-action{ min-width: 190px; }
-@media (max-width:575.98px){
-  #rb-main[data-page="dashboard"] .btn-action{ min-width: 100%; }
-}
+#rb-main[data-page="dashboard"] .btn-action{ min-width:192px; }
+@media (max-width:575.98px){ #rb-main[data-page="dashboard"] .btn-action{ min-width:100%; } }
 
-/* Buttons (theme-matched, dashboard only) */
+/* Buttons (theme) */
 #rb-main[data-page="dashboard"] .btn-primary{
   --bs-btn-bg: linear-gradient(180deg, color-mix(in srgb, var(--db-accent-2) 85%, #000 15%), var(--db-accent));
   --bs-btn-border-color: color-mix(in srgb, var(--db-accent) 85%, #000 15%);
   --bs-btn-hover-bg: color-mix(in srgb, var(--db-accent) 82%, #000 18%);
   --bs-btn-hover-border-color: color-mix(in srgb, var(--db-accent) 82%, #000 18%);
-  border-radius: 12px;
+  border-radius:12px;
 }
 #rb-main[data-page="dashboard"] .btn-outline-primary{
   --bs-btn-color: var(--db-accent-2);
   --bs-btn-border-color: var(--db-accent-2);
   --bs-btn-hover-bg: var(--db-accent-2);
   --bs-btn-hover-border-color: var(--db-accent-2);
-  border-radius: 12px;
+  border-radius:12px;
 }
 #rb-main[data-page="dashboard"] .btn-outline-light{
-  --bs-btn-color: #cfe0f7; --bs-btn-border-color: var(--db-border);
-  --bs-btn-hover-bg: #162a49; --bs-btn-hover-border-color: #274067;
-  border-radius: 12px;
+  --bs-btn-color:#cfe0f7; --bs-btn-border-color: var(--db-border);
+  --bs-btn-hover-bg:#162a49; --bs-btn-hover-border-color:#274067;
+  border-radius:12px;
 }
 
-/* -------------------- CARDS -------------------- */
+/* ================= Cards (unified) ================= */
 #rb-main[data-page="dashboard"] .card{
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--db-surface) 92%, #fff 8%) 0%,
-    var(--db-surface) 100%);
-  border: 1px solid var(--db-border);
-  color: var(--db-text);
-  border-radius: var(--db-radius);
-  box-shadow: var(--db-shadow);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--db-surface) 92%, #fff 8%) 0%, var(--db-surface) 100%);
+  border:1px solid var(--db-border);
+  color:var(--db-text);
+  border-radius:var(--db-radius);
+  box-shadow:var(--db-shadow);
 }
 #rb-main[data-page="dashboard"] .card-header,
 #rb-main[data-page="dashboard"] .card-footer{
-  background: transparent;
+  background:transparent;
   border-color: color-mix(in srgb, var(--db-border) 80%, transparent);
 }
-#rb-main[data-page="dashboard"] .card .text-secondary{
-  color: var(--db-text-2) !important;
-}
+#rb-main[data-page="dashboard"] .card .text-secondary{ color:var(--db-text-2)!important; }
 
-/* Subtle hover lift */
-#rb-main[data-page="dashboard"] .card.shadow-sm{
-  transition: transform .12s ease, box-shadow .12s ease;
-}
-#rb-main[data-page="dashboard"] .card.shadow-sm:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 18px 36px rgba(0,0,0,.28);
-}
+#rb-main[data-page="dashboard"] .card.shadow-sm{ transition:transform .12s ease, box-shadow .12s ease; }
+#rb-main[data-page="dashboard"] .card.shadow-sm:hover{ transform:translateY(-2px); box-shadow:0 18px 36px rgba(0,0,0,.28); }
 
-/* -------------------- KPI GRID -------------------- */
-#rb-main[data-page="dashboard"] .kpi .card{ min-height: 132px; }
+/* ================= KPI grid (consistent size) ================= */
+#rb-main[data-page="dashboard"] .kpi{ row-gap: var(--db-gap)!important; }
+#rb-main[data-page="dashboard"] .kpi .card{
+  min-height: 150px;                           /* taller for balance */
+  display:flex; align-items:center;
+}
+@media (max-width:991.98px){  /* md/lg */
+  #rb-main[data-page="dashboard"] .kpi .card{ min-height: 140px; }
+}
+@media (max-width:575.98px){  /* xs */
+  #rb-main[data-page="dashboard"] .kpi .card{ min-height: 128px; }
+}
 #rb-main[data-page="dashboard"] .kpi .icon{
-  width: 46px; height: 46px; display: grid; place-items: center;
+  width:48px; height:48px; display:grid; place-items:center;
   background: color-mix(in srgb, var(--db-accent) 12%, transparent);
   color: var(--db-accent-2);
-  border-radius: 12px; font-size: 1.1rem;
+  border-radius: 12px; font-size:1.15rem; flex: 0 0 48px;
 }
-#rb-main[data-page="dashboard"] .kpi .fs-4{
-  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.75rem);
-}
+#rb-main[data-page="dashboard"] .kpi .fs-4{ font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.8rem); }
 
-/* -------------------- FILTERS / INPUTS -------------------- */
+/* ================= Filters / inputs ================= */
 #rb-main[data-page="dashboard"] .card-header .form-control,
 #rb-main[data-page="dashboard"] .card-header .form-select{
   background: var(--db-surface-2);
@@ -136,52 +110,93 @@
   border-color: var(--db-border);
   border-radius: calc(var(--db-radius) - 6px);
 }
-#rb-main[data-page="dashboard"] .card-header .form-control::placeholder{
-  color: var(--db-text-3);
-}
+#rb-main[data-page="dashboard"] .card-header .form-control::placeholder{ color: var(--db-text-3); }
 #rb-main[data-page="dashboard"] .card-header .form-control:focus,
 #rb-main[data-page="dashboard"] .card-header .form-select:focus{
   border-color: color-mix(in srgb, var(--db-accent) 70%, #fff 30%);
   box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--db-accent) 18%, transparent);
 }
 
-/* -------------------- TABLES -------------------- */
+/* ================= Tables (professional sizing) ================= */
+/* Base table styling */
 #rb-main[data-page="dashboard"] .table{
   color: var(--db-text);
   border-color: var(--db-border);
+  table-layout: fixed;                            /* stable column widths */
 }
 #rb-main[data-page="dashboard"] .table thead.table-light th{
   background: linear-gradient(180deg, #172a48, #13243e) !important;
   color: var(--db-text);
   border-bottom-color: var(--db-border);
-  position: sticky; top: 0; z-index: 1;      /* sticky head inside .table-responsive */
+  position: sticky; top: 0; z-index: 1;
 }
 #rb-main[data-page="dashboard"] .table-striped>tbody>tr:nth-of-type(odd){
   --bs-table-accent-bg: rgba(255,255,255,.03);
 }
-#rb-main[data-page="dashboard"] .table-hover>tbody>tr:hover{
-  background: rgba(96,165,250,.10);
-}
-#rb-main[data-page="dashboard"] .table td,
+#rb-main[data-page="dashboard"] .table-hover>tbody>tr:hover{ background: rgba(96,165,250,.10); }
+#rb-main[data-page="dashboard"] .table td, 
 #rb-main[data-page="dashboard"] .table th{
   border-color: var(--db-border);
   vertical-align: middle;
+  padding-block: .68rem;
+  font-size: .98rem;
 }
-#rb-main[data-page="dashboard"] table.recent-orders td,
-#rb-main[data-page="dashboard"] table.top-items td,
-#rb-main[data-page="dashboard"] table.low-stock td{
-  padding-block: .7rem;
-}
-#rb-main[data-page="dashboard"] .text-end{
-  font-variant-numeric: tabular-nums;
-}
-#rb-main[data-page="dashboard"] .low-stock td.text-end{
-  font-weight: 600;
+#rb-main[data-page="dashboard"] .text-end{ font-variant-numeric: tabular-nums; }
+
+/* Fixed column widths for Recent Orders (prevents jitter) */
+#rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(1),
+#rb-main[data-page="dashboard"] table.recent-orders tbody td:nth-child(1){ width: 92px; }
+#rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(2),
+#rb-main[data-page="dashboard"] table.recent-orders tbody td:nth-child(2){ width: 170px; }
+#rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(4),
+#rb-main[data-page="dashboard"] table.recent-orders tbody td:nth-child(4){ width: 120px; }
+#rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(5),
+#rb-main[data-page="dashboard"] table.recent-orders tbody td:nth-child(5){ width: 140px; }
+#rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(6),
+#rb-main[data-page="dashboard"] table.recent-orders tbody td:nth-child(6){ width: 120px; }
+
+/* Fixed column width for Top Items & Low Stock */
+#rb-main[data-page="dashboard"] table.top-items thead th:nth-child(2),
+#rb-main[data-page="dashboard"] table.top-items tbody td:nth-child(2){ width: 120px; }
+#rb-main[data-page="dashboard"] table.low-stock thead th:nth-child(2),
+#rb-main[data-page="dashboard"] table.low-stock tbody td:nth-child(2){ width: 90px; }
+#rb-main[data-page="dashboard"] table.low-stock thead th:nth-child(3),
+#rb-main[data-page="dashboard"] table.low-stock tbody td:nth-child(3){ width: 160px; }
+
+/* Truncate long names gracefully (no markup change needed) */
+#rb-main[data-page="dashboard"] table .text-truncate,
+#rb-main[data-page="dashboard"] table td:first-child{
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* -------------------- SMALL-SCREEN TWEAKS -------------------- */
+/* Consistent card heights with internal scroll for tables */
+#rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 420px; overflow:auto; }
+#rb-main[data-page="dashboard"] .top-items     .table-responsive{ max-height: 260px; overflow:auto; }
+#rb-main[data-page="dashboard"] .low-stock     .table-responsive{ max-height: 260px; overflow:auto; }
+
+/* Adjust heights by breakpoint to keep layout balanced */
+@media (min-width:1400px){
+  #rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 480px; }
+}
+@media (max-width:991.98px){
+  #rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 360px; }
+}
+@media (max-width:575.98px){
+  #rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 320px; }
+}
+
+/* Slightly denser tables on very small screens */
+@media (max-width:420px){
+  #rb-main[data-page="dashboard"] .table td, 
+  #rb-main[data-page="dashboard"] .table th{ padding-block: .55rem; font-size:.95rem; }
+}
+
+/* ================= Minor polish ================= */
+#rb-main[data-page="dashboard"] .badge{ border:0; }
+#rb-main[data-page="dashboard"] .low-stock td.text-end{ font-weight:600; }
+
+/* Optional: tighter card padding on small screens for visual balance */
 @media (max-width:767.98px){
-  #rb-main[data-page="dashboard"]{ --db-pad: 14px; }
   #rb-main[data-page="dashboard"] .card-body{ padding: .9rem 1rem; }
   #rb-main[data-page="dashboard"] .card-header,
   #rb-main[data-page="dashboard"] .card-footer{ padding: .75rem 1rem; }
