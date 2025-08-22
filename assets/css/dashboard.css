@@ -1,65 +1,73 @@
-/* ================= RB Stores — Dashboard (responsive fix) ================= */
-/* Affects only:
-   <main id="rb-main" data-rb-scope="main" data-page="dashboard">…</main>  */
+/* ================= RB Stores — Dashboard (final) =================
+   Scope: <main id="rb-main" data-rb-scope="main" data-page="dashboard">
+   Safe: doesn't touch header.php / sidebar.php / footer.php.
+   ---------------------------------------------------------------- */
 
+/* ---------- DESKTOP RAIL RESERVE (stops “crossing” under sidebar) ---------- */
+@media (min-width:1200px){
+  /* Set this to your real sidebar width (e.g., 320px or 300px) */
+  body:has(#rb-main[data-page="dashboard"]){ --rb-rail-w: 320px; }
+
+  /* Reserve space for the fixed rail just for the dashboard page */
+  body:has(#rb-main[data-page="dashboard"]) #rbShell{
+    padding-left: var(--rb-rail-w);
+  }
+
+  /* Keep the actual sidebar width in sync (without editing its CSS files) */
+  body:has(#rb-main[data-page="dashboard"]) [data-rb-scope="sidebar"]{
+    width: var(--rb-rail-w) !important;
+  }
+}
+
+/* ---------- LAYOUT / THEME TOKENS (dashboard-scoped) ---------- */
 #rb-main[data-page="dashboard"]{
-  /* Layout guardrails */
-  --db-max: 1280px;          /* max content width on large screens */
-  --db-pad: clamp(12px, 2vw, 24px); /* side padding that scales down on mobile */
-  --db-gap: clamp(8px, 1.6vw, 16px);
+  /* Content guardrails */
+  --db-max: 1280px;                           /* max readable width */
+  --db-pad: clamp(12px, 2vw, 24px);           /* side padding */
+  --db-gap: clamp(8px, 1.6vw, 16px);          /* gaps for flex rows */
 
-  /* Safe colors (kept from your theme) */
-  --db-surface:   #0f1b2f;
-  --db-surface-2: #12223b;
+  /* Comfort-dark palette */
+  --db-surface:   #0f1b2f;                    /* card base */
+  --db-surface-2: #12223b;                    /* inputs / stripes */
   --db-text:      #e8eef7;
   --db-text-2:    #a9bed6;
   --db-text-3:    #86a0ba;
   --db-border:    #213553;
-  --db-accent:    #3b82f6;
+  --db-accent:    #3b82f6;                    /* brand */
   --db-accent-2:  #60a5fa;
 
+  /* Shape & elevation */
   --db-radius: 14px;
   --db-shadow: 0 12px 30px rgba(0,0,0,.25);
 
-  /* Center and constrain the dashboard area */
+  /* Center & constrain the dashboard area */
   max-width: var(--db-max);
   margin-inline: auto;
   padding-inline: var(--db-pad);
-  padding-bottom: 3.5rem;  /* space above footer */
+  padding-bottom: 3.5rem;                     /* room above footer */
   color: var(--db-text);
 
-  /* Softer top background (removed the big arc that looked like overlap) */
+  /* Soft header fade (replaces the bright arc) */
   background:
-    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)) 0 0/100% 120px no-repeat;
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)) 0 0 / 100% 120px no-repeat;
 }
 
-/* -------------------- Make sure nothing hides under the rail -------------------- */
-/* If the app didn't add shell padding for the fixed rail, this guard gives room.  */
-@media (min-width:1200px){
-  body.has-rail #rb-main[data-page="dashboard"]{
-    margin-left: 0;                 /* keep centered */
-  }
-  /* Nudge content away from the very left edge so it never looks “under” the rail */
-  body.has-rail #rb-main[data-page="dashboard"] > *{
-    margin-left: 0;
-  }
+/* -------------------- HERO -------------------- */
+#rb-main[data-page="dashboard"] .hero h1{
+  letter-spacing: .2px;
+  color: var(--db-text);
+}
+#rb-main[data-page="dashboard"] .hero .text-secondary{
+  color: var(--db-text-2) !important;
 }
 
-/* -------------------- Hero / heading -------------------- */
-#rb-main[data-page="dashboard"] .hero h1{ letter-spacing:.2px; color: var(--db-text); }
-#rb-main[data-page="dashboard"] .hero .text-secondary{ color: var(--db-text-2)!important; }
-
-/* -------------------- Action row -------------------- */
-#rb-main[data-page="dashboard"] .btn-action{ min-width:190px; }
-@media (max-width: 991.98px){
-  /* Stack controls earlier on tablets/phones */
-  #rb-main[data-page="dashboard"] .d-flex.flex-wrap.gap-2{ gap: var(--db-gap)!important; }
-}
+/* -------------------- ACTION BAR -------------------- */
+#rb-main[data-page="dashboard"] .btn-action{ min-width: 190px; }
 @media (max-width:575.98px){
-  #rb-main[data-page="dashboard"] .btn-action{ min-width:100%; }
+  #rb-main[data-page="dashboard"] .btn-action{ min-width: 100%; }
 }
 
-/* -------------------- Buttons (match theme) -------------------- */
+/* Buttons (theme-matched, dashboard only) */
 #rb-main[data-page="dashboard"] .btn-primary{
   --bs-btn-bg: linear-gradient(180deg, color-mix(in srgb, var(--db-accent-2) 85%, #000 15%), var(--db-accent));
   --bs-btn-border-color: color-mix(in srgb, var(--db-accent) 85%, #000 15%);
@@ -75,15 +83,16 @@
   border-radius: 12px;
 }
 #rb-main[data-page="dashboard"] .btn-outline-light{
-  --bs-btn-color:#cfe0f7; --bs-btn-border-color: var(--db-border);
-  --bs-btn-hover-bg:#162a49; --bs-btn-hover-border-color:#274067;
-  border-radius:12px;
+  --bs-btn-color: #cfe0f7; --bs-btn-border-color: var(--db-border);
+  --bs-btn-hover-bg: #162a49; --bs-btn-hover-border-color: #274067;
+  border-radius: 12px;
 }
 
-/* -------------------- Cards -------------------- */
+/* -------------------- CARDS -------------------- */
 #rb-main[data-page="dashboard"] .card{
-  background: linear-gradient(180deg, color-mix(in srgb, var(--db-surface) 92%, #fff 8%) 0%,
-                                     var(--db-surface) 100%);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--db-surface) 92%, #fff 8%) 0%,
+    var(--db-surface) 100%);
   border: 1px solid var(--db-border);
   color: var(--db-text);
   border-radius: var(--db-radius);
@@ -94,6 +103,11 @@
   background: transparent;
   border-color: color-mix(in srgb, var(--db-border) 80%, transparent);
 }
+#rb-main[data-page="dashboard"] .card .text-secondary{
+  color: var(--db-text-2) !important;
+}
+
+/* Subtle hover lift */
 #rb-main[data-page="dashboard"] .card.shadow-sm{
   transition: transform .12s ease, box-shadow .12s ease;
 }
@@ -102,34 +116,36 @@
   box-shadow: 0 18px 36px rgba(0,0,0,.28);
 }
 
-/* KPI cards */
-#rb-main[data-page="dashboard"] .kpi .card{ min-height:132px; }
+/* -------------------- KPI GRID -------------------- */
+#rb-main[data-page="dashboard"] .kpi .card{ min-height: 132px; }
 #rb-main[data-page="dashboard"] .kpi .icon{
-  width:46px; height:46px; display:grid; place-items:center;
+  width: 46px; height: 46px; display: grid; place-items: center;
   background: color-mix(in srgb, var(--db-accent) 12%, transparent);
   color: var(--db-accent-2);
-  border-radius: 12px; font-size:1.1rem;
+  border-radius: 12px; font-size: 1.1rem;
 }
 #rb-main[data-page="dashboard"] .kpi .fs-4{
   font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.75rem);
 }
 
-/* -------------------- Filters / inputs -------------------- */
+/* -------------------- FILTERS / INPUTS -------------------- */
 #rb-main[data-page="dashboard"] .card-header .form-control,
 #rb-main[data-page="dashboard"] .card-header .form-select{
-  background: #101e37;
+  background: var(--db-surface-2);
   color: var(--db-text);
   border-color: var(--db-border);
   border-radius: calc(var(--db-radius) - 6px);
 }
-#rb-main[data-page="dashboard"] .card-header .form-control::placeholder{ color: var(--db-text-3); }
+#rb-main[data-page="dashboard"] .card-header .form-control::placeholder{
+  color: var(--db-text-3);
+}
 #rb-main[data-page="dashboard"] .card-header .form-control:focus,
 #rb-main[data-page="dashboard"] .card-header .form-select:focus{
   border-color: color-mix(in srgb, var(--db-accent) 70%, #fff 30%);
   box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--db-accent) 18%, transparent);
 }
 
-/* -------------------- Tables -------------------- */
+/* -------------------- TABLES -------------------- */
 #rb-main[data-page="dashboard"] .table{
   color: var(--db-text);
   border-color: var(--db-border);
@@ -138,7 +154,7 @@
   background: linear-gradient(180deg, #172a48, #13243e) !important;
   color: var(--db-text);
   border-bottom-color: var(--db-border);
-  position: sticky; top: 0; z-index: 1;
+  position: sticky; top: 0; z-index: 1;      /* sticky head inside .table-responsive */
 }
 #rb-main[data-page="dashboard"] .table-striped>tbody>tr:nth-of-type(odd){
   --bs-table-accent-bg: rgba(255,255,255,.03);
@@ -156,13 +172,17 @@
 #rb-main[data-page="dashboard"] table.low-stock td{
   padding-block: .7rem;
 }
-#rb-main[data-page="dashboard"] .text-end{ font-variant-numeric: tabular-nums; }
+#rb-main[data-page="dashboard"] .text-end{
+  font-variant-numeric: tabular-nums;
+}
+#rb-main[data-page="dashboard"] .low-stock td.text-end{
+  font-weight: 600;
+}
 
-/* -------------------- Small-screen tweaks -------------------- */
-@media (max-width: 767.98px){
-  /* Reduce card/block side padding visually when space is tight */
+/* -------------------- SMALL-SCREEN TWEAKS -------------------- */
+@media (max-width:767.98px){
   #rb-main[data-page="dashboard"]{ --db-pad: 14px; }
-  #rb-main[data-page="dashboard"] .card-body{ padding: 0.9rem 1rem; }
+  #rb-main[data-page="dashboard"] .card-body{ padding: .9rem 1rem; }
   #rb-main[data-page="dashboard"] .card-header,
-  #rb-main[data-page="dashboard"] .card-footer{ padding: 0.75rem 1rem; }
+  #rb-main[data-page="dashboard"] .card-footer{ padding: .75rem 1rem; }
 }
