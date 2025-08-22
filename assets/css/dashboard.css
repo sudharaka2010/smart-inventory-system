@@ -1,10 +1,14 @@
-/* ================= RB Stores — Dashboard polish (scoped) ================= */
-/* This file styles ONLY the content inside:
-     <main id="rb-main" data-rb-scope="main" data-page="dashboard">…</main>
-   Safe to drop in without touching header / sidebar / footer. */
+/* ================= RB Stores — Dashboard (responsive fix) ================= */
+/* Affects only:
+   <main id="rb-main" data-rb-scope="main" data-page="dashboard">…</main>  */
 
 #rb-main[data-page="dashboard"]{
-  /* Comfort-dark palette for the page area */
+  /* Layout guardrails */
+  --db-max: 1280px;          /* max content width on large screens */
+  --db-pad: clamp(12px, 2vw, 24px); /* side padding that scales down on mobile */
+  --db-gap: clamp(8px, 1.6vw, 16px);
+
+  /* Safe colors (kept from your theme) */
   --db-surface:   #0f1b2f;
   --db-surface-2: #12223b;
   --db-text:      #e8eef7;
@@ -17,27 +21,45 @@
   --db-radius: 14px;
   --db-shadow: 0 12px 30px rgba(0,0,0,.25);
 
+  /* Center and constrain the dashboard area */
+  max-width: var(--db-max);
+  margin-inline: auto;
+  padding-inline: var(--db-pad);
+  padding-bottom: 3.5rem;  /* space above footer */
   color: var(--db-text);
-  /* Subtle backdrop so main blends with the rail/header */
-  background: radial-gradient(1200px 800px at 20% -10%, #13223b 0%, transparent 60%);
+
+  /* Softer top background (removed the big arc that looked like overlap) */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)) 0 0/100% 120px no-repeat;
+}
+
+/* -------------------- Make sure nothing hides under the rail -------------------- */
+/* If the app didn't add shell padding for the fixed rail, this guard gives room.  */
+@media (min-width:1200px){
+  body.has-rail #rb-main[data-page="dashboard"]{
+    margin-left: 0;                 /* keep centered */
+  }
+  /* Nudge content away from the very left edge so it never looks “under” the rail */
+  body.has-rail #rb-main[data-page="dashboard"] > *{
+    margin-left: 0;
+  }
 }
 
 /* -------------------- Hero / heading -------------------- */
-#rb-main[data-page="dashboard"] .hero h1{
-  letter-spacing:.2px;
-  color: var(--db-text);
-}
-#rb-main[data-page="dashboard"] .hero .text-secondary{
-  color: var(--db-text-2)!important;
-}
+#rb-main[data-page="dashboard"] .hero h1{ letter-spacing:.2px; color: var(--db-text); }
+#rb-main[data-page="dashboard"] .hero .text-secondary{ color: var(--db-text-2)!important; }
 
-/* -------------------- Action bar -------------------- */
+/* -------------------- Action row -------------------- */
 #rb-main[data-page="dashboard"] .btn-action{ min-width:190px; }
+@media (max-width: 991.98px){
+  /* Stack controls earlier on tablets/phones */
+  #rb-main[data-page="dashboard"] .d-flex.flex-wrap.gap-2{ gap: var(--db-gap)!important; }
+}
 @media (max-width:575.98px){
   #rb-main[data-page="dashboard"] .btn-action{ min-width:100%; }
 }
 
-/* Tweak buttons INSIDE dashboard only */
+/* -------------------- Buttons (match theme) -------------------- */
 #rb-main[data-page="dashboard"] .btn-primary{
   --bs-btn-bg: linear-gradient(180deg, color-mix(in srgb, var(--db-accent-2) 85%, #000 15%), var(--db-accent));
   --bs-btn-border-color: color-mix(in srgb, var(--db-accent) 85%, #000 15%);
@@ -58,7 +80,7 @@
   border-radius:12px;
 }
 
-/* -------------------- Cards (soft, glassy) -------------------- */
+/* -------------------- Cards -------------------- */
 #rb-main[data-page="dashboard"] .card{
   background: linear-gradient(180deg, color-mix(in srgb, var(--db-surface) 92%, #fff 8%) 0%,
                                      var(--db-surface) 100%);
@@ -72,9 +94,6 @@
   background: transparent;
   border-color: color-mix(in srgb, var(--db-border) 80%, transparent);
 }
-#rb-main[data-page="dashboard"] .card .text-secondary{ color: var(--db-text-2)!important; }
-
-/* Hover lift for dashboard cards only */
 #rb-main[data-page="dashboard"] .card.shadow-sm{
   transition: transform .12s ease, box-shadow .12s ease;
 }
@@ -83,7 +102,7 @@
   box-shadow: 0 18px 36px rgba(0,0,0,.28);
 }
 
-/* -------------------- KPI grid -------------------- */
+/* KPI cards */
 #rb-main[data-page="dashboard"] .kpi .card{ min-height:132px; }
 #rb-main[data-page="dashboard"] .kpi .icon{
   width:46px; height:46px; display:grid; place-items:center;
@@ -95,7 +114,7 @@
   font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.75rem);
 }
 
-/* -------------------- Forms / filters inside card headers -------------------- */
+/* -------------------- Filters / inputs -------------------- */
 #rb-main[data-page="dashboard"] .card-header .form-control,
 #rb-main[data-page="dashboard"] .card-header .form-select{
   background: #101e37;
@@ -110,7 +129,7 @@
   box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--db-accent) 18%, transparent);
 }
 
-/* -------------------- Tables (calm contrast + sticky head) -------------------- */
+/* -------------------- Tables -------------------- */
 #rb-main[data-page="dashboard"] .table{
   color: var(--db-text);
   border-color: var(--db-border);
@@ -119,7 +138,7 @@
   background: linear-gradient(180deg, #172a48, #13243e) !important;
   color: var(--db-text);
   border-bottom-color: var(--db-border);
-  position: sticky; top: 0; z-index: 1;   /* sticky head within .table-responsive */
+  position: sticky; top: 0; z-index: 1;
 }
 #rb-main[data-page="dashboard"] .table-striped>tbody>tr:nth-of-type(odd){
   --bs-table-accent-bg: rgba(255,255,255,.03);
@@ -139,8 +158,11 @@
 }
 #rb-main[data-page="dashboard"] .text-end{ font-variant-numeric: tabular-nums; }
 
-/* Low-stock emphasis */
-#rb-main[data-page="dashboard"] .low-stock td.text-end{ font-weight:600; }
-
-/* -------------------- Footer spacing when content is short -------------------- */
-#rb-main[data-page="dashboard"]{ padding-bottom: 3.5rem; }
+/* -------------------- Small-screen tweaks -------------------- */
+@media (max-width: 767.98px){
+  /* Reduce card/block side padding visually when space is tight */
+  #rb-main[data-page="dashboard"]{ --db-pad: 14px; }
+  #rb-main[data-page="dashboard"] .card-body{ padding: 0.9rem 1rem; }
+  #rb-main[data-page="dashboard"] .card-header,
+  #rb-main[data-page="dashboard"] .card-footer{ padding: 0.75rem 1rem; }
+}
