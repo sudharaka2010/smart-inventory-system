@@ -1,22 +1,26 @@
-/* ================= RB Stores — Dashboard (pro, responsive) =================
+/* ================= RB Stores — Dashboard (no-page-scroll, responsive) ================
    Scope: <main id="rb-main" data-rb-scope="main" data-page="dashboard">
-   ------------------------------------------------------------------------- */
+   ----------------------------------------------------------------------------------- */
 
-/* ---------- Stop overlap with fixed sidebar on ≥1200px ---------- */
+/* -------- Desktop rail reserve: avoids crossing under sidebar (≥1200px) -------- */
 @media (min-width:1200px){
-  /* Change this to your real sidebar width if needed */
+  /* Change to your real sidebar width if needed */
   body:has(#rb-main[data-page="dashboard"]){ --rb-rail-w: 320px; }
   body:has(#rb-main[data-page="dashboard"]) #rbShell{ padding-left: var(--rb-rail-w); }
-  body:has(#rb-main[data-page="dashboard"]) [data-rb-scope="sidebar"]{
-    width: var(--rb-rail-w) !important;
-  }
+  body:has(#rb-main[data-page="dashboard"]) [data-rb-scope="sidebar"]{ width: var(--rb-rail-w) !important; }
 }
 
-/* ---------- Theme & layout tokens (dashboard-only) ---------- */
+/* -------- Make dashboard occupy the viewport, disable page scroll here -------- */
+body:has(#rb-main[data-page="dashboard"]){ overflow: hidden; }  /* no page scroll on dashboard */
+
 #rb-main[data-page="dashboard"]{
-  --db-max: 1280px;                          /* content width cap */
-  --db-pad: clamp(12px, 2vw, 24px);          /* side padding */
-  --db-gap: clamp(10px, 1.6vw, 18px);        /* gaps between blocks */
+  /* Layout tokens */
+  --d-header: 68px;                  /* your sticky header height */
+  --db-max: 1280px;
+  --db-pad: clamp(12px, 2vw, 24px);
+  --db-gap: clamp(10px, 1.6vw, 18px);
+
+  /* Theme */
   --db-surface:   #0f1b2f;
   --db-surface-2: #12223b;
   --db-text:      #e8eef7;
@@ -28,22 +32,109 @@
   --db-radius: 14px;
   --db-shadow: 0 12px 30px rgba(0,0,0,.25);
 
+  /* Full-height stage (no page scroll) */
+  height: calc(100svh - var(--d-header));
   max-width: var(--db-max);
   margin-inline: auto;
-  padding-inline: var(--db-pad);
-  padding-bottom: 3.5rem;
+  padding: 0 var(--db-pad) 12px;
+  overflow: hidden;                   /* contain internal scrolling */
   color: var(--db-text);
+  display: flex; flex-direction: column;
+
+  /* Soft top fade */
   background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)) 0 0/100% 108px no-repeat;
 }
 
-/* ================= Head/Actions ================= */
+/* ---------- Top blocks (title/alerts/actions) just take natural space ---------- */
 #rb-main[data-page="dashboard"] .hero h1{ letter-spacing:.2px; color:var(--db-text); }
 #rb-main[data-page="dashboard"] .hero .text-secondary{ color:var(--db-text-2)!important; }
-
 #rb-main[data-page="dashboard"] .btn-action{ min-width:192px; }
 @media (max-width:575.98px){ #rb-main[data-page="dashboard"] .btn-action{ min-width:100%; } }
 
-/* Buttons (theme) */
+/* ---------- KPI section: natural height, tidy spacing ---------- */
+#rb-main[data-page="dashboard"] .kpi{ row-gap: var(--db-gap)!important; }
+#rb-main[data-page="dashboard"] .kpi .card{
+  min-height: 144px;
+  display:flex; align-items:center;
+}
+#rb-main[data-page="dashboard"] .kpi .icon{
+  width:48px; height:48px; display:grid; place-items:center;
+  background: color-mix(in srgb, var(--db-accent) 12%, transparent);
+  color:var(--db-accent-2); border-radius:12px; font-size:1.15rem;
+}
+#rb-main[data-page="dashboard"] .kpi .fs-4{ font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.8rem); }
+
+/* ---------- TABLES section: fills the remaining viewport height ---------- */
+#rb-main[data-page="dashboard"] > section:last-of-type{
+  /* This is the “Tables” row in your markup */
+  flex: 1 1 auto;            /* take all remaining height */
+  min-height: 0;             /* allow children to shrink */
+  overflow: hidden;          /* no outer scroll */
+  display: block;
+}
+
+/* Left column (Recent Orders) should stretch full height */
+#rb-main[data-page="dashboard"] > section:last-of-type .col-xl-7{
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+
+/* Right column (Top Items + Low Stock) split the height */
+#rb-main[data-page="dashboard"] > section:last-of-type .col-xl-5{
+  height: 100%;
+  display: flex; flex-direction: column;
+  gap: var(--db-gap);
+}
+#rb-main[data-page="dashboard"] > section:last-of-type .col-xl-5 > .card{
+  flex: 1 1 0;               /* two cards share column height */
+  min-height: 0;
+}
+
+/* Cards as flexible containers so their table area can scroll internally */
+#rb-main[data-page="dashboard"] .card{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--db-surface) 92%, #fff 8%) 0%, var(--db-surface) 100%);
+  border:1px solid var(--db-border); color:var(--db-text);
+  border-radius:var(--db-radius); box-shadow:var(--db-shadow);
+  display: flex; flex-direction: column; min-height: 0;
+}
+#rb-main[data-page="dashboard"] .card-header,
+#rb-main[data-page="dashboard"] .card-footer{
+  background:transparent; border-color: color-mix(in srgb, var(--db-border) 80%, transparent);
+}
+#rb-main[data-page="dashboard"] .card .text-secondary{ color:var(--db-text-2)!important; }
+#rb-main[data-page="dashboard"] .card.shadow-sm{ transition:transform .12s, box-shadow .12s; }
+#rb-main[data-page="dashboard"] .card.shadow-sm:hover{ transform:translateY(-2px); box-shadow:0 18px 36px rgba(0,0,0,.28); }
+
+/* Make the table area consume the free space INSIDE a card */
+#rb-main[data-page="dashboard"] .card-body{ flex: 1 1 auto; min-height: 0; display:block; }
+#rb-main[data-page="dashboard"] .card-body > .table-responsive{
+  height: 100%; min-height: 0; overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* On stacked layouts (<1200px), give sensible heights in viewport units */
+@media (max-width:1199.98px){
+  #rb-main[data-page="dashboard"] .recent-orders .table-responsive{ height: clamp(38svh, 44svh, 48svh); }
+  #rb-main[data-page="dashboard"] .top-items     .table-responsive{ height: clamp(20svh, 24svh, 28svh); }
+  #rb-main[data-page="dashboard"] .low-stock     .table-responsive{ height: clamp(20svh, 24svh, 28svh); }
+}
+
+/* ---------- Forms / Inputs in headers ---------- */
+#rb-main[data-page="dashboard"] .card-header .form-control,
+#rb-main[data-page="dashboard"] .card-header .form-select{
+  background: var(--db-surface-2);
+  color: var(--db-text);
+  border-color: var(--db-border);
+  border-radius: calc(var(--db-radius) - 6px);
+}
+#rb-main[data-page="dashboard"] .card-header .form-control::placeholder{ color: var(--db-text-3); }
+#rb-main[data-page="dashboard"] .card-header .form-control:focus,
+#rb-main[data-page="dashboard"] .card-header .form-select:focus{
+  border-color: color-mix(in srgb, var(--db-accent) 70%, #fff 30%);
+  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--db-accent) 18%, transparent);
+}
+
+/* ---------- Buttons (theme-matched) ---------- */
 #rb-main[data-page="dashboard"] .btn-primary{
   --bs-btn-bg: linear-gradient(180deg, color-mix(in srgb, var(--db-accent-2) 85%, #000 15%), var(--db-accent));
   --bs-btn-border-color: color-mix(in srgb, var(--db-accent) 85%, #000 15%);
@@ -64,65 +155,11 @@
   border-radius:12px;
 }
 
-/* ================= Cards (unified) ================= */
-#rb-main[data-page="dashboard"] .card{
-  background: linear-gradient(180deg, color-mix(in srgb, var(--db-surface) 92%, #fff 8%) 0%, var(--db-surface) 100%);
-  border:1px solid var(--db-border);
-  color:var(--db-text);
-  border-radius:var(--db-radius);
-  box-shadow:var(--db-shadow);
-}
-#rb-main[data-page="dashboard"] .card-header,
-#rb-main[data-page="dashboard"] .card-footer{
-  background:transparent;
-  border-color: color-mix(in srgb, var(--db-border) 80%, transparent);
-}
-#rb-main[data-page="dashboard"] .card .text-secondary{ color:var(--db-text-2)!important; }
-
-#rb-main[data-page="dashboard"] .card.shadow-sm{ transition:transform .12s ease, box-shadow .12s ease; }
-#rb-main[data-page="dashboard"] .card.shadow-sm:hover{ transform:translateY(-2px); box-shadow:0 18px 36px rgba(0,0,0,.28); }
-
-/* ================= KPI grid (consistent size) ================= */
-#rb-main[data-page="dashboard"] .kpi{ row-gap: var(--db-gap)!important; }
-#rb-main[data-page="dashboard"] .kpi .card{
-  min-height: 150px;                           /* taller for balance */
-  display:flex; align-items:center;
-}
-@media (max-width:991.98px){  /* md/lg */
-  #rb-main[data-page="dashboard"] .kpi .card{ min-height: 140px; }
-}
-@media (max-width:575.98px){  /* xs */
-  #rb-main[data-page="dashboard"] .kpi .card{ min-height: 128px; }
-}
-#rb-main[data-page="dashboard"] .kpi .icon{
-  width:48px; height:48px; display:grid; place-items:center;
-  background: color-mix(in srgb, var(--db-accent) 12%, transparent);
-  color: var(--db-accent-2);
-  border-radius: 12px; font-size:1.15rem; flex: 0 0 48px;
-}
-#rb-main[data-page="dashboard"] .kpi .fs-4{ font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.8rem); }
-
-/* ================= Filters / inputs ================= */
-#rb-main[data-page="dashboard"] .card-header .form-control,
-#rb-main[data-page="dashboard"] .card-header .form-select{
-  background: var(--db-surface-2);
-  color: var(--db-text);
-  border-color: var(--db-border);
-  border-radius: calc(var(--db-radius) - 6px);
-}
-#rb-main[data-page="dashboard"] .card-header .form-control::placeholder{ color: var(--db-text-3); }
-#rb-main[data-page="dashboard"] .card-header .form-control:focus,
-#rb-main[data-page="dashboard"] .card-header .form-select:focus{
-  border-color: color-mix(in srgb, var(--db-accent) 70%, #fff 30%);
-  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--db-accent) 18%, transparent);
-}
-
-/* ================= Tables (professional sizing) ================= */
-/* Base table styling */
+/* ---------- Tables (clean, fixed widths, internal scroll) ---------- */
 #rb-main[data-page="dashboard"] .table{
   color: var(--db-text);
   border-color: var(--db-border);
-  table-layout: fixed;                            /* stable column widths */
+  table-layout: fixed;                       /* stable column widths */
 }
 #rb-main[data-page="dashboard"] .table thead.table-light th{
   background: linear-gradient(180deg, #172a48, #13243e) !important;
@@ -143,7 +180,7 @@
 }
 #rb-main[data-page="dashboard"] .text-end{ font-variant-numeric: tabular-nums; }
 
-/* Fixed column widths for Recent Orders (prevents jitter) */
+/* Helpful fixed columns (prevents jitter) */
 #rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(1),
 #rb-main[data-page="dashboard"] table.recent-orders tbody td:nth-child(1){ width: 92px; }
 #rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(2),
@@ -155,7 +192,6 @@
 #rb-main[data-page="dashboard"] table.recent-orders thead th:nth-child(6),
 #rb-main[data-page="dashboard"] table.recent-orders tbody td:nth-child(6){ width: 120px; }
 
-/* Fixed column width for Top Items & Low Stock */
 #rb-main[data-page="dashboard"] table.top-items thead th:nth-child(2),
 #rb-main[data-page="dashboard"] table.top-items tbody td:nth-child(2){ width: 120px; }
 #rb-main[data-page="dashboard"] table.low-stock thead th:nth-child(2),
@@ -163,39 +199,13 @@
 #rb-main[data-page="dashboard"] table.low-stock thead th:nth-child(3),
 #rb-main[data-page="dashboard"] table.low-stock tbody td:nth-child(3){ width: 160px; }
 
-/* Truncate long names gracefully (no markup change needed) */
+/* Truncate long names gracefully */
 #rb-main[data-page="dashboard"] table .text-truncate,
 #rb-main[data-page="dashboard"] table td:first-child{
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* Consistent card heights with internal scroll for tables */
-#rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 420px; overflow:auto; }
-#rb-main[data-page="dashboard"] .top-items     .table-responsive{ max-height: 260px; overflow:auto; }
-#rb-main[data-page="dashboard"] .low-stock     .table-responsive{ max-height: 260px; overflow:auto; }
-
-/* Adjust heights by breakpoint to keep layout balanced */
-@media (min-width:1400px){
-  #rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 480px; }
-}
-@media (max-width:991.98px){
-  #rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 360px; }
-}
-@media (max-width:575.98px){
-  #rb-main[data-page="dashboard"] .recent-orders .table-responsive{ max-height: 320px; }
-}
-
-/* Slightly denser tables on very small screens */
-@media (max-width:420px){
-  #rb-main[data-page="dashboard"] .table td, 
-  #rb-main[data-page="dashboard"] .table th{ padding-block: .55rem; font-size:.95rem; }
-}
-
-/* ================= Minor polish ================= */
-#rb-main[data-page="dashboard"] .badge{ border:0; }
-#rb-main[data-page="dashboard"] .low-stock td.text-end{ font-weight:600; }
-
-/* Optional: tighter card padding on small screens for visual balance */
+/* ---------- Small-screen padding & density ---------- */
 @media (max-width:767.98px){
   #rb-main[data-page="dashboard"] .card-body{ padding: .9rem 1rem; }
   #rb-main[data-page="dashboard"] .card-header,
