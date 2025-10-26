@@ -1,0 +1,172 @@
+/* ===== Base Setup ===== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* ===== Layout Wrapper ===== */
+.page-wrapper {
+    margin-left: 260px; /* Adjust for sidebar width */
+    padding: 40px 30px;
+    min-height: 100vh;
+    background-color: #e6ebf1;
+    transition: all 0.3s ease;
+}
+
+/* ===== Card Container ===== */
+.form-container {
+    width: 100%;
+    max-width: 960px;
+    margin: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 50px;
+    box-sizing: border-box;
+}
+
+/* ===== Header Section ===== */
+.form-card {
+    text-align: center;
+}
+
+.form-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    font-size: 15px;
+    color: #777;
+    margin-bottom: 30px;
+}
+
+/* ===== Form Grid ===== */
+.supplier-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px 20px;
+}
+
+/* ===== Input Groups ===== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group span {
+    color: red;
+}
+
+/* ===== Inputs, Textareas, Selects ===== */
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #007BFF;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+/* ===== Button Style ===== */
+.btn-submit {
+    background-color: #007BFF;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    grid-column: 1 / -1;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+/* ===== Feedback Messages ===== */
+.error-msg,
+.success-msg {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.error-msg {
+    background-color: #ffe0e0;
+    color: #b30000;
+    border: 1px solid #ffcccc;
+}
+
+.success-msg {
+    background-color: #e0f8e9;
+    color: #0a8a3c;
+    border: 1px solid #c7f3d5;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 992px) {
+    .page-wrapper {
+        margin-left: 0; /* Sidebar may collapse or slide out */
+        padding: 20px 15px;
+    }
+
+    .form-container {
+        padding: 30px 25px;
+    }
+
+    .supplier-form {
+        grid-template-columns: 1fr;
+    }
+
+    .form-title {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-title {
+        font-size: 22px;
+    }
+
+    .form-subtitle {
+        font-size: 13px;
+    }
+
+    .btn-submit {
+        font-size: 15px;
+    }
+}

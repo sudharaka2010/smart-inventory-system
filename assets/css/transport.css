@@ -1,0 +1,157 @@
+/* ===== Global Table & Layout ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #1e40af;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.data-table thead {
+  background-color: #f1f5f9;
+}
+
+.data-table th, .data-table td {
+  padding: 12px 15px;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+  font-size: 14px;
+}
+
+.data-table th {
+  font-weight: 600;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* ===== Button Styles ===== */
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  margin-right: 6px;
+  font-size: 13px;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.btn-danger:hover {
+  background-color: #991b1b;
+}
+
+/* ===== Status Labels ===== */
+.status-label {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.status-completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-in-progress {
+  background-color: #fef9c3;
+  color: #92400e;
+}
+
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ===== Alert Message ===== */
+.alert-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  border-left: 5px solid #10b981;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* ===== Responsive Table Wrapper ===== */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* ===== Responsive (Mobile Optimization) ===== */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-primary {
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .data-table {
+    font-size: 13px;
+    min-width: 100%;
+  }
+
+  .btn-secondary,
+  .btn-danger {
+    display: inline-block;
+    margin-top: 5px;
+  }
+}

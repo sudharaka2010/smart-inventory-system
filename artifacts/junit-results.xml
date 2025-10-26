@@ -1,0 +1,48 @@
+<testsuites id="" name="" tests="1" failures="1" skipped="0" errors="0" time="9.682311">
+<testsuite name="smoke.spec.js" timestamp="2025-08-31T12:20:50.114Z" hostname="Chromium" tests="1" failures="1" skipped="0" time="6.764" errors="0">
+<testcase name="home page loads" classname="smoke.spec.js" time="6.764">
+<failure message="smoke.spec.js:3:1 home page loads" type="FAILURE">
+<![CDATA[  [Chromium] › smoke.spec.js:3:1 › home page loads ─────────────────────────────────────────────────
+
+    Error: expect(page).toHaveTitle(expected) failed
+
+    Expected pattern: /RB|Store|Dashboard/i
+    Received string:  "Index of /"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveTitle" with timeout 5000ms
+        8 × unexpected value "Index of /"
+
+
+      4 |   await page.goto('/'); // resolves to http://localhost/rbstorsg/
+      5 |   // Relax this to match any text you certainly have on the homepage:
+    > 6 |   await expect(page).toHaveTitle(/RB|Store|Dashboard/i);
+        |                      ^
+      7 | });
+      8 |
+        at C:\xampp\htdocs\rbstorsg\tests\smoke.spec.js:6:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\smoke-home-page-loads-Chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\smoke-home-page-loads-Chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\smoke-home-page-loads-Chromium\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\smoke-home-page-loads-Chromium\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\smoke-home-page-loads-Chromium\video.webm]]
+
+[[ATTACHMENT|..\test-results\smoke-home-page-loads-Chromium\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

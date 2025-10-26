@@ -1,0 +1,289 @@
+/* =========================================================
+   RB Stores — Dashboard Extended Styles (ADD-ON ONLY)
+   Path: /rbstorsg/assets/css/dashboard.ext.css
+   Works alongside your existing dashboard.css
+   ========================================================= */
+
+/* ---------- Theme tokens ---------- */
+:root{
+  --rb-bg: #f3f4f6;
+  --rb-card: #ffffff;
+  --rb-text: #0f172a;
+  --rb-muted: #64748b;
+  --rb-border: #e5e7eb;
+
+  --rb-primary-1:#3b82f6; /* blue-500 */
+  --rb-primary-2:#8b5cf6; /* violet-500 */
+  --rb-info-1:#0ea5e9;    /* sky-500  */
+  --rb-success:#10b981;   /* emerald  */
+  --rb-warn:#f59e0b;      /* amber    */
+  --rb-danger:#ef4444;    /* red      */
+  --rb-slate:#64748b;
+
+  --rb-r-xs:6px;
+  --rb-r:10px;
+  --rb-r-lg:12px;
+
+  --rb-sh-1:0 4px 10px rgba(0,0,0,.10);
+  --rb-sh-2:0 6px 16px rgba(2,6,23,.08);
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --rb-bg:#0b1220;
+    --rb-card:#111827;
+    --rb-text:#e5e7eb;
+    --rb-muted:#9ca3af;
+    --rb-border:#1f2937;
+    --rb-sh-1:0 8px 20px rgba(0,0,0,.35);
+    --rb-sh-2:0 10px 28px rgba(0,0,0,.45);
+  }
+}
+
+/* ---------- Global tweaks (non-destructive) ---------- */
+.main-content{ background:transparent; }
+.highlight{ color:#6366f1; font-weight:600; }
+
+/* ---------- Search bar ---------- */
+.dash-search{
+  display:flex; gap:10px; align-items:center;
+  margin:10px 0 18px;
+}
+.dash-search input[type="text"]{
+  flex:1; padding:10px 12px;
+  border:1px solid var(--rb-border);
+  background:var(--rb-card); color:var(--rb-text);
+  border-radius:var(--rb-r);
+  outline:none; transition:box-shadow .18s,border-color .18s;
+}
+.dash-search input::placeholder{ color:var(--rb-muted); }
+.dash-search input:focus{
+  border-color:rgba(99,102,241,.6);
+  box-shadow:0 0 0 3px rgba(99,102,241,.15);
+}
+.dash-search button{
+  padding:10px 14px; border-radius:var(--rb-r); border:none; cursor:pointer;
+  background:linear-gradient(145deg,var(--rb-primary-1),var(--rb-primary-2));
+  color:#fff; font-weight:600; display:inline-flex; gap:8px; align-items:center;
+  transition:transform .08s, filter .18s;
+}
+.dash-search button:active{ transform:translateY(1px); }
+.dash-search .btn-clear{
+  padding:9px 12px; border-radius:var(--rb-r);
+  text-decoration:none; color:#334155; background:var(--rb-border);
+}
+@media (prefers-color-scheme: dark){
+  .dash-search .btn-clear{ color:#cbd5e1; }
+}
+
+/* ---------- KPI/Status cards ---------- */
+.status-grid{ gap:15px; } /* keep your grid, just confirm spacing */
+
+.status-card{
+  border-radius:var(--rb-r);
+  box-shadow:var(--rb-sh-1);
+  transition:transform .12s, box-shadow .18s, filter .18s;
+}
+.status-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(0,0,0,.16);
+  filter:brightness(1.02);
+}
+.status-card i{ font-size:24px; margin-bottom:10px; }
+
+.kpi{ position:relative; }
+.kpi .subtext{ display:block; margin-top:6px; font-size:12px; opacity:.92; }
+.kpi.info{    background:linear-gradient(145deg,var(--rb-info-1),#6366f1); color:#fff; }
+.kpi.warn{    background:linear-gradient(145deg,var(--rb-warn),var(--rb-danger)); color:#fff; }
+.kpi.success{ background:linear-gradient(145deg,var(--rb-success),var(--rb-primary-1)); color:#fff; }
+.kpi.neutral{ background:linear-gradient(145deg,var(--rb-slate),#94a3b8); color:#fff; }
+
+.trend{
+  display:inline-block; margin-top:6px; padding:4px 8px;
+  border-radius:999px; font-size:12px; background:rgba(255,255,255,.18);
+  backdrop-filter:blur(1px);
+}
+.trend.up{   border:1px solid rgba(16,185,129,.6); }
+.trend.down{ border:1px solid rgba(239,68,68,.6); }
+
+.status-card-link{
+  display:block; text-decoration:none; color:inherit; border-radius:var(--rb-r);
+}
+.status-card-link:focus-visible .status-card,
+.status-card:focus-visible{
+  outline:3px solid rgba(99,102,241,.45); outline-offset:2px;
+}
+
+/* ---------- 3-column data blocks ---------- */
+.cards-3col{
+  margin-top:18px;
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+@media (max-width:1100px){ .cards-3col{ grid-template-columns:1fr 1fr; } }
+@media (max-width:760px){  .cards-3col{ grid-template-columns:1fr; } }
+
+.card-block{
+  background:var(--rb-card); color:var(--rb-text);
+  border-radius:var(--rb-r-lg); padding:14px 14px 6px;
+  box-shadow:var(--rb-sh-2); border:1px solid var(--rb-border);
+}
+.card-block-head{
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+}
+.card-block-head h4{
+  margin:0; font-size:16px; font-weight:700; color:var(--rb-text);
+  display:inline-flex; gap:8px; align-items:center;
+}
+.card-block-head .mini-link{
+  font-size:12px; color:#4f46e5; text-decoration:none;
+}
+.card-block-head .mini-link:hover{ text-decoration:underline; }
+
+/* ---------- Tables ---------- */
+.table-wrap{
+  overflow:auto; border-radius:var(--rb-r);
+  border:1px solid var(--rb-border); background:var(--rb-card);
+}
+.dash-table{ width:100%; border-collapse:separate; border-spacing:0; }
+.dash-table thead th{
+  background:#f8fafc; color:#334155; text-align:left; padding:10px 12px;
+  font-weight:600; border-bottom:1px solid var(--rb-border);
+  position:sticky; top:0; z-index:1;
+}
+@media (prefers-color-scheme: dark){
+  .dash-table thead th{ background:#0f172a; color:#e5e7eb; }
+}
+.dash-table tbody td{
+  padding:10px 12px; border-bottom:1px solid #f1f5f9;
+  font-size:14px; color:var(--rb-text);
+}
+.dash-table tbody tr:last-child td{ border-bottom:none; }
+.dash-table tbody tr.warn td{   background:#fff7ed; } /* amber-50 */
+.dash-table tbody tr.danger td{ background:#fef2f2; } /* red-50  */
+.muted{ color:var(--rb-muted); }
+
+/* Badges */
+.badge{ padding:4px 8px; font-size:12px; border-radius:999px; }
+.badge-pending{ background:#fff7ed; color:#b45309; border:1px solid #fed7aa; }
+
+/* ---------- Utilities ---------- */
+.mt-16{ margin-top:16px; }
+
+/* ---------- Motion & accessibility ---------- */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; animation:none !important; }
+}
+
+/* ---------- Tooltips (optional use) ---------- */
+[aria-label][data-tooltip]{ position:relative; cursor:help; }
+[aria-label][data-tooltip]:hover::after,
+[aria-label][data-tooltip]:focus::after{
+  content:attr(aria-label);
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:calc(100% + 8px); white-space:nowrap;
+  background:#111827; color:#fff; font-size:12px; padding:6px 8px;
+  border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,.2); z-index:10;
+}
+
+/* ---------- Print clean-up ---------- */
+@media print{
+  .dash-search,
+  .status-panel,
+  .kpi,
+  .cards-3col .card-block:not(:first-child){ display:none !important; }
+  .cards-3col{ grid-template-columns:1fr !important; gap:0 !important; }
+  .card-block{ box-shadow:none; border:1px solid #ddd; }
+  .dash-table thead th, .dash-table tbody td{ padding:6px 8px; font-size:12px; }
+}
+
+/* ---------- Dark-mode depth for cards ---------- */
+@media (prefers-color-scheme: dark){
+  .status-card, .kpi{ box-shadow:0 8px 22px rgba(0,0,0,.45); }
+}
+/* ===== RB Stores – Responsive Layout Polish (safe, additive) ===== */
+
+/* 1) Main content container: centered + adaptive margins */
+
+@media (min-width: 1280px){
+  .main-content{ max-width: 1320px; }
+}
+/* If your sidebar is fixed on desktop, keep some left gap there via base CSS.
+   On phones, we remove any left margin coming from the base file: */
+@media (max-width: 920px){
+  .main-content{ margin-left: 0 !important; }
+}
+
+/* 2) KPI grid: hard breakpoints (prevents single huge stripes) */
+.status-grid{
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+@media (max-width: 1280px){
+  .status-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 980px){
+  .status-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 560px){
+  .status-grid{ grid-template-columns: 1fr !important; }
+}
+
+/* 3) KPI cards: compact height, consistent typography */
+.status-card{
+  padding: 14px !important;
+  min-height: 110px;               /* keeps cards tidy */
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-start;
+  line-height: 1.15;
+}
+.status-card h4{
+  margin: 4px 0 6px 0; font-size: 15px; font-weight: 700;
+}
+.status-card p{
+  margin: 0; font-size: 18px; font-weight: 700;
+}
+.status-card .subtext,
+.status-card .trend{ margin-top: 6px; }
+
+/* 4) Three-column data blocks: responsive columns */
+.cards-3col{
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+@media (max-width: 1100px){
+  .cards-3col{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 760px){
+  .cards-3col{ grid-template-columns: 1fr; }
+}
+
+/* 5) Search bar: full-width on mobile */
+.dash-search{ margin: 10px 0 18px; }
+@media (max-width: 560px){
+  .dash-search{ flex-direction: column; align-items: stretch; gap: 8px; }
+  .dash-search .btn-clear{ text-align: center; }
+}
+
+/* 6) Tables: better small-screen handling */
+.table-wrap{
+  width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.dash-table{ min-width: 520px; }     /* allow scroll on tiny screens */
+
+/* 7) Utility: prevent oversized icons from stretching cards */
+.status-card i{ font-size: 22px; margin-bottom: 8px; }
+
+/* 8) Tighten white space in header/subheader on small screens */
+@media (max-width: 560px){
+  .main-content h2{ font-size: 20px; margin-bottom: 4px; }
+  .main-content p{ margin-top: 2px; font-size: 13px; }
+}
+
+/* 9) Print remains clean */
+@media print{
+  .status-grid{ grid-template-columns: repeat(3, 1fr) !important; }
+}

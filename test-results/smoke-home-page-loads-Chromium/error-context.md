@@ -1,0 +1,138 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - heading "Index of /" [level=1] [ref=e2]
+  - table [ref=e3]:
+    - rowgroup [ref=e4]:
+      - row "[ICO] Name Last modified Size Description" [ref=e5]:
+        - cell "[ICO]" [ref=e6]:
+          - img "[ICO]" [ref=e7]
+        - cell "Name" [ref=e8]:
+          - link "Name" [ref=e9] [cursor=pointer]:
+            - /url: "?C=N;O=D"
+        - cell "Last modified" [ref=e10]:
+          - link "Last modified" [ref=e11] [cursor=pointer]:
+            - /url: "?C=M;O=A"
+        - cell "Size" [ref=e12]:
+          - link "Size" [ref=e13] [cursor=pointer]:
+            - /url: "?C=S;O=A"
+        - cell "Description" [ref=e14]:
+          - link "Description" [ref=e15] [cursor=pointer]:
+            - /url: "?C=D;O=A"
+      - row [ref=e16]:
+        - cell [ref=e17]:
+          - separator [ref=e18]
+      - row "[DIR] RB__SS/ 2025-07-07 19:12 -" [ref=e19]:
+        - cell "[DIR]" [ref=e20]:
+          - img "[DIR]" [ref=e21]
+        - cell "RB__SS/" [ref=e22]:
+          - link "RB__SS/" [ref=e23] [cursor=pointer]:
+            - /url: RB__SS/
+        - cell "2025-07-07 19:12" [ref=e24]
+        - cell "-" [ref=e25]
+        - cell [ref=e26]
+      - row "[TXT] applications.html 2022-06-15 21:37 3.5K" [ref=e27]:
+        - cell "[TXT]" [ref=e28]:
+          - img "[TXT]" [ref=e29]
+        - cell "applications.html" [ref=e30]:
+          - link "applications.html" [ref=e31] [cursor=pointer]:
+            - /url: applications.html
+        - cell "2022-06-15 21:37" [ref=e32]
+        - cell "3.5K" [ref=e33]
+        - cell [ref=e34]
+      - row "[DIR] backups/ 2025-08-31 04:47 -" [ref=e35]:
+        - cell "[DIR]" [ref=e36]:
+          - img "[DIR]" [ref=e37]
+        - cell "backups/" [ref=e38]:
+          - link "backups/" [ref=e39] [cursor=pointer]:
+            - /url: backups/
+        - cell "2025-08-31 04:47" [ref=e40]
+        - cell "-" [ref=e41]
+        - cell [ref=e42]
+      - row "[TXT] bitnami.css 2022-06-15 21:37 177" [ref=e43]:
+        - cell "[TXT]" [ref=e44]:
+          - img "[TXT]" [ref=e45]
+        - cell "bitnami.css" [ref=e46]:
+          - link "bitnami.css" [ref=e47] [cursor=pointer]:
+            - /url: bitnami.css
+        - cell "2022-06-15 21:37" [ref=e48]
+        - cell "177" [ref=e49]
+        - cell [ref=e50]
+      - row "[DIR] dashboard/ 2023-11-19 16:40 -" [ref=e51]:
+        - cell "[DIR]" [ref=e52]:
+          - img "[DIR]" [ref=e53]
+        - cell "dashboard/" [ref=e54]:
+          - link "dashboard/" [ref=e55] [cursor=pointer]:
+            - /url: dashboard/
+        - cell "2023-11-19 16:40" [ref=e56]
+        - cell "-" [ref=e57]
+        - cell [ref=e58]
+      - row "[DIR] dd/ 2025-07-08 19:33 -" [ref=e59]:
+        - cell "[DIR]" [ref=e60]:
+          - img "[DIR]" [ref=e61]
+        - cell "dd/" [ref=e62]:
+          - link "dd/" [ref=e63] [cursor=pointer]:
+            - /url: dd/
+        - cell "2025-07-08 19:33" [ref=e64]
+        - cell "-" [ref=e65]
+        - cell [ref=e66]
+      - row "[IMG] favicon.ico 2015-07-16 21:02 30K" [ref=e67]:
+        - cell "[IMG]" [ref=e68]:
+          - img "[IMG]" [ref=e69]
+        - cell "favicon.ico" [ref=e70]:
+          - link "favicon.ico" [ref=e71] [cursor=pointer]:
+            - /url: favicon.ico
+        - cell "2015-07-16 21:02" [ref=e72]
+        - cell "30K" [ref=e73]
+        - cell [ref=e74]
+      - row "[DIR] img/ 2025-07-05 00:36 -" [ref=e75]:
+        - cell "[DIR]" [ref=e76]:
+          - img "[DIR]" [ref=e77]
+        - cell "img/" [ref=e78]:
+          - link "img/" [ref=e79] [cursor=pointer]:
+            - /url: img/
+        - cell "2025-07-05 00:36" [ref=e80]
+        - cell "-" [ref=e81]
+        - cell [ref=e82]
+      - row "[DIR] rbstores/ 2025-07-08 00:22 -" [ref=e83]:
+        - cell "[DIR]" [ref=e84]:
+          - img "[DIR]" [ref=e85]
+        - cell "rbstores/" [ref=e86]:
+          - link "rbstores/" [ref=e87] [cursor=pointer]:
+            - /url: rbstores/
+        - cell "2025-07-08 00:22" [ref=e88]
+        - cell "-" [ref=e89]
+        - cell [ref=e90]
+      - row "[DIR] rbstorsg/ 2025-07-09 19:11 -" [ref=e91]:
+        - cell "[DIR]" [ref=e92]:
+          - img "[DIR]" [ref=e93]
+        - cell "rbstorsg/" [ref=e94]:
+          - link "rbstorsg/" [ref=e95] [cursor=pointer]:
+            - /url: rbstorsg/
+        - cell "2025-07-09 19:11" [ref=e96]
+        - cell "-" [ref=e97]
+        - cell [ref=e98]
+      - row "[DIR] webalizer/ 2025-07-05 00:36 -" [ref=e99]:
+        - cell "[DIR]" [ref=e100]:
+          - img "[DIR]" [ref=e101]
+        - cell "webalizer/" [ref=e102]:
+          - link "webalizer/" [ref=e103] [cursor=pointer]:
+            - /url: webalizer/
+        - cell "2025-07-05 00:36" [ref=e104]
+        - cell "-" [ref=e105]
+        - cell [ref=e106]
+      - row "[DIR] xampp/ 2025-07-05 00:36 -" [ref=e107]:
+        - cell "[DIR]" [ref=e108]:
+          - img "[DIR]" [ref=e109]
+        - cell "xampp/" [ref=e110]:
+          - link "xampp/" [ref=e111] [cursor=pointer]:
+            - /url: xampp/
+        - cell "2025-07-05 00:36" [ref=e112]
+        - cell "-" [ref=e113]
+        - cell [ref=e114]
+      - row [ref=e115]:
+        - cell [ref=e116]:
+          - separator [ref=e117]
+  - generic [ref=e118]: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12 Server at localhost Port 80
+```

@@ -1,0 +1,12 @@
+/* FOOTER */
+.footer {
+    background: #3b5683;
+    color: #f8fafc;
+    text-align: center;
+    padding: 6px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    
+}
+
