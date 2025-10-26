@@ -1,0 +1,26 @@
+{
+  "name": "rbstorsg",
+  "version": "1.0.0",
+  "description": "Smart Inventory and Order Management System for Rainwater Solutions – A web-based application to digitize inventory, order processing, employee tracking, supplier coordination, transport logistics, and customer feedback. Developed by Group 15 – Code Counters for the PPA module at SLIIT City University.",
+  "main": "index.js",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report artifacts/html-report",
+    "trace:open": "playwright show-trace artifacts/**/trace.zip"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudharaka2010/smart-inventory-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sudharaka2010/smart-inventory-system/issues"
+  },
+  "homepage": "https://github.com/sudharaka2010/smart-inventory-system#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

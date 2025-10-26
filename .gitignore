@@ -3,7 +3,11 @@
 .profile.d/
 .vendor/
 .php/
+<<<<<<< HEAD
 
+=======
+composer.lock
+>>>>>>> 8963478 (Composer Update)
 
 # === Dependency folders (Node/Composer/etc.) ===
 node_modules/
